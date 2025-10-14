@@ -1,0 +1,124 @@
+# 以點開頭的資料夾和文件
+.*/
+.*
+
+# 特殊保留文件
+!.gitignore
+
+# WARP 相關文件
+warp.md
+WARP.md
+
+# 依賴套件
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 生產建置
+/dist
+/build
+*.tsbuildinfo
+
+# 環境變數
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# 日誌檔案
+logs
+*.log
+
+# 運行時數據
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# 測試覆蓋率
+coverage/
+*.lcov
+.nyc_output
+
+# IDE 和編輯器
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 作業系統
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 暫存檔案
+*.tmp
+*.temp
+
+# 資料庫
+*.sqlite
+*.sqlite3
+*.db
+
+# Docker
+.dockerignore
+
+# CI/CD
+.github/workflows/
+
+# 本地配置
+config/local.json
+config/local.js
+config/local.ts
+
+# 快取目錄
+.cache/
+.parcel-cache/
+
+# 備份檔案
+*.bak
+*.backup
+
+# 壓縮檔案
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# 特定於框架的忽略
+# React
+.eslintcache
+
+# TypeScript
+*.tsbuildinfo
+
+# Vite
+.vite/
+
+# Next.js (如果未來使用)
+.next/
+out/
+
+# Prisma (如果使用)
+prisma/migrations/
+
+# 測試
+.jest/
+
+# 文件生成
+/docs/generated/
+
+# 本地開發
+.local/
