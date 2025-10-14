@@ -85,3 +85,109 @@ export const createTodo = async (req: Request, res: Response): Promise<void> => 
     });
   }
 };
+
+export const getAllTodos = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { isCompleted, page, limit } = req.query;
+
+    // Validate isCompleted parameter
+    if (isCompleted !== undefined) {
+      const isCompletedLower = String(isCompleted).toLowerCase();
+      if (isCompletedLower !== 'true' && isCompletedLower !== 'false') {
+        res.status(400).json({
+          success: false,
+          error: 'isCompleted must be a boolean value (true or false)',
+        });
+        return;
+      }
+    }
+
+    // Validate and parse page parameter
+    let pageNum = 1;
+    if (page !== undefined) {
+      pageNum = parseInt(String(page), 10);
+      if (isNaN(pageNum) || pageNum < 1) {
+        res.status(400).json({
+          success: false,
+          error: 'Page must be a positive integer',
+        });
+        return;
+      }
+    }
+
+    // Validate and parse limit parameter
+    let limitNum = 10;
+    if (limit !== undefined) {
+      limitNum = parseInt(String(limit), 10);
+      if (isNaN(limitNum) || limitNum < 1) {
+        res.status(400).json({
+          success: false,
+          error: 'Limit must be a positive integer',
+        });
+        return;
+      }
+      if (limitNum > 100) {
+        res.status(400).json({
+          success: false,
+          error: 'Limit cannot exceed maximum of 100',
+        });
+        return;
+      }
+    }
+
+    // Build where clause for filtering
+    const where: { isCompleted?: boolean } = {};
+    if (isCompleted !== undefined) {
+      where.isCompleted = String(isCompleted).toLowerCase() === 'true';
+    }
+
+    // Calculate pagination
+    const skip = (pageNum - 1) * limitNum;
+
+    // Get total count for pagination metadata
+    const total = await prisma.todo.count({ where });
+    const totalPages = Math.ceil(total / limitNum);
+
+    // Fetch todos with filtering, sorting, and pagination
+    const todos = await prisma.todo.findMany({
+      where,
+      orderBy: {
+        createdAt: 'desc', // Newest first
+      },
+      skip,
+      take: limitNum,
+    });
+
+    // Build response
+    const response: {
+      success: boolean;
+      data: typeof todos;
+      pagination?: {
+        page: number;
+        limit: number;
+        total: number;
+        totalPages: number;
+      };
+    } = {
+      success: true,
+      data: todos,
+    };
+
+    // Include pagination metadata if pagination parameters were provided
+    if (page !== undefined || limit !== undefined) {
+      response.pagination = {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages,
+      };
+    }
+
+    res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+    });
+  }
+};

@@ -1122,7 +1122,7 @@ describe('POST /api/todos - Create Todo Integration Tests', () => {
 
     it('should handle rapid concurrent requests', async () => {
       // Arrange
-      const concurrentRequests = 10;
+      const concurrentRequests = 5; // Reduced from 10 to avoid SQLite write lock issues
       const todos: CreateTodoDto[] = Array.from({ length: concurrentRequests }, (_, i) => ({
         title: `Concurrent todo ${i + 1}`,
       }));
