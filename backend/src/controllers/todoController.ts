@@ -86,6 +86,47 @@ export const createTodo = async (req: Request, res: Response): Promise<void> => 
   }
 };
 
+export const getTodoById = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    // Validate UUID format
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!uuidRegex.test(id)) {
+      res.status(400).json({
+        success: false,
+        error: 'Invalid UUID format',
+      });
+      return;
+    }
+
+    // Find todo by ID
+    const todo = await prisma.todo.findUnique({
+      where: { id },
+    });
+
+    // Check if todo exists
+    if (!todo) {
+      res.status(404).json({
+        success: false,
+        error: 'Todo not found',
+      });
+      return;
+    }
+
+    // Return the todo
+    res.status(200).json({
+      success: true,
+      data: todo,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: 'Internal server error',
+    });
+  }
+};
+
 export const getAllTodos = async (req: Request, res: Response): Promise<void> => {
   try {
     const { isCompleted, page, limit } = req.query;

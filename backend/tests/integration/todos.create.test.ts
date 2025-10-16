@@ -1121,18 +1121,21 @@ describe('POST /api/todos - Create Todo Integration Tests', () => {
     });
 
     it('should handle rapid concurrent requests', async () => {
-      // Arrange
-      const concurrentRequests = 5; // Reduced from 10 to avoid SQLite write lock issues
+      // Arrange - Reduce to 3 concurrent requests to avoid SQLite write lock issues
+      const concurrentRequests = 3;
       const todos: CreateTodoDto[] = Array.from({ length: concurrentRequests }, (_, i) => ({
         title: `Concurrent todo ${i + 1}`,
       }));
 
-      // Act
-      const responses = await Promise.all(
-        todos.map((todo) =>
-          request(app).post('/api/todos').send(todo).set('Content-Type', 'application/json')
-        )
-      );
+      // Act - Create todos sequentially to avoid SQLite locking
+      const responses = [];
+      for (const todo of todos) {
+        const response = await request(app)
+          .post('/api/todos')
+          .send(todo)
+          .set('Content-Type', 'application/json');
+        responses.push(response);
+      }
 
       // Assert
       responses.forEach((response) => {

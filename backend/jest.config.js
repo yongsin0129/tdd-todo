@@ -19,7 +19,8 @@ module.exports = {
   },
   coverageDirectory: 'coverage',
   verbose: true,
-  testTimeout: 10000,
+  testTimeout: 30000, // Increased to 30s to handle SQLite locking issues
+  maxWorkers: 1, // Run tests sequentially to avoid SQLite locking
   clearMocks: true,
   resetMocks: true,
   restoreMocks: true
