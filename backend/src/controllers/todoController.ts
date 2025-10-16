@@ -3,6 +3,45 @@ import prisma from '../config/database';
 import { handleError } from '../utils/errorHandler';
 import { validateUUID, validateTitle, validatePriority, validateDate } from '../utils/validation';
 
+/**
+ * @swagger
+ * /api/todos:
+ *   post:
+ *     summary: Create a new todo
+ *     description: Creates a new todo item with the provided information
+ *     tags: [Todos]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreateTodoRequest'
+ *     responses:
+ *       201:
+ *         description: Todo created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/Todo'
+ *       400:
+ *         description: Bad request - Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 export const createTodo = async (req: Request, res: Response): Promise<void> => {
   try {
     const { title, description, priority, dueDate } = req.body;
@@ -80,6 +119,54 @@ export const createTodo = async (req: Request, res: Response): Promise<void> => 
   }
 };
 
+/**
+ * @swagger
+ * /api/todos/{id}:
+ *   get:
+ *     summary: Get a single todo by ID
+ *     description: Retrieves a specific todo item by its UUID
+ *     tags: [Todos]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: The UUID of the todo to retrieve
+ *         example: 550e8400-e29b-41d4-a716-446655440000
+ *     responses:
+ *       200:
+ *         description: Todo retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/Todo'
+ *       400:
+ *         description: Bad request - Invalid UUID format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: Todo not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 export const getTodoById = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -120,6 +207,81 @@ export const getTodoById = async (req: Request, res: Response): Promise<void> =>
   }
 };
 
+/**
+ * @swagger
+ * /api/todos:
+ *   get:
+ *     summary: Get all todos
+ *     description: Retrieves a list of todos with optional filtering and pagination
+ *     tags: [Todos]
+ *     parameters:
+ *       - in: query
+ *         name: isCompleted
+ *         schema:
+ *           type: boolean
+ *         description: Filter todos by completion status
+ *         example: false
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Page number for pagination
+ *         example: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Number of items per page (maximum 100)
+ *         example: 10
+ *     responses:
+ *       200:
+ *         description: Todos retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Todo'
+ *                 pagination:
+ *                   type: object
+ *                   description: Pagination metadata (only included if page or limit is provided)
+ *                   properties:
+ *                     page:
+ *                       type: integer
+ *                       example: 1
+ *                     limit:
+ *                       type: integer
+ *                       example: 10
+ *                     total:
+ *                       type: integer
+ *                       example: 100
+ *                     totalPages:
+ *                       type: integer
+ *                       example: 10
+ *       400:
+ *         description: Bad request - Invalid query parameters
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 export const getAllTodos = async (req: Request, res: Response): Promise<void> => {
   try {
     const { isCompleted, page, limit } = req.query;
@@ -226,6 +388,60 @@ export const getAllTodos = async (req: Request, res: Response): Promise<void> =>
   }
 };
 
+/**
+ * @swagger
+ * /api/todos/{id}:
+ *   put:
+ *     summary: Update a todo
+ *     description: Updates a specific todo item by its UUID. Supports partial updates.
+ *     tags: [Todos]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: The UUID of the todo to update
+ *         example: 550e8400-e29b-41d4-a716-446655440000
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdateTodoRequest'
+ *     responses:
+ *       200:
+ *         description: Todo updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                   example: true
+ *                 data:
+ *                   $ref: '#/components/schemas/Todo'
+ *       400:
+ *         description: Bad request - Validation error or invalid UUID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: Todo not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 export const updateTodo = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
@@ -365,6 +581,44 @@ export const updateTodo = async (req: Request, res: Response): Promise<void> => 
   }
 };
 
+/**
+ * @swagger
+ * /api/todos/{id}:
+ *   delete:
+ *     summary: Delete a todo
+ *     description: Permanently deletes a specific todo item by its UUID
+ *     tags: [Todos]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *         description: The UUID of the todo to delete
+ *         example: 550e8400-e29b-41d4-a716-446655440000
+ *     responses:
+ *       204:
+ *         description: Todo deleted successfully (no content)
+ *       400:
+ *         description: Bad request - Invalid UUID format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       404:
+ *         description: Todo not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *         description: Internal server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ErrorResponse'
+ */
 export const deleteTodo = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;

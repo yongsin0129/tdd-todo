@@ -1,6 +1,8 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
+import swaggerUi from 'swagger-ui-express';
 import todoRoutes from './routes/todoRoutes';
+import swaggerSpec from './config/swagger';
 
 const app = express();
 
@@ -30,6 +32,9 @@ app.get('/health', (_req: Request, res: Response) => {
 
 // API Routes
 app.use('/api', todoRoutes);
+
+// API Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // 404 Error Handler (must be last)
 app.use((req: Request, res: Response) => {
