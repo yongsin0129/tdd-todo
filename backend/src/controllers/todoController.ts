@@ -364,3 +364,45 @@ export const updateTodo = async (req: Request, res: Response): Promise<void> => 
     });
   }
 };
+
+export const deleteTodo = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+
+    // Validate UUID format
+    if (!validateUUID(id)) {
+      res.status(400).json({
+        success: false,
+        error: 'Invalid UUID format',
+      });
+      return;
+    }
+
+    // Find todo by ID
+    const todo = await prisma.todo.findUnique({
+      where: { id },
+    });
+
+    // Check if todo exists
+    if (!todo) {
+      res.status(404).json({
+        success: false,
+        error: 'Todo not found',
+      });
+      return;
+    }
+
+    // Delete the todo
+    await prisma.todo.delete({
+      where: { id },
+    });
+
+    // Return 204 No Content
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: handleError(error),
+    });
+  }
+};
