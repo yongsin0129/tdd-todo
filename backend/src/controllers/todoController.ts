@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../config/database';
+import { handleError } from '../utils/errorHandler';
 
 export const createTodo = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -81,7 +82,7 @@ export const createTodo = async (req: Request, res: Response): Promise<void> => 
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: 'Internal server error',
+      error: handleError(error),
     });
   }
 };
@@ -122,7 +123,7 @@ export const getTodoById = async (req: Request, res: Response): Promise<void> =>
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: 'Internal server error',
+      error: handleError(error),
     });
   }
 };
@@ -228,7 +229,7 @@ export const getAllTodos = async (req: Request, res: Response): Promise<void> =>
   } catch (error) {
     res.status(500).json({
       success: false,
-      error: 'Internal server error',
+      error: handleError(error),
     });
   }
 };

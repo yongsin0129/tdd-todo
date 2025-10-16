@@ -23,9 +23,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
       // Arrange - No setup needed for empty list
 
       // Act
-      const response = await request(app)
-        .get('/api/todos')
-        .set('Content-Type', 'application/json');
+      const response = await request(app).get('/api/todos').set('Content-Type', 'application/json');
 
       // Assert
       expect(response.status).toBe(200);
@@ -35,9 +33,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
       // Arrange - Database is empty from beforeEach
 
       // Act
-      const response = await request(app)
-        .get('/api/todos')
-        .set('Content-Type', 'application/json');
+      const response = await request(app).get('/api/todos').set('Content-Type', 'application/json');
 
       // Assert
       expect(response.status).toBe(200);
@@ -51,9 +47,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
       // Arrange - No setup needed
 
       // Act
-      const response = await request(app)
-        .get('/api/todos')
-        .set('Content-Type', 'application/json');
+      const response = await request(app).get('/api/todos').set('Content-Type', 'application/json');
 
       // Assert
       expect(response.headers['content-type']).toMatch(/application\/json/);
@@ -70,9 +64,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
       });
 
       // Act
-      const response = await request(app)
-        .get('/api/todos')
-        .set('Content-Type', 'application/json');
+      const response = await request(app).get('/api/todos').set('Content-Type', 'application/json');
 
       // Assert
       expect(response.status).toBe(200);
@@ -92,9 +84,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
       });
 
       // Act
-      const response = await request(app)
-        .get('/api/todos')
-        .set('Content-Type', 'application/json');
+      const response = await request(app).get('/api/todos').set('Content-Type', 'application/json');
 
       // Assert
       expect(response.status).toBe(200);
@@ -116,9 +106,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
       });
 
       // Act
-      const response = await request(app)
-        .get('/api/todos')
-        .set('Content-Type', 'application/json');
+      const response = await request(app).get('/api/todos').set('Content-Type', 'application/json');
 
       // Assert
       const todo = response.body.data[0];
@@ -144,9 +132,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
       const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
       // Act
-      const response = await request(app)
-        .get('/api/todos')
-        .set('Content-Type', 'application/json');
+      const response = await request(app).get('/api/todos').set('Content-Type', 'application/json');
 
       // Assert
       const todo = response.body.data[0];
@@ -166,9 +152,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
       });
 
       // Act
-      const response = await request(app)
-        .get('/api/todos')
-        .set('Content-Type', 'application/json');
+      const response = await request(app).get('/api/todos').set('Content-Type', 'application/json');
 
       // Assert
       const todo = response.body.data[0];
@@ -193,9 +177,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
       });
 
       // Act
-      const response = await request(app)
-        .get('/api/todos')
-        .set('Content-Type', 'application/json');
+      const response = await request(app).get('/api/todos').set('Content-Type', 'application/json');
 
       // Assert
       const todo = response.body.data[0];
@@ -218,9 +200,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
       });
 
       // Act
-      const response = await request(app)
-        .get('/api/todos')
-        .set('Content-Type', 'application/json');
+      const response = await request(app).get('/api/todos').set('Content-Type', 'application/json');
 
       // Assert
       const todo = response.body.data[0];
@@ -243,9 +223,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
       });
 
       // Act
-      const response = await request(app)
-        .get('/api/todos')
-        .set('Content-Type', 'application/json');
+      const response = await request(app).get('/api/todos').set('Content-Type', 'application/json');
 
       // Assert
       const todo = response.body.data[0];
@@ -285,9 +263,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
       });
 
       // Act
-      const response = await request(app)
-        .get('/api/todos')
-        .set('Content-Type', 'application/json');
+      const response = await request(app).get('/api/todos').set('Content-Type', 'application/json');
 
       // Assert - Newest should be first
       expect(response.body.data[0].id).toBe(thirdTodo.id);
@@ -311,12 +287,12 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
       }
 
       // Act
-      const response = await request(app)
-        .get('/api/todos')
-        .set('Content-Type', 'application/json');
+      const response = await request(app).get('/api/todos').set('Content-Type', 'application/json');
 
       // Assert - Should be in reverse order (newest first)
-      const createdAtDates = response.body.data.map((todo: Todo) => new Date(todo.createdAt).getTime());
+      const createdAtDates = response.body.data.map((todo: Todo) =>
+        new Date(todo.createdAt).getTime()
+      );
       for (let i = 0; i < createdAtDates.length - 1; i++) {
         expect(createdAtDates[i]).toBeGreaterThanOrEqual(createdAtDates[i + 1]);
       }
@@ -339,9 +315,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
 
     it('should return all todos when no filter is applied', async () => {
       // Act
-      const response = await request(app)
-        .get('/api/todos')
-        .set('Content-Type', 'application/json');
+      const response = await request(app).get('/api/todos').set('Content-Type', 'application/json');
 
       // Assert
       expect(response.status).toBe(200);
@@ -665,9 +639,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
   describe('Response Format Validation', () => {
     it('should return response with success flag set to true', async () => {
       // Act
-      const response = await request(app)
-        .get('/api/todos')
-        .set('Content-Type', 'application/json');
+      const response = await request(app).get('/api/todos').set('Content-Type', 'application/json');
 
       // Assert
       expect(response.body).toHaveProperty('success');
@@ -676,9 +648,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
 
     it('should return response with data property containing array', async () => {
       // Act
-      const response = await request(app)
-        .get('/api/todos')
-        .set('Content-Type', 'application/json');
+      const response = await request(app).get('/api/todos').set('Content-Type', 'application/json');
 
       // Assert
       expect(response.body).toHaveProperty('data');
@@ -687,9 +657,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
 
     it('should not include extra unexpected fields in success response', async () => {
       // Act
-      const response = await request(app)
-        .get('/api/todos')
-        .set('Content-Type', 'application/json');
+      const response = await request(app).get('/api/todos').set('Content-Type', 'application/json');
 
       // Assert
       const responseKeys = Object.keys(response.body);
@@ -747,9 +715,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
       });
 
       // Act
-      const response = await request(app)
-        .get('/api/todos')
-        .set('Content-Type', 'application/json');
+      const response = await request(app).get('/api/todos').set('Content-Type', 'application/json');
 
       // Assert
       expect(response.status).toBe(200);
@@ -770,9 +736,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
       });
 
       // Act
-      const response = await request(app)
-        .get('/api/todos')
-        .set('Content-Type', 'application/json');
+      const response = await request(app).get('/api/todos').set('Content-Type', 'application/json');
 
       // Assert
       expect(response.status).toBe(200);
@@ -791,9 +755,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
       });
 
       // Act
-      const response = await request(app)
-        .get('/api/todos')
-        .set('Content-Type', 'application/json');
+      const response = await request(app).get('/api/todos').set('Content-Type', 'application/json');
 
       // Assert
       expect(response.status).toBe(200);
@@ -854,9 +816,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
       });
 
       // Act
-      const response = await request(app)
-        .get('/api/todos')
-        .set('Content-Type', 'application/json');
+      const response = await request(app).get('/api/todos').set('Content-Type', 'application/json');
 
       // Assert
       const returnedTodo = response.body.data[0];
@@ -883,9 +843,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
       });
 
       // Act
-      const response = await request(app)
-        .get('/api/todos')
-        .set('Content-Type', 'application/json');
+      const response = await request(app).get('/api/todos').set('Content-Type', 'application/json');
 
       // Assert
       expect(response.body.data[0].title).toBe('Updated title');
@@ -908,9 +866,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
       });
 
       // Act
-      const response = await request(app)
-        .get('/api/todos')
-        .set('Content-Type', 'application/json');
+      const response = await request(app).get('/api/todos').set('Content-Type', 'application/json');
 
       // Assert
       expect(response.body.data).toHaveLength(0);

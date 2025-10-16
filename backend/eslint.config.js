@@ -24,6 +24,7 @@ export default [
         require: 'readonly',
         exports: 'writable',
         // Jest globals
+        global: 'readonly',
         describe: 'readonly',
         it: 'readonly',
         test: 'readonly',
@@ -61,7 +62,7 @@ export default [
     },
   },
   {
-    ignores: ['dist/**', 'node_modules/**', 'coverage/**', '*.config.js'],
+    ignores: ['dist/**', 'node_modules/**', 'coverage/**', '*.config.js','tests/**'],
   },
   prettierConfig,
 ];

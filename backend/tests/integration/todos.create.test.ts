@@ -423,7 +423,9 @@ describe('POST /api/todos - Create Todo Integration Tests', () => {
 
       // Assert
       expect(response.status).toBe(201);
-      expect(response.body.data.description).toBe('This is a detailed description of the todo item');
+      expect(response.body.data.description).toBe(
+        'This is a detailed description of the todo item'
+      );
     });
 
     it('should create todo without description when not provided', async () => {
@@ -501,7 +503,8 @@ describe('POST /api/todos - Create Todo Integration Tests', () => {
 
     it('should preserve newlines and special characters in description', async () => {
       // Arrange
-      const descriptionWithFormatting = 'Line 1\nLine 2\n\nBullet:\n- Item 1\n- Item 2\n\nSpecial: @#$%';
+      const descriptionWithFormatting =
+        'Line 1\nLine 2\n\nBullet:\n- Item 1\n- Item 2\n\nSpecial: @#$%';
       const newTodo: CreateTodoDto = {
         title: 'Formatted description test',
         description: descriptionWithFormatting,

@@ -21,6 +21,7 @@
       "prettier --write"
     ]
   },
+  "type": "module",
   "keywords": [
     "todo",
     "express",

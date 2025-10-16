@@ -516,7 +516,9 @@ describe('GET /api/todos/:id - Get Single Todo Integration Tests', () => {
       const originalId = createResponse.body.data.id;
       const mixedCaseId = originalId
         .split('')
-        .map((char: string, index: number) => (index % 2 === 0 ? char.toUpperCase() : char.toLowerCase()))
+        .map((char: string, index: number) =>
+          index % 2 === 0 ? char.toUpperCase() : char.toLowerCase()
+        )
         .join('');
 
       // Act
@@ -636,7 +638,7 @@ describe('GET /api/todos/:id - Get Single Todo Integration Tests', () => {
 
       // Verify we have valid IDs
       expect(ids).toHaveLength(3);
-      ids.forEach(id => expect(id).toBeTruthy());
+      ids.forEach((id) => expect(id).toBeTruthy());
 
       // Act - Retrieve all concurrently
       const getResponses = await Promise.all(ids.map((id) => request(app).get(`/api/todos/${id}`)));
