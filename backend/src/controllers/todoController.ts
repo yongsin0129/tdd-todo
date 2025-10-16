@@ -1,37 +1,29 @@
 import { Request, Response } from 'express';
 import prisma from '../config/database';
 import { handleError } from '../utils/errorHandler';
+import { validateUUID, validateTitle, validatePriority, validateDate } from '../utils/validation';
 
 export const createTodo = async (req: Request, res: Response): Promise<void> => {
   try {
     const { title, description, priority, dueDate } = req.body;
 
     // Validate title
-    if (!title || typeof title !== 'string' || title.trim().length === 0) {
+    const titleValidation = validateTitle(title);
+    if (!titleValidation.isValid) {
       res.status(400).json({
         success: false,
-        error: 'Title is required and cannot be empty',
-      });
-      return;
-    }
-
-    // Trim and validate title length
-    const trimmedTitle = title.trim();
-    if (trimmedTitle.length > 255) {
-      res.status(400).json({
-        success: false,
-        error: 'Title cannot exceed 255 characters',
+        error: titleValidation.error,
       });
       return;
     }
 
     // Validate priority if provided
     if ('priority' in req.body) {
-      const validPriorities = ['low', 'medium', 'high'];
-      if (priority === null || priority === '' || !validPriorities.includes(priority)) {
+      const priorityValidation = validatePriority(priority);
+      if (!priorityValidation.isValid) {
         res.status(400).json({
           success: false,
-          error: 'Priority must be one of: low, medium, high',
+          error: priorityValidation.error,
         });
         return;
       }
@@ -39,11 +31,11 @@ export const createTodo = async (req: Request, res: Response): Promise<void> => 
 
     // Validate dueDate if provided
     if (dueDate !== undefined && dueDate !== null) {
-      const date = new Date(dueDate);
-      if (isNaN(date.getTime())) {
+      const dateValidation = validateDate(dueDate);
+      if (!dateValidation.isValid) {
         res.status(400).json({
           success: false,
-          error: 'Invalid date format',
+          error: dateValidation.error,
         });
         return;
       }
@@ -56,7 +48,7 @@ export const createTodo = async (req: Request, res: Response): Promise<void> => 
       priority?: string;
       dueDate?: Date | null;
     } = {
-      title: trimmedTitle,
+      title: titleValidation.trimmedTitle!,
     };
 
     if (description !== undefined) {
@@ -68,7 +60,8 @@ export const createTodo = async (req: Request, res: Response): Promise<void> => 
     }
 
     if (dueDate !== undefined && dueDate !== null) {
-      todoData.dueDate = new Date(dueDate);
+      const dateValidation = validateDate(dueDate);
+      todoData.dueDate = dateValidation.date!;
     }
 
     const todo = await prisma.todo.create({
@@ -92,8 +85,7 @@ export const getTodoById = async (req: Request, res: Response): Promise<void> =>
     const { id } = req.params;
 
     // Validate UUID format
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(id)) {
+    if (!validateUUID(id)) {
       res.status(400).json({
         success: false,
         error: 'Invalid UUID format',
@@ -226,6 +218,145 @@ export const getAllTodos = async (req: Request, res: Response): Promise<void> =>
     }
 
     res.status(200).json(response);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: handleError(error),
+    });
+  }
+};
+
+export const updateTodo = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { id } = req.params;
+    const { title, description, priority, dueDate, isCompleted } = req.body;
+
+    // Validate UUID format
+    if (!validateUUID(id)) {
+      res.status(400).json({
+        success: false,
+        error: 'Invalid UUID format',
+      });
+      return;
+    }
+
+    // Check if request body is empty
+    const hasUpdates = Object.keys(req.body).some((key) =>
+      ['title', 'description', 'priority', 'dueDate', 'isCompleted'].includes(key)
+    );
+
+    if (!hasUpdates) {
+      res.status(400).json({
+        success: false,
+        error: 'No valid fields to update',
+      });
+      return;
+    }
+
+    // Find todo by ID
+    const existingTodo = await prisma.todo.findUnique({
+      where: { id },
+    });
+
+    // Check if todo exists
+    if (!existingTodo) {
+      res.status(404).json({
+        success: false,
+        error: 'Todo not found',
+      });
+      return;
+    }
+
+    // Build update data object
+    const updateData: {
+      title?: string;
+      description?: string | null;
+      priority?: string;
+      dueDate?: Date | null;
+      isCompleted?: boolean;
+      completedAt?: Date | null;
+    } = {};
+
+    // Validate and update title if provided
+    if ('title' in req.body) {
+      const titleValidation = validateTitle(title);
+      if (!titleValidation.isValid) {
+        res.status(400).json({
+          success: false,
+          error: titleValidation.error,
+        });
+        return;
+      }
+      updateData.title = titleValidation.trimmedTitle!;
+    }
+
+    // Update description if provided
+    if ('description' in req.body) {
+      updateData.description = description === null ? null : description;
+    }
+
+    // Validate and update priority if provided
+    if ('priority' in req.body) {
+      const priorityValidation = validatePriority(priority);
+      if (!priorityValidation.isValid) {
+        res.status(400).json({
+          success: false,
+          error: priorityValidation.error,
+        });
+        return;
+      }
+      updateData.priority = priority;
+    }
+
+    // Validate and update dueDate if provided
+    if ('dueDate' in req.body) {
+      if (dueDate === null) {
+        updateData.dueDate = null;
+      } else {
+        const dateValidation = validateDate(dueDate);
+        if (!dateValidation.isValid) {
+          res.status(400).json({
+            success: false,
+            error: dateValidation.error,
+          });
+          return;
+        }
+        updateData.dueDate = dateValidation.date!;
+      }
+    }
+
+    // Handle isCompleted and completedAt
+    if ('isCompleted' in req.body) {
+      if (typeof isCompleted !== 'boolean') {
+        res.status(400).json({
+          success: false,
+          error: 'isCompleted must be a boolean value',
+        });
+        return;
+      }
+
+      updateData.isCompleted = isCompleted;
+
+      // Set completedAt when marking as completed
+      if (isCompleted && !existingTodo.isCompleted) {
+        updateData.completedAt = new Date();
+      }
+      // Clear completedAt when marking as not completed
+      else if (!isCompleted && existingTodo.isCompleted) {
+        updateData.completedAt = null;
+      }
+    }
+
+    // Update todo in database
+    const updatedTodo = await prisma.todo.update({
+      where: { id },
+      data: updateData,
+    });
+
+    res.status(200).json({
+      success: true,
+      data: updatedTodo,
+    });
   } catch (error) {
     res.status(500).json({
       success: false,

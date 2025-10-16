@@ -3,7 +3,7 @@
 > 基於 TDD (測試驅動開發) 方法論的完整開發路線圖
 >
 > 生成日期: 2025-10-14
-> 最後更新: 2025-10-16 17:00 (UTC+8)
+> 最後更新: 2025-10-16 18:30 (UTC+8)
 
 ## 🎯 專案進度總覽
 
@@ -19,11 +19,13 @@
 | Phase 2 | Task 8: 實作 List All Todos API | ✅ 完成 | 2025-10-14 |
 | Phase 2 | Task 9: 撰寫 Get Single Todo API 測試 | ✅ 完成 | 2025-10-16 |
 | Phase 2 | Task 10: 實作 Get Single Todo API | ✅ 完成 | 2025-10-16 |
-| Phase 2 | Task 11-16: 其他 API 開發 | ⏳ 待辦 | - |
+| Phase 2 | Task 11: 撰寫 Update Todo API 測試 | ✅ 完成 | 2025-10-16 |
+| Phase 2 | Task 12: 實作 Update Todo API | ✅ 完成 | 2025-10-16 |
+| Phase 2 | Task 13-16: 其他 API 開發 | ⏳ 待辦 | - |
 | Phase 3 | Task 17: Swagger/OpenAPI 文件 | ⏳ 待辦 | - |
 | Phase 4-6 | Task 18-30: 前端、整合、部署 | ⏳ 待辦 | - |
 
-**整體完成度**: 33.3% (10/30 tasks)
+**整體完成度**: 40.0% (12/30 tasks)
 
 ---
 
@@ -173,9 +175,9 @@ REFACTOR Phase (重構優化)
 
 ## 📊 目前進度
 
-**已完成**: Tasks 1-10 (專案設置與基礎架構 + Create Todo API + List All Todos API + Get Single Todo API)
-**進行中**: Task 11 (Update Todo API 測試)
-**完成度**: 33.3% (10/30 tasks)
+**已完成**: Tasks 1-12 (專案設置與基礎架構 + Create Todo API + List All Todos API + Get Single Todo API + Update Todo API)
+**進行中**: Task 13 (Delete Todo API 測試)
+**完成度**: 40.0% (12/30 tasks)
 
 **最後更新**: 2025-10-16 (UTC+8)
 
@@ -287,11 +289,11 @@ REFACTOR Phase (重構優化)
 
 ---
 
-#### Task 11: 撰寫 Update Todo API 測試
-**RED Phase**
+#### Task 11: 撰寫 Update Todo API 測試 ✅
+**RED Phase - 測試先行**
 
-- [ ] 建立測試檔案: `tests/integration/todos.update.test.ts`
-- [ ] 撰寫測試案例:
+- [x] 建立測試檔案: `tests/integration/todos.update.test.ts`
+- [x] 撰寫測試案例:
   - ✅ 成功更新待辦事項 (返回 200)
   - ✅ 支援部分更新 (PATCH 語意)
   - ✅ 更新 `title` 欄位
@@ -300,26 +302,39 @@ REFACTOR Phase (重構優化)
   - ✅ 標示完成時自動設定 `completedAt`
   - ✅ 取消完成時清除 `completedAt`
   - ✅ 自動更新 `updatedAt` 時間戳
+  - ✅ 更新 `priority` 欄位
+  - ✅ 更新 `dueDate` 欄位
   - ✅ 處理不存在的 ID (返回 404)
+  - ✅ 處理無效的 UUID 格式 (返回 400)
   - ✅ 處理無效的資料格式 (返回 400)
-  - ✅ 不允許更新 `id`, `createdAt` 等唯讀欄位
-- [ ] 執行測試 - **預期全部失敗**
+  - ✅ 不允許更新 `id`, `createdAt`, `updatedAt` 等唯讀欄位
+  - ✅ 邊界情況處理
+  - ✅ 資料庫一致性驗證
+- [x] 執行測試 - **36 failed, 7 passed (符合預期紅燈)**
 
-**🛑 檢查點: 提交測試程式碼供使用者審查**
+**驗收標準**: ✅ 完成 - 43個測試案例全部撰寫完成
 
 ---
 
-#### Task 12: 實作 Update Todo API
-**GREEN Phase**
+#### Task 12: 實作 Update Todo API ✅
+**GREEN Phase - 最小實作**
 
-- [ ] 實作 `PUT /api/todos/:id` 端點
-- [ ] 實作部分更新邏輯
-- [ ] 實作 `completedAt` 自動處理邏輯
-- [ ] 實作欄位白名單驗證
-- [ ] 執行測試 - **預期全部通過**
-- [ ] 重構程式碼
+- [x] 建立 `updateTodo` 函數在 `src/controllers/todoController.ts`
+- [x] 實作 `PUT /api/todos/:id` 端點
+- [x] 實作部分更新邏輯 (只更新提供的欄位)
+- [x] 實作 UUID 驗證邏輯
+- [x] 實作 `completedAt` 自動處理邏輯
+  - 標示完成時自動設定 `completedAt` 為當前時間
+  - 取消完成時清除 `completedAt` 為 null
+- [x] 實作欄位白名單驗證 (忽略唯讀欄位)
+- [x] 更新路由配置 `src/routes/todoRoutes.ts`
+- [x] 執行測試 - **All 43 tests passing (綠燈)**
+- [x] 重構程式碼
+  - 建立共用驗證函數 `src/utils/validation.ts`
+  - 重構 `createTodo`, `getTodoById`, `updateTodo` 使用共用驗證
+  - 執行測試確保重構後仍全部通過 (216 tests)
 
-**驗收標準**: 所有測試通過
+**驗收標準**: ✅ 完成 - 所有測試通過 + 程式碼重構完成
 
 ---
 
