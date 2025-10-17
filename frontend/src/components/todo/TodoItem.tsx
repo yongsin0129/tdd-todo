@@ -29,7 +29,7 @@ export function TodoItem({ todo }: TodoItemProps) {
   const toggleTodoLocal = useTodoStore((state) => state.toggleTodo);
   const updateTodoLocal = useTodoStore((state) => state.updateTodo);
   const deleteTodoLocal = useTodoStore((state) => state.deleteTodo);
-  const { toggleTodo, updateTodo, deleteTodo, fetchTodos } = useTodos();
+  const { updateTodo, deleteTodo, fetchTodos } = useTodos();
 
   // Auto-focus input when entering edit mode
   useEffect(() => {

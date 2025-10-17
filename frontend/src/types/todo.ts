@@ -87,7 +87,7 @@ export interface ApiError {
     message: string;
 
     /** Optional error details (field names, constraints, etc.) */
-    details?: Record<string, any>;
+    details?: Record<string, unknown>;
   };
 }
 

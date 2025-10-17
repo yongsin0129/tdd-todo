@@ -17,6 +17,7 @@ vi.mock('@hooks/useTodos', () => ({
     toggleTodo: vi.fn().mockImplementation((id) => {
       // Return the toggled todo object that the component expects
       const todo = useTodoStore.getState().todos.find(t => t.id === id);
+      if (!todo) throw new Error('Todo not found');
       return Promise.resolve({ ...todo, isCompleted: !todo.isCompleted });
     }),
   }),

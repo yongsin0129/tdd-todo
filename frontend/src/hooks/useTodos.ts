@@ -30,23 +30,19 @@ export function useTodos() {
 
   // 新增待辦事項
   const createTodo = async (input: CreateTodoInput): Promise<Todo> => {
-    try {
-      const response = await fetch(`${API_BASE}/todos`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(input),
-      });
+    const response = await fetch(`${API_BASE}/todos`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(input),
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error.message);
-      }
-
-      return data.data as Todo;
-    } catch (err) {
-      throw err;
+    if (!response.ok) {
+      throw new Error(data.error.message);
     }
+
+    return data.data as Todo;
   };
 
   // 更新待辦事項
@@ -54,38 +50,30 @@ export function useTodos() {
     id: string,
     updates: UpdateTodoInput
   ): Promise<Todo> => {
-    try {
-      const response = await fetch(`${API_BASE}/todos/${id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(updates),
-      });
+    const response = await fetch(`${API_BASE}/todos/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updates),
+    });
 
-      const data = await response.json();
+    const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(data.error.message);
-      }
-
-      return data.data as Todo;
-    } catch (err) {
-      throw err;
+    if (!response.ok) {
+      throw new Error(data.error.message);
     }
+
+    return data.data as Todo;
   };
 
   // 刪除待辦事項
   const deleteTodo = async (id: string): Promise<void> => {
-    try {
-      const response = await fetch(`${API_BASE}/todos/${id}`, {
-        method: 'DELETE',
-      });
+    const response = await fetch(`${API_BASE}/todos/${id}`, {
+      method: 'DELETE',
+    });
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error.message);
-      }
-    } catch (err) {
-      throw err;
+    if (!response.ok) {
+      const data = await response.json();
+      throw new Error(data.error.message);
     }
   };
 
