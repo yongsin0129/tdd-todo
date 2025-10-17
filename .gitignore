@@ -5,6 +5,7 @@
 # 特殊保留文件
 !.gitignore
 !.doc/
+!.husky/
 
 # WARP 相關文件
 warp.md
