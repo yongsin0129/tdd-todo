@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { devtools, persist } from 'zustand/middleware';
+import { devtools } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
 import type { Todo, TodoFilter, TodoStats } from '@/types/todo';
 
@@ -35,14 +35,16 @@ interface TodoState {
  * Features:
  * - Immer middleware for immutable updates
  * - DevTools middleware for Redux DevTools integration
- * - Persist middleware for localStorage persistence
+ * - API-only data persistence (no localStorage)
+ *
+ * Note: All data is fetched from and persisted to the backend API.
+ * The store serves as an in-memory cache only.
  *
  * @see .doc/Frontend-Team-Todolist.md Task 2.2
  */
 export const useTodoStore = create<TodoState>()(
   devtools(
-    persist(
-      immer((set, get) => ({
+    immer((set, get) => ({
         // Initial state
         todos: [],
         filter: 'all',
@@ -119,11 +121,6 @@ export const useTodoStore = create<TodoState>()(
           };
         },
       })),
-      {
-        name: 'todo-storage',
-        version: 1,
-      }
-    ),
     { name: 'TodoStore' }
   )
 );

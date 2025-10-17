@@ -6,9 +6,9 @@
 | 項目 | 內容 |
 |------|------|
 | 文件標題 | TodoList 應用程式系統設計文件 (SDD) |
-| 版本號 | 1.1.0 |
+| 版本號 | 1.2.0 |
 | 撰寫日期 | 2025-10-14 |
-| 最後更新 | 2025-10-17 |
+| 最後更新 | 2025-01-17 |
 | 撰寫人 | Technical Team |
 | 審核人 | - |
 
@@ -18,6 +18,7 @@
 |------|------|---------|--------|
 | 1.0.0 | 2025-10-14 | 初始版本建立 | Technical Team |
 | 1.1.0 | 2025-10-17 | 重新組織文件結構，符合標準 SDD 格式 | Technical Team |
+| 1.2.0 | 2025-01-17 | 前端架構重構：移除 localStorage、Hook 分層設計、E2E 測試優化 | Technical Team |
 
 ---
 
@@ -47,11 +48,12 @@
 │  ┌────────────────────────────────────────────────────────┐ │
 │  │  React 18 + TypeScript                                 │ │
 │  │  ├─ Components (UI 組件)                               │ │
-│  │  ├─ Zustand Store (狀態管理)                           │ │
-│  │  ├─ Hooks (業務邏輯)                                   │ │
+│  │  ├─ Zustand Store (狀態管理 - 僅內存)                  │ │
+│  │  ├─ Hooks (業務邏輯 + API 整合)                        │ │
 │  │  └─ Tailwind CSS (樣式)                                │ │
 │  └────────────────────────────────────────────────────────┘ │
 │                            ↓ HTTP/HTTPS                      │
+│                  (完全依賴後端 API，無 localStorage)          │
 └─────────────────────────────────────────────────────────────┘
                               │
                               ↓
@@ -138,7 +140,7 @@
 | **React** | 19.1.1 | • 業界標準，生態系統豐富<br>• 組件化開發效率高<br>• 虛擬 DOM 效能優異<br>• TypeScript 支援完善 | Vue 3, Angular |
 | **TypeScript** | 5.9.3 | • 靜態型別檢查，減少執行時錯誤<br>• 優秀的 IDE 支援與自動完成<br>• 大型專案維護性佳<br>• 重構安全性高<br>• ESM 模組系統 | JavaScript |
 | **Vite** | 7.1.10 | • 開發伺服器啟動極快 (< 1s)<br>• 熱模組替換 (HMR) 快速<br>• 原生 ES modules 支援<br>• 生產建置優化 | Webpack, Parcel |
-| **Zustand** | 4.5+ | • 極小體積 (~1.2KB gzipped)<br>• 簡單 API，學習曲線低<br>• 無需 Provider 包裝<br>• 優秀的 TypeScript 推斷<br>• 內建 DevTools 支援 | Redux Toolkit, Jotai, Recoil |
+| **Zustand** | 4.5+ | • 極小體積 (~1.2KB gzipped)<br>• 簡單 API，學習曲線低<br>• 無需 Provider 包裝<br>• 優秀的 TypeScript 推斷<br>• 內建 DevTools 支援<br>• 僅作為內存狀態管理（v1.2.0 起移除 localStorage） | Redux Toolkit, Jotai, Recoil |
 | **Tailwind CSS** | 4.0.0 | • Utility-first 開發速度快<br>• Tree-shakable CSS<br>• 無 runtime overhead<br>• 響應式設計簡單<br>• v4 原生 CSS 整合 (`@import`)<br>• CSS 變數配置 (`@theme`) | Styled Components, Emotion, CSS Modules |
 | **Vitest** | 3.2.4 | • 與 Vite 無縫整合<br>• 快速測試執行<br>• 支援 TypeScript<br>• 覆蓋率報告內建 | Jest, Mocha |
 | **React Testing Library** | 16.3.0 | • 測試使用者行為導向<br>• 無障礙測試支援<br>• 與 Vitest 整合良好 | Enzyme |
@@ -268,6 +270,133 @@
 - ⚠️ 部分語法變更 (已文件化於 `Tailwind-CSS-Version-Comparison.md`)
 
 **參考文件**: `.doc/Tailwind-CSS-Version-Comparison.md`
+
+---
+
+#### ADR-005: 移除 localStorage 持久化，完全依賴後端 API
+
+**日期**: 2025-01-17
+
+**狀態**: 已採用
+
+**背景**:
+在同時使用 localStorage (Zustand persist middleware) 和後端 API 的混合架構中，
+發現數據同步問題導致 E2E 測試失敗率達 40% (6/10 通過)。主要問題：
+- 同一個 todo 出現兩次（localStorage + API 各一份）
+- 數據不一致
+- useTodos hook 在每個組件掛載時都觸發 API 請求（N+2 次重複）
+
+**決策**:
+1. 移除 Zustand persist middleware
+2. Store 僅作為內存緩存
+3. 所有數據完全依賴後端 API
+
+**理由**:
+- **單一數據源**: 避免 localStorage 與 API 數據衝突
+- **數據一致性**: 所有客戶端共享同一份後端數據
+- **簡化架構**: 減少數據同步邏輯
+- **測試穩定性**: E2E 測試通過率從 60% 提升至 100%
+- **未來擴展**: 為多用戶、權限管理打基礎
+
+**後果**:
+- ✅ E2E 測試穩定性大幅提升 (60% → 100%)
+- ✅ 消除數據重複問題
+- ✅ 架構更簡潔清晰
+- ✅ 減少 80-90% 不必要的 API 請求
+- ⚠️ 離線使用受限（未來可用 Service Worker 補償）
+- ⚠️ 舊用戶 localStorage 數據無法遷移（可接受）
+
+**相關變更**:
+- Hook 架構重構（見 ADR-006）
+- E2E 測試策略優化
+
+---
+
+#### ADR-006: Hook 架構分層設計（useTodoActions vs useInitTodos）
+
+**日期**: 2025-01-17
+
+**狀態**: 已採用
+
+**背景**:
+原 useTodos hook 在每個組件掛載時都會觸發 useEffect 執行 fetchTodos()，
+導致性能問題：
+- TodoList: 1 次
+- TodoForm: 1 次
+- TodoItem × N: N 次
+- 總計: N+2 次重複 API 請求
+
+**決策**:
+1. 拆分成兩個 hook：
+   - `useTodoActions`: 僅提供操作函數，無自動 fetch
+   - `useInitTodos`: 初始化 + 操作函數，僅在 TodoList 使用
+2. 保留 `useTodos` 作為 deprecated wrapper（向後兼容）
+
+**理由**:
+- **職責分離**: 數據初始化與操作函數分離
+- **性能優化**: API 請求從 N+2 次降至 1 次
+- **清晰語義**: Hook 名稱明確表達用途
+- **可維護性**: 減少不必要的 side effects
+
+**後果**:
+- ✅ API 請求減少 80-90%
+- ✅ 組件職責更清晰
+- ✅ 向後兼容（useTodos 仍可用）
+- ✅ 更好的性能表現
+
+**使用指南**:
+```typescript
+// ✅ 根組件（僅一次初始化）
+function TodoList() {
+  useInitTodos(); // 自動 fetch + 提供操作函數
+}
+
+// ✅ 子組件（僅操作）
+function TodoForm() {
+  const { createTodo } = useTodoActions(); // 無 fetch
+}
+
+// ⚠️ Deprecated（仍可用但不推薦）
+function OldComponent() {
+  useTodos(); // 等同於 useInitTodos
+}
+```
+
+---
+
+#### ADR-007: E2E 測試執行策略優化
+
+**日期**: 2025-01-17
+
+**狀態**: 已採用
+
+**背景**:
+並行執行 E2E 測試（fullyParallel: true）時，測試之間共享後端數據庫，
+導致數據競爭和不可預測的測試失敗。
+
+**決策**:
+1. 禁用並行執行（fullyParallel: false）
+2. 使用 `waitForResponse` 替代 `waitForTimeout`
+3. 統一使用語義化選擇器（getByRole, getByLabel）
+4. 處理動態 DOM 變化（aria-label 變化時重新定位元素）
+
+**理由**:
+- **測試穩定性**: 避免數據競爭
+- **可預測性**: 固定執行順序
+- **可靠等待**: API 響應比固定時間更準確
+- **可維護性**: 語義化選擇器抗變化能力強
+
+**後果**:
+- ✅ E2E 測試通過率 100%
+- ✅ 測試更穩定可靠
+- ✅ 選擇器更有語義
+- ⚠️ 執行時間略增（~21.6s，可接受）
+
+**測試最佳實踐** (詳見 Section 8.5):
+- 等待 API 響應而非固定時間
+- 使用語義化選擇器
+- 處理動態 DOM 屬性變化
+- 串行執行避免數據競爭
 
 ---
 

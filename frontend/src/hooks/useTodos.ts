@@ -4,10 +4,21 @@ import type { Todo, CreateTodoInput, UpdateTodoInput } from '@/types/todo';
 
 const API_BASE = '/api';
 
-export function useTodos() {
+/**
+ * useTodoActions Hook
+ *
+ * Provides ONLY the action functions for CRUD operations.
+ * Does NOT fetch data on mount - use useInitTodos for that.
+ *
+ * Use this hook in components that need to perform actions but don't need
+ * to trigger initial data fetching (TodoForm, TodoItem).
+ *
+ * @returns Object containing API action functions
+ */
+export function useTodoActions() {
   const { setTodos, setLoading, setError } = useTodoStore();
 
-  // 獲取所有待辦事項
+  // Fetch all todos from API
   const fetchTodos = async () => {
     setLoading(true);
     setError(null);
@@ -28,7 +39,7 @@ export function useTodos() {
     }
   };
 
-  // 新增待辦事項
+  // Create a new todo
   const createTodo = async (input: CreateTodoInput): Promise<Todo> => {
     const response = await fetch(`${API_BASE}/todos`, {
       method: 'POST',
@@ -45,7 +56,7 @@ export function useTodos() {
     return data.data as Todo;
   };
 
-  // 更新待辦事項
+  // Update an existing todo
   const updateTodo = async (
     id: string,
     updates: UpdateTodoInput
@@ -65,7 +76,7 @@ export function useTodos() {
     return data.data as Todo;
   };
 
-  // 刪除待辦事項
+  // Delete a todo
   const deleteTodo = async (id: string): Promise<void> => {
     const response = await fetch(`${API_BASE}/todos/${id}`, {
       method: 'DELETE',
@@ -77,9 +88,9 @@ export function useTodos() {
     }
   };
 
-  // 切換完成狀態
+  // Toggle todo completion status
   const toggleTodo = async (id: string): Promise<Todo> => {
-    // 先從 store 取得當前狀態
+    // Get current state from store
     const currentTodo = useTodoStore
       .getState()
       .todos.find((t) => t.id === id);
@@ -88,17 +99,11 @@ export function useTodos() {
       throw new Error('Todo not found in store');
     }
 
-    // 切換完成狀態
+    // Toggle completion status
     return updateTodo(id, {
       isCompleted: !currentTodo.isCompleted,
     });
   };
-
-  // 初始載入資料
-  useEffect(() => {
-    fetchTodos();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return {
     fetchTodos,
@@ -107,4 +112,38 @@ export function useTodos() {
     deleteTodo,
     toggleTodo,
   };
+}
+
+/**
+ * useInitTodos Hook
+ *
+ * Initializes the todo list by fetching data from API on mount.
+ * This hook should ONLY be used in the root TodoList component.
+ *
+ * IMPORTANT: Do not use this hook in TodoForm or TodoItem components
+ * to avoid multiple unnecessary API calls.
+ *
+ * @returns Object containing API action functions (same as useTodoActions)
+ */
+export function useInitTodos() {
+  const actions = useTodoActions();
+
+  // Fetch todos only once on mount
+  useEffect(() => {
+    actions.fetchTodos();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return actions;
+}
+
+/**
+ * @deprecated Use useTodoActions or useInitTodos instead
+ *
+ * This hook is kept for backward compatibility but will be removed.
+ * - Use useInitTodos in TodoList component (fetches on mount)
+ * - Use useTodoActions in TodoForm/TodoItem (no fetch on mount)
+ */
+export function useTodos() {
+  return useInitTodos();
 }

@@ -72,15 +72,15 @@ test.describe('TodoList Application', () => {
     }
 
     // Verify statistics section exists and shows correct counts
-    const statsSection = page.locator('section[aria-label="Todo statistics"]');
+    const statsSection = page.getByRole('region', { name: /todo statistics/i });
     await expect(statsSection).toBeVisible();
 
     // Check total count
-    const totalStat = statsSection.locator('div[aria-label*="total todos"]');
+    const totalStat = statsSection.getByLabel(/total todos/i);
     await expect(totalStat).toContainText('3');
 
     // Check active count
-    const activeStat = statsSection.locator('div[aria-label*="active todos"]');
+    const activeStat = statsSection.getByLabel(/active todos/i);
     await expect(activeStat).toContainText('3');
   });
 
@@ -97,24 +97,34 @@ test.describe('TodoList Application', () => {
     await expect(checkbox).not.toBeChecked();
 
     // 3. Check checkbox to mark as complete
+    const toggleResponsePromise = page.waitForResponse(
+      response => response.url().includes('/api/todos/') &&
+                  response.request().method() === 'PUT' &&
+                  response.status() === 200
+    );
     await checkbox.check();
+    await toggleResponsePromise;
 
-    // Wait for the toggle to complete (API call)
-    await page.waitForTimeout(500);
-
-    await expect(checkbox).toBeChecked();
+    // Re-locate checkbox after state change (aria-label changes from "as complete" to "as incomplete")
+    const checkedCheckbox = page.getByRole('checkbox', { name: /mark "Test task" as incomplete/i });
+    await expect(checkedCheckbox).toBeChecked();
 
     // 4. Verify line-through style
     const todoText = page.getByText('Test task').first();
     await expect(todoText).toHaveCSS('text-decoration-line', 'line-through');
 
     // 5. Uncheck to mark as incomplete
-    await checkbox.uncheck();
+    const untoggleResponsePromise = page.waitForResponse(
+      response => response.url().includes('/api/todos/') &&
+                  response.request().method() === 'PUT' &&
+                  response.status() === 200
+    );
+    await checkedCheckbox.uncheck();
+    await untoggleResponsePromise;
 
-    // Wait for the toggle to complete (API call)
-    await page.waitForTimeout(500);
-
-    await expect(checkbox).not.toBeChecked();
+    // Re-locate checkbox after state change (aria-label changes back to "as complete")
+    const uncheckedCheckbox = page.getByRole('checkbox', { name: /mark "Test task" as complete/i });
+    await expect(uncheckedCheckbox).not.toBeChecked();
     await expect(todoText).not.toHaveCSS('text-decoration-line', 'line-through');
   });
 
@@ -127,11 +137,11 @@ test.describe('TodoList Application', () => {
     await page.getByRole('button', { name: /add todo/i }).click();
 
     // 2. Double click to enter edit mode
-    const todoText = page.getByText('Original title');
+    const todoText = page.getByRole('button', { name: /todo: original title/i });
     await todoText.dblclick();
 
-    // 3. Modify title - find the edit input by its id or role
-    const editInput = page.locator('input[id^="edit-"]');
+    // 3. Modify title - find the edit input by label
+    const editInput = page.getByLabel(/edit "original title"/i);
     await editInput.clear();
     await editInput.fill('New title');
 
@@ -173,18 +183,29 @@ test.describe('TodoList Application', () => {
     const input = page.getByPlaceholder(/what needs to be done/i);
     const addButton = page.getByRole('button', { name: /add todo/i });
 
+    // Add first active task
     await input.fill('Active task 1');
     await addButton.click();
+    await expect(page.getByText('Active task 1')).toBeVisible();
 
+    // Add second active task
     await input.fill('Active task 2');
     await addButton.click();
+    await expect(page.getByText('Active task 2')).toBeVisible();
 
+    // Add completed task
     await input.fill('Completed task');
     await addButton.click();
+    await expect(page.getByText('Completed task')).toBeVisible();
 
     // 2. Mark one as complete
+    const completeResponsePromise = page.waitForResponse(
+      response => response.url().includes('/api/todos/') &&
+                  response.request().method() === 'PUT' &&
+                  response.status() === 200
+    );
     await page.getByRole('checkbox', { name: /mark "Completed task" as complete/i }).check();
-    await page.waitForTimeout(500);
+    await completeResponsePromise;
 
     // 3. Test Active filter - use aria-label to avoid matching todo titles
     await page.getByRole('button', { name: /show active todos/i }).click();
@@ -219,18 +240,18 @@ test.describe('TodoList Application', () => {
   });
 
   /**
-   * E2E-8: LocalStorage persistence
+   * E2E-8: Backend API persistence
    */
-  test('should persist todos to localStorage', async ({ page }) => {
+  test('should persist todos via backend API', async ({ page }) => {
     // 1. Add todo
     await page.getByPlaceholder(/what needs to be done/i).fill('Persistence test');
     await page.getByRole('button', { name: /add todo/i }).click();
 
-    // 2. Reload page
+    // 2. Reload page (should fetch from backend API)
     await page.reload();
 
-    // 3. Verify todo still exists - use .first() to handle duplicates if they occur
-    await expect(page.getByRole('button', { name: /todo: persistence test/i }).first()).toBeVisible();
+    // 3. Verify todo still exists (fetched from backend)
+    await expect(page.getByRole('button', { name: /todo: persistence test/i })).toBeVisible();
   });
 
   /**

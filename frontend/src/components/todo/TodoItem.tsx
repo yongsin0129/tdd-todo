@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, type KeyboardEvent } from 'react';
 import { useTodoStore } from '@store/todoStore';
-import { useTodos } from '@hooks/useTodos';
+import { useTodoActions } from '@hooks/useTodos';
 import type { Todo } from '@/types/todo';
 
 interface TodoItemProps {
@@ -18,6 +18,8 @@ interface TodoItemProps {
  * - Keyboard shortcuts (Enter to save, Escape to cancel)
  * - API integration for updates and deletes
  *
+ * Note: Uses useTodoActions (no initial fetch) to avoid unnecessary API calls.
+ *
  * @see .doc/Frontend-Team-Todolist.md Task 2.4, Task 2.6
  */
 export function TodoItem({ todo }: TodoItemProps) {
@@ -29,7 +31,9 @@ export function TodoItem({ todo }: TodoItemProps) {
   const toggleTodoLocal = useTodoStore((state) => state.toggleTodo);
   const updateTodoLocal = useTodoStore((state) => state.updateTodo);
   const deleteTodoLocal = useTodoStore((state) => state.deleteTodo);
-  const { updateTodo, deleteTodo, fetchTodos } = useTodos();
+
+  // Use action hook (no fetch on mount)
+  const { updateTodo, deleteTodo, fetchTodos } = useTodoActions();
 
   // Auto-focus input when entering edit mode
   useEffect(() => {

@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { renderHook, waitFor } from '@testing-library/react';
-import { useTodos } from './useTodos';
+import { useTodoActions, useInitTodos, useTodos } from './useTodos';
 import { useTodoStore } from '@/store/todoStore';
 import type { Todo } from '@/types/todo';
 
@@ -8,7 +8,7 @@ import type { Todo } from '@/types/todo';
 const mockFetch = vi.fn();
 global.fetch = mockFetch;
 
-describe('useTodos Hook', () => {
+describe('useTodoActions Hook', () => {
   beforeEach(() => {
     // Reset store state before each test
     useTodoStore.setState({
@@ -22,7 +22,7 @@ describe('useTodos Hook', () => {
   });
 
   describe('fetchTodos', () => {
-    it('should fetch todos from API on mount', async () => {
+    it('should fetch todos from API when called manually', async () => {
       const mockTodos: Todo[] = [
         {
           id: '1',
@@ -38,7 +38,10 @@ describe('useTodos Hook', () => {
         json: async () => ({ success: true, data: mockTodos }),
       });
 
-      renderHook(() => useTodos());
+      const { result } = renderHook(() => useTodoActions());
+
+      // Manually call fetchTodos (no automatic fetch on mount)
+      await result.current.fetchTodos();
 
       await waitFor(() => {
         const state = useTodoStore.getState();
@@ -47,6 +50,18 @@ describe('useTodos Hook', () => {
       });
 
       expect(mockFetch).toHaveBeenCalledWith('/api/todos');
+    });
+
+    it('should NOT fetch todos automatically on mount', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ success: true, data: [] }),
+      });
+
+      renderHook(() => useTodoActions());
+
+      // Should NOT call fetch automatically
+      expect(mockFetch).not.toHaveBeenCalled();
     });
 
     it('should set loading state while fetching', async () => {
@@ -64,10 +79,15 @@ describe('useTodos Hook', () => {
           )
       );
 
-      renderHook(() => useTodos());
+      const { result } = renderHook(() => useTodoActions());
+
+      // Manually trigger fetch
+      const fetchPromise = result.current.fetchTodos();
 
       // Should be loading immediately
       expect(useTodoStore.getState().loading).toBe(true);
+
+      await fetchPromise;
 
       await waitFor(() => {
         expect(useTodoStore.getState().loading).toBe(false);
@@ -86,7 +106,9 @@ describe('useTodos Hook', () => {
         }),
       });
 
-      renderHook(() => useTodos());
+      const { result } = renderHook(() => useTodoActions());
+
+      await result.current.fetchTodos();
 
       await waitFor(() => {
         const state = useTodoStore.getState();
@@ -98,7 +120,9 @@ describe('useTodos Hook', () => {
     it('should handle network errors', async () => {
       mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
-      renderHook(() => useTodos());
+      const { result } = renderHook(() => useTodoActions());
+
+      await result.current.fetchTodos();
 
       await waitFor(() => {
         const state = useTodoStore.getState();
@@ -118,12 +142,6 @@ describe('useTodos Hook', () => {
         updatedAt: new Date(),
       };
 
-      // Mock initial fetch (empty array)
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ success: true, data: [] }),
-      });
-
       // Mock create request
       mockFetch.mockResolvedValueOnce({
         ok: true,
@@ -131,12 +149,7 @@ describe('useTodos Hook', () => {
         json: async () => ({ success: true, data: newTodo }),
       });
 
-      const { result } = renderHook(() => useTodos());
-
-      // Wait for initial fetch to complete
-      await waitFor(() => {
-        expect(useTodoStore.getState().loading).toBe(false);
-      });
+      const { result } = renderHook(() => useTodoActions());
 
       // Call createTodo
       const created = await result.current.createTodo({ title: 'New Todo' });
@@ -150,12 +163,6 @@ describe('useTodos Hook', () => {
     });
 
     it('should handle create errors', async () => {
-      // Mock initial fetch
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ success: true, data: [] }),
-      });
-
       // Mock create error
       mockFetch.mockResolvedValueOnce({
         ok: false,
@@ -169,11 +176,7 @@ describe('useTodos Hook', () => {
         }),
       });
 
-      const { result } = renderHook(() => useTodos());
-
-      await waitFor(() => {
-        expect(useTodoStore.getState().loading).toBe(false);
-      });
+      const { result } = renderHook(() => useTodoActions());
 
       await expect(result.current.createTodo({ title: '' })).rejects.toThrow(
         'Title is required'
@@ -192,23 +195,13 @@ describe('useTodos Hook', () => {
         completedAt: new Date(),
       };
 
-      // Mock initial fetch
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ success: true, data: [] }),
-      });
-
       // Mock update request
       mockFetch.mockResolvedValueOnce({
         ok: true,
         json: async () => ({ success: true, data: updatedTodo }),
       });
 
-      const { result } = renderHook(() => useTodos());
-
-      await waitFor(() => {
-        expect(useTodoStore.getState().loading).toBe(false);
-      });
+      const { result } = renderHook(() => useTodoActions());
 
       const updated = await result.current.updateTodo('1', {
         title: 'Updated Todo',
@@ -224,12 +217,6 @@ describe('useTodos Hook', () => {
     });
 
     it('should handle update errors', async () => {
-      // Mock initial fetch
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ success: true, data: [] }),
-      });
-
       // Mock update error
       mockFetch.mockResolvedValueOnce({
         ok: false,
@@ -243,11 +230,7 @@ describe('useTodos Hook', () => {
         }),
       });
 
-      const { result } = renderHook(() => useTodos());
-
-      await waitFor(() => {
-        expect(useTodoStore.getState().loading).toBe(false);
-      });
+      const { result } = renderHook(() => useTodoActions());
 
       await expect(
         result.current.updateTodo('999', { title: 'Updated' })
@@ -257,23 +240,13 @@ describe('useTodos Hook', () => {
 
   describe('deleteTodo', () => {
     it('should delete a todo via API', async () => {
-      // Mock initial fetch
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ success: true, data: [] }),
-      });
-
       // Mock delete request
       mockFetch.mockResolvedValueOnce({
         ok: true,
         status: 204,
       });
 
-      const { result } = renderHook(() => useTodos());
-
-      await waitFor(() => {
-        expect(useTodoStore.getState().loading).toBe(false);
-      });
+      const { result } = renderHook(() => useTodoActions());
 
       await result.current.deleteTodo('1');
 
@@ -283,12 +256,6 @@ describe('useTodos Hook', () => {
     });
 
     it('should handle delete errors', async () => {
-      // Mock initial fetch
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ success: true, data: [] }),
-      });
-
       // Mock delete error
       mockFetch.mockResolvedValueOnce({
         ok: false,
@@ -302,11 +269,7 @@ describe('useTodos Hook', () => {
         }),
       });
 
-      const { result } = renderHook(() => useTodos());
-
-      await waitFor(() => {
-        expect(useTodoStore.getState().loading).toBe(false);
-      });
+      const { result } = renderHook(() => useTodoActions());
 
       await expect(result.current.deleteTodo('999')).rejects.toThrow(
         'Todo not found'
@@ -331,11 +294,8 @@ describe('useTodos Hook', () => {
         updatedAt: new Date(),
       };
 
-      // Mock initial fetch
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ success: true, data: [initialTodo] }),
-      });
+      // Set initial store state
+      useTodoStore.setState({ todos: [initialTodo] });
 
       // Mock toggle request (PUT with isCompleted: true)
       mockFetch.mockResolvedValueOnce({
@@ -343,11 +303,7 @@ describe('useTodos Hook', () => {
         json: async () => ({ success: true, data: toggledTodo }),
       });
 
-      const { result } = renderHook(() => useTodos());
-
-      await waitFor(() => {
-        expect(useTodoStore.getState().loading).toBe(false);
-      });
+      const { result } = renderHook(() => useTodoActions());
 
       const updated = await result.current.toggleTodo('1');
 
@@ -359,5 +315,124 @@ describe('useTodos Hook', () => {
         body: JSON.stringify({ isCompleted: true }),
       });
     });
+  });
+});
+
+describe('useInitTodos Hook', () => {
+  beforeEach(() => {
+    useTodoStore.setState({
+      todos: [],
+      filter: 'all',
+      loading: false,
+      error: null,
+    });
+    vi.clearAllMocks();
+  });
+
+  it('should fetch todos from API on mount', async () => {
+    const mockTodos: Todo[] = [
+      {
+        id: '1',
+        title: 'Test Todo',
+        isCompleted: false,
+        createdAt: new Date('2025-01-01'),
+        updatedAt: new Date('2025-01-01'),
+      },
+    ];
+
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ success: true, data: mockTodos }),
+    });
+
+    renderHook(() => useInitTodos());
+
+    await waitFor(() => {
+      const state = useTodoStore.getState();
+      expect(state.todos).toHaveLength(1);
+      expect(state.todos[0].title).toBe('Test Todo');
+    });
+
+    expect(mockFetch).toHaveBeenCalledWith('/api/todos');
+    expect(mockFetch).toHaveBeenCalledTimes(1);
+  });
+
+  it('should set loading state while fetching on mount', async () => {
+    mockFetch.mockImplementation(
+      () =>
+        new Promise((resolve) =>
+          setTimeout(
+            () =>
+              resolve({
+                ok: true,
+                json: async () => ({ success: true, data: [] }),
+              }),
+            100
+          )
+        )
+    );
+
+    renderHook(() => useInitTodos());
+
+    // Should be loading immediately after mount
+    expect(useTodoStore.getState().loading).toBe(true);
+
+    await waitFor(() => {
+      expect(useTodoStore.getState().loading).toBe(false);
+    });
+  });
+
+  it('should return action functions', () => {
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ success: true, data: [] }),
+    });
+
+    const { result } = renderHook(() => useInitTodos());
+
+    expect(result.current).toHaveProperty('fetchTodos');
+    expect(result.current).toHaveProperty('createTodo');
+    expect(result.current).toHaveProperty('updateTodo');
+    expect(result.current).toHaveProperty('deleteTodo');
+    expect(result.current).toHaveProperty('toggleTodo');
+  });
+});
+
+describe('useTodos Hook (deprecated)', () => {
+  beforeEach(() => {
+    useTodoStore.setState({
+      todos: [],
+      filter: 'all',
+      loading: false,
+      error: null,
+    });
+    vi.clearAllMocks();
+  });
+
+  it('should behave like useInitTodos for backward compatibility', async () => {
+    const mockTodos: Todo[] = [
+      {
+        id: '1',
+        title: 'Test Todo',
+        isCompleted: false,
+        createdAt: new Date('2025-01-01'),
+        updatedAt: new Date('2025-01-01'),
+      },
+    ];
+
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: async () => ({ success: true, data: mockTodos }),
+    });
+
+    renderHook(() => useTodos());
+
+    await waitFor(() => {
+      const state = useTodoStore.getState();
+      expect(state.todos).toHaveLength(1);
+      expect(state.todos[0].title).toBe('Test Todo');
+    });
+
+    expect(mockFetch).toHaveBeenCalledWith('/api/todos');
   });
 });

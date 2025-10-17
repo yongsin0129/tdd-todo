@@ -7,8 +7,8 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './e2e',
 
-  /* 平行執行測試 */
-  fullyParallel: true,
+  /* 平行執行測試 - 禁用以避免共享數據庫時的測試干擾 */
+  fullyParallel: false,
 
   /* 在 CI 環境失敗重試 */
   forbidOnly: !!process.env.CI,

@@ -1,6 +1,6 @@
 import { useRef, useState, lazy, Suspense } from 'react';
 import { useTodoStore } from '@store/todoStore';
-import { useTodos } from '@hooks/useTodos';
+import { useInitTodos } from '@hooks/useTodos';
 import { useKeyboardShortcuts } from '@hooks/useKeyboardShortcuts';
 import { TodoForm } from './TodoForm';
 import { TodoItem } from './TodoItem';
@@ -19,13 +19,13 @@ const ShortcutHelp = lazy(() => import('../ui/ShortcutHelp').then(module => ({ d
  * - Displays statistics (total, active, completed counts)
  * - Handles empty states for different filters
  * - Shows loading and error states
- * - Integrates with API via useTodos hook (automatic data fetching on mount)
+ * - Integrates with API via useInitTodos hook (automatic data fetching on mount)
  *
  * @see .doc/Frontend-Team-Todolist.md Task 2.5, Task 2.6
  */
 export function TodoList() {
-  // Initialize API integration (fetches todos on mount)
-  useTodos();
+  // Initialize API integration (fetches todos on mount - ONLY called once here)
+  useInitTodos();
 
   const todos = useTodoStore((state) => state.todos);
   const filter = useTodoStore((state) => state.filter);

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, forwardRef, type FormEvent } from 'react';
-import { useTodos } from '@hooks/useTodos';
+import { useTodoActions } from '@hooks/useTodos';
 
 /**
  * TodoForm Component
@@ -13,6 +13,8 @@ import { useTodos } from '@hooks/useTodos';
  * - Accessible error messages
  * - API integration for creating todos
  *
+ * Note: Uses useTodoActions (no initial fetch) to avoid unnecessary API calls.
+ *
  * @see .doc/Frontend-Team-Todolist.md Task 2.3, Task 2.6
  */
 export const TodoForm = forwardRef<HTMLInputElement>((_props, externalRef) => {
@@ -24,7 +26,8 @@ export const TodoForm = forwardRef<HTMLInputElement>((_props, externalRef) => {
   // Use external ref if provided, otherwise use internal ref
   const inputRef = (externalRef || internalRef) as React.RefObject<HTMLInputElement>;
 
-  const { createTodo, fetchTodos } = useTodos();
+  // Use action hook (no fetch on mount)
+  const { createTodo, fetchTodos } = useTodoActions();
 
   // Auto-focus input on mount
   useEffect(() => {
