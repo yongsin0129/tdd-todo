@@ -5,7 +5,7 @@ import { useKeyboardShortcuts } from '@hooks/useKeyboardShortcuts';
 import { TodoForm } from './TodoForm';
 import { TodoItem } from './TodoItem';
 import { ShortcutHelp } from '../ui/ShortcutHelp';
-import type { TodoFilter } from '@types/todo';
+import type { TodoFilter } from '@/types/todo';
 
 /**
  * TodoList Component

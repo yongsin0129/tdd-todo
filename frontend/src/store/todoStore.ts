@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { devtools, persist } from 'zustand/middleware';
 import { immer } from 'zustand/middleware/immer';
-import type { Todo, TodoFilter, TodoStats } from '@types/todo';
+import type { Todo, TodoFilter, TodoStats } from '@/types/todo';
 
 /**
  * TodoStore State Interface

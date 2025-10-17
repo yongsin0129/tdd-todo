@@ -15,7 +15,7 @@ import { useTodos } from '@hooks/useTodos';
  *
  * @see .doc/Frontend-Team-Todolist.md Task 2.3, Task 2.6
  */
-export const TodoForm = forwardRef<HTMLInputElement>((props, externalRef) => {
+export const TodoForm = forwardRef<HTMLInputElement>((_props, externalRef) => {
   const [title, setTitle] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);

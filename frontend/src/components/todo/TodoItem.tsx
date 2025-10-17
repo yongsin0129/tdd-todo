@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, type KeyboardEvent } from 'react';
 import { useTodoStore } from '@store/todoStore';
 import { useTodos } from '@hooks/useTodos';
-import type { Todo } from '@types/todo';
+import type { Todo } from '@/types/todo';
 
 interface TodoItemProps {
   todo: Todo;

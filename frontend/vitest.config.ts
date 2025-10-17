@@ -16,6 +16,9 @@ export default defineConfig({
         'src/test/',
         '**/*.test.{ts,tsx}',
         '**/*.config.{ts,js}',
+        'src/main.tsx', // Entry point, not typically tested
+        'src/types/**', // Type definitions only, no executable code
+        'dist/**', // Build artifacts
       ],
       thresholds: {
         statements: 80,

@@ -1,7 +1,18 @@
-import { render, screen, fireEvent, within } from '@testing-library/react';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TodoItem } from './TodoItem';
 import { useTodoStore } from '@store/todoStore';
+
+// Mock useTodos hook to prevent API calls in tests
+vi.mock('@hooks/useTodos', () => ({
+  useTodos: () => ({
+    fetchTodos: vi.fn().mockResolvedValue(undefined),
+    createTodo: vi.fn().mockResolvedValue(undefined),
+    updateTodo: vi.fn().mockResolvedValue(undefined),
+    deleteTodo: vi.fn().mockResolvedValue(undefined),
+    toggleTodo: vi.fn().mockResolvedValue(undefined),
+  }),
+}));
 
 describe('TodoItem', () => {
   beforeEach(() => {
@@ -130,7 +141,7 @@ describe('TodoItem', () => {
       expect(input.value).toBe('Test Todo');
     });
 
-    it('should update todo when pressing Enter', () => {
+    it('should update todo when pressing Enter', async () => {
       useTodoStore.setState({ todos: [mockTodo] });
       render(<TodoItem todo={mockTodo} />);
 
@@ -143,9 +154,11 @@ describe('TodoItem', () => {
       fireEvent.change(input, { target: { value: 'Updated Todo' } });
       fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
 
-      // Check updated title
-      const todos = useTodoStore.getState().todos;
-      expect(todos[0].title).toBe('Updated Todo');
+      // Wait for async update to complete by checking store state
+      await waitFor(() => {
+        const todos = useTodoStore.getState().todos;
+        expect(todos[0].title).toBe('Updated Todo');
+      });
     });
 
     it('should cancel edit when pressing Escape', () => {
@@ -167,7 +180,7 @@ describe('TodoItem', () => {
       expect(todos[0].title).toBe('Test Todo');
     });
 
-    it('should exit edit mode when input loses focus', () => {
+    it('should exit edit mode when input loses focus', async () => {
       useTodoStore.setState({ todos: [mockTodo] });
       render(<TodoItem todo={mockTodo} />);
 
@@ -180,9 +193,11 @@ describe('TodoItem', () => {
       fireEvent.change(input, { target: { value: 'Updated' } });
       fireEvent.blur(input);
 
-      // Should save changes
-      const todos = useTodoStore.getState().todos;
-      expect(todos[0].title).toBe('Updated');
+      // Wait for async update to complete by checking store state
+      await waitFor(() => {
+        const todos = useTodoStore.getState().todos;
+        expect(todos[0].title).toBe('Updated');
+      });
     });
 
     it('should not save empty title', () => {
@@ -201,7 +216,7 @@ describe('TodoItem', () => {
       expect(todos[0].title).toBe('Test Todo');
     });
 
-    it('should trim whitespace before saving', () => {
+    it('should trim whitespace before saving', async () => {
       useTodoStore.setState({ todos: [mockTodo] });
       render(<TodoItem todo={mockTodo} />);
 
@@ -212,8 +227,11 @@ describe('TodoItem', () => {
       fireEvent.change(input, { target: { value: '  Updated  ' } });
       fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
 
-      const todos = useTodoStore.getState().todos;
-      expect(todos[0].title).toBe('Updated');
+      // Wait for async update to complete by checking store state
+      await waitFor(() => {
+        const todos = useTodoStore.getState().todos;
+        expect(todos[0].title).toBe('Updated');
+      });
     });
   });
 

@@ -1,7 +1,23 @@
 import { render, screen, within } from '@testing-library/react';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TodoList } from './TodoList';
 import { useTodoStore } from '@store/todoStore';
+
+// Mock useTodos hook to prevent API calls in tests
+vi.mock('@hooks/useTodos', () => ({
+  useTodos: () => ({
+    fetchTodos: vi.fn().mockResolvedValue(undefined),
+    createTodo: vi.fn().mockResolvedValue(undefined),
+    updateTodo: vi.fn().mockResolvedValue(undefined),
+    deleteTodo: vi.fn().mockResolvedValue(undefined),
+    toggleTodo: vi.fn().mockResolvedValue(undefined),
+  }),
+}));
+
+// Mock useKeyboardShortcuts hook to prevent keyboard event listeners in tests
+vi.mock('@hooks/useKeyboardShortcuts', () => ({
+  useKeyboardShortcuts: vi.fn(),
+}));
 
 describe('TodoList', () => {
   beforeEach(() => {
@@ -210,27 +226,27 @@ describe('TodoList', () => {
     });
 
     it('should display active count', () => {
-      const { container } = render(<TodoList />);
+      render(<TodoList />);
 
-      // Find the statistics section
-      const statsSection = container.querySelector('.bg-white.shadow-md.rounded-lg.p-4:last-of-type');
+      // Find the statistics section using ARIA label (more robust than CSS selectors)
+      const statsSection = screen.getByLabelText('Todo statistics');
       expect(statsSection).toBeInTheDocument();
 
       // Check for active count within statistics
-      expect(within(statsSection!).getByText('2')).toBeInTheDocument();
-      expect(within(statsSection!).getByText('Active')).toBeInTheDocument();
+      expect(within(statsSection).getByText('2')).toBeInTheDocument();
+      expect(within(statsSection).getByText('Active')).toBeInTheDocument();
     });
 
     it('should display completed count', () => {
-      const { container } = render(<TodoList />);
+      render(<TodoList />);
 
-      // Find the statistics section
-      const statsSection = container.querySelector('.bg-white.shadow-md.rounded-lg.p-4:last-of-type');
+      // Find the statistics section using ARIA label (more robust than CSS selectors)
+      const statsSection = screen.getByLabelText('Todo statistics');
       expect(statsSection).toBeInTheDocument();
 
       // Check for completed count within statistics
-      expect(within(statsSection!).getByText('1')).toBeInTheDocument();
-      expect(within(statsSection!).getByText('Completed')).toBeInTheDocument();
+      expect(within(statsSection).getByText('1')).toBeInTheDocument();
+      expect(within(statsSection).getByText('Completed')).toBeInTheDocument();
     });
 
     it('should update stats when todos change', () => {
