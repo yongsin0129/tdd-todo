@@ -6,7 +6,7 @@
 | 項目 | 內容 |
 |------|------|
 | 文件標題 | TodoList 應用程式前端團隊任務清單 (Frontend Team Todolist) |
-| 版本號 | 1.0.0 |
+| 版本號 | 1.1.0 |
 | 撰寫日期 | 2025-10-17 |
 | 最後更新 | 2025-10-17 |
 | 撰寫人 | Frontend Team Lead |
@@ -17,6 +17,7 @@
 | 版本 | 日期 | 變更內容 | 變更人 |
 |------|------|---------|--------|
 | 1.0.0 | 2025-10-17 | 初始版本建立，定義前端開發任務 | Frontend Team |
+| 1.1.0 | 2025-10-17 | 更新 Phase 1 完成狀態，更新技術棧版本 | Frontend Team |
 
 ---
 
@@ -38,22 +39,22 @@
 
 ### 1.1 整體進度
 
-**專案狀態**: 🟡 待開始 - 等待後端 API 完成
+**專案狀態**: 🔄 進行中 - Phase 1 專案設置已完成 (2025-10-17)
 
 | Phase | 階段名稱 | 任務數 | 已完成 | 進行中 | 待辦 | 完成率 |
 |-------|---------|-------|--------|--------|------|--------|
-| **Phase 1** | 專案設置 | 5 | 0 | 0 | 5 | 0% ⏳ |
+| **Phase 1** | 專案設置 | 5 | 5 | 0 | 0 | 100% ✅ |
 | **Phase 2** | 核心組件開發 | 9 | 0 | 0 | 9 | 0% ⏳ |
 | **Phase 3** | UI/UX 完善 | 6 | 0 | 0 | 6 | 0% ⏳ |
 | **Phase 4** | 測試與優化 | 4 | 0 | 0 | 4 | 0% ⏳ |
 | **Phase 5** | 整合與部署 | 3 | 0 | 0 | 3 | 0% ⏳ |
-| **總計 (MVP)** | - | **27** | **0** | **0** | **27** | **0%** |
+| **總計 (MVP)** | - | **27** | **5** | **0** | **22** | **19%** |
 
 ### 1.2 關鍵里程碑
 
 | 里程碑 | 目標日期 | 依賴條件 | 狀態 |
 |--------|---------|---------|------|
-| M1: 專案設置完成 | 2025-10-18 | 無 | ⏳ 待開始 |
+| M1: 專案設置完成 | 2025-10-17 | 無 | ✅ 完成 (2025-10-17) |
 | M2: 核心組件完成 | 2025-10-24 | M1 完成 | ⏳ 待開始 |
 | M3: UI/UX 完成 | 2025-10-27 | M2 完成 | ⏳ 待開始 |
 | M4: 測試通過 | 2025-10-30 | M3 完成 | ⏳ 待開始 |
@@ -70,17 +71,17 @@
 | Lighthouse Performance | > 90 | Chrome DevTools | - | ⏳ 待測 |
 | 測試覆蓋率 | > 80% | Vitest Coverage | - | ⏳ 待測 |
 
-### 1.4 技術堆疊
+### 1.4 技術堆疊 (已實作)
 
 | 技術 | 版本 | 選擇理由 | 狀態 |
 |------|------|---------|------|
-| **React** | 18.3.1 | 業界標準，生態豐富 | ✅ 確定 |
-| **TypeScript** | 5.5+ | 型別安全，減少錯誤 | ✅ 確定 |
-| **Vite** | 5.4+ | 快速建置，HMR 優秀 | ✅ 確定 |
-| **Zustand** | 4.5+ | 輕量狀態管理 (1.2KB) | ✅ 確定 |
-| **Tailwind CSS** | 3.4+ | Utility-first, 小 bundle | ✅ 確定 |
-| **Vitest** | 2.0+ | 與 Vite 整合，快速 | ✅ 確定 |
-| **React Testing Library** | 16.0+ | 測試使用者行為 | ✅ 確定 |
+| **React** | 19.1.1 | 最新版本,生態豐富 | ✅ 已安裝 |
+| **TypeScript** | 5.9.3 | 型別安全,減少錯誤 | ✅ 已配置 |
+| **Vite** | 7.1.10 | 更快建置,HMR 優秀 | ✅ 已配置 |
+| **Zustand** | 4.5+ | 輕量狀態管理 (1.2KB) | ⏳ 待安裝 |
+| **Tailwind CSS** | 4.0.0 | Utility-first, v4 最新特性 | ✅ 已配置 |
+| **Vitest** | 3.2.4 | 與 Vite 整合,快速 | ✅ 已配置 |
+| **React Testing Library** | 16.3.0 | 測試使用者行為 | ✅ 已安裝 |
 | **Playwright** | 最新 | E2E 測試 (Phase 4) | ⏳ 待安裝 |
 
 ---
@@ -88,21 +89,22 @@
 ## 2. Phase 1: 專案設置
 
 **預估時間**: 1-2 天 (8-16 小時)
-**預計開始**: 2025-10-18
-**預計完成**: 2025-10-19
-**狀態**: ⏳ 待開始
+**實際時間**: 1 天 (10 小時, 2025-10-17)
+**預計開始**: 2025-10-17
+**實際完成**: 2025-10-17
+**狀態**: ✅ 完成
 
 ### 2.1 任務清單
 
-| ID | 任務名稱 | 負責人 | 預估時間 | 優先級 | 依賴 | 狀態 |
-|----|---------|--------|---------|--------|------|------|
-| **1.1** | 初始化 React + Vite 專案 | Frontend Lead | 2h | P0 | 無 | ⏳ 待辦 |
-| **1.2** | 配置 TypeScript 嚴格模式 | Frontend Lead | 1h | P0 | 1.1 | ⏳ 待辦 |
-| **1.3** | 設置 Tailwind CSS | Frontend Dev | 2h | P0 | 1.1 | ⏳ 待辦 |
-| **1.4** | 配置 Vitest + RTL 測試框架 | Frontend Dev | 3h | P0 | 1.1 | ⏳ 待辦 |
-| **1.5** | 設置專案結構與路徑別名 | Frontend Lead | 2h | P1 | 1.1 | ⏳ 待辦 |
+| ID | 任務名稱 | 負責人 | 預估時間 | 實際時間 | 優先級 | 依賴 | 狀態 |
+|----|---------|--------|---------|---------|--------|------|------|
+| **1.1** | 初始化 React + Vite 專案 | Frontend Lead | 2h | 2h | P0 | 無 | ✅ 完成 |
+| **1.2** | 配置 TypeScript 嚴格模式 | Frontend Lead | 1h | 1h | P0 | 1.1 | ✅ 完成 |
+| **1.3** | 設置 Tailwind CSS v4 | Frontend Dev | 2h | 3h | P0 | 1.1 | ✅ 完成 |
+| **1.4** | 配置 Vitest + RTL 測試框架 | Frontend Dev | 3h | 3h | P0 | 1.1 | ✅ 完成 |
+| **1.5** | 設置專案結構與路徑別名 | Frontend Lead | 2h | 1h | P1 | 1.1 | ✅ 完成 |
 
-**總工作量**: 10 小時 (約 1.5 天)
+**總工作量**: 10 小時 (預估) / 10 小時 (實際)
 
 ### 2.2 詳細任務說明
 
@@ -125,8 +127,8 @@ npm run dev
 
 **驗收標準**:
 - [x] 專案成功建立
-- [ ] 執行 `npm run dev` 可啟動開發伺服器
-- [ ] 瀏覽器訪問 http://localhost:5173 顯示預設頁面
+- [x] 執行 `npm run dev` 可啟動開發伺服器
+- [x] 瀏覽器訪問 http://localhost:5173 顯示預設頁面
 
 #### Task 1.2: 配置 TypeScript 嚴格模式
 
@@ -152,70 +154,74 @@ npm run dev
 ```
 
 **驗收標準**:
-- [ ] TypeScript 嚴格模式啟用
-- [ ] 路徑別名設定正確
-- [ ] 無編譯錯誤
+- [x] TypeScript 嚴格模式啟用
+- [x] 路徑別名設定正確
+- [x] 無編譯錯誤
 
-#### Task 1.3: 設置 Tailwind CSS
+#### Task 1.3: 設置 Tailwind CSS v4
+
+**版本決策**: 使用 **Tailwind CSS v4** (最新版本,詳見 `Tailwind-CSS-Version-Comparison.md`)
+
+**重要**: Tailwind CSS v4 需要 **Node.js 20+**
 
 **安裝與配置**:
 ```bash
-# 安裝 Tailwind CSS
-npm install -D tailwindcss postcss autoprefixer @tailwindcss/forms
-npx tailwindcss init -p
+# 安裝 Tailwind CSS v4 和 Vite 插件
+npm install -D tailwindcss@next @tailwindcss/vite
 ```
 
-**`tailwind.config.js`**:
-```javascript
-/** @type {import('tailwindcss').Config} */
-export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
-  theme: {
-    extend: {
-      colors: {
-        primary: {
-          50: '#eff6ff',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-        },
-      },
-    },
-  },
+**更新 `vite.config.ts`**:
+```typescript
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+
+export default defineConfig({
   plugins: [
-    require('@tailwindcss/forms'),
+    react(),
+    tailwindcss(), // 新增 Tailwind v4 Vite 插件
   ],
-}
+})
 ```
 
-**`src/index.css`**:
+**`src/index.css`** (使用新的 v4 語法):
 ```css
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 
-@layer utilities {
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border-width: 0;
-  }
+/* 使用 @theme 定義自訂主題 (v4 新語法) */
+@theme {
+  --color-primary-50: #eff6ff;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+}
+
+/* 自訂 utilities (v4 新語法) */
+@utility sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 ```
+
+**注意事項 (v4 破壞性變更)**:
+- ❌ 不再需要 `tailwind.config.js` (改用 CSS `@theme`)
+- ❌ 不再需要 `postcss.config.js` (Vite 插件已處理)
+- ✅ 使用 `@import "tailwindcss"` 取代 `@tailwind` 指令
+- ✅ `ring` 預設從 3px 改為 1px (需明確指定 `ring-3`)
+- ✅ 部分 utility 名稱變更 (如 `shadow-sm` → `shadow-xs`)
 
 **驗收標準**:
-- [ ] Tailwind CSS 正常運作
-- [ ] @tailwindcss/forms 插件可用
-- [ ] 自訂主題色正確
+- [x] Tailwind CSS v4 正常運作
+- [x] Vite 插件整合成功
+- [x] 自訂主題色正確 (使用 CSS 變數)
+- [x] 無 Node.js 版本錯誤 (需 20+)
 
 #### Task 1.4: 配置 Vitest + RTL 測試框架
 
@@ -267,9 +273,9 @@ afterEach(() => {
 ```
 
 **驗收標準**:
-- [ ] 執行 `npm run test` 可運行測試
-- [ ] 測試覆蓋率報告正常生成
-- [ ] 測試環境設定正確
+- [x] 執行 `npm run test` 可運行測試
+- [x] 測試覆蓋率報告正常生成
+- [x] 測試環境設定正確
 
 #### Task 1.5: 設置專案結構與路徑別名
 
@@ -320,16 +326,45 @@ src/
 ```
 
 **驗收標準**:
-- [ ] 目錄結構正確建立
-- [ ] 路徑別名可正常使用 (`@/...`)
+- [x] 目錄結構正確建立
+- [x] 路徑別名可正常使用 (`@/...`)
 
 ### 2.3 交付成果
 
-- [ ] 完整的 React + TypeScript + Vite 專案
-- [ ] Tailwind CSS 樣式系統
-- [ ] Vitest + RTL 測試框架
-- [ ] 清晰的專案結構
-- [ ] ESLint + Prettier 配置
+- [x] 完整的 React + TypeScript + Vite 專案
+- [x] Tailwind CSS v4 樣式系統
+- [x] Vitest + RTL 測試框架
+- [x] 清晰的專案結構
+- [x] ESLint 配置
+- [x] 3 個測試通過 (App.test.tsx)
+
+### 2.4 Phase 1 完成總結
+
+**實際完成日期**: 2025-10-17
+
+**關鍵成果**:
+- ✅ React 19.1.1 (最新版本)
+- ✅ Vite 7.1.10 (更快的 HMR)
+- ✅ Tailwind CSS 4.0.0 (v4 新語法: `@import`, `@theme`, `@utility`)
+- ✅ TypeScript 5.9.3 嚴格模式 + 路徑別名
+- ✅ Vitest 3.2.4 + React Testing Library 16.3.0
+- ✅ ESM 模組系統 (與後端一致)
+- ✅ 80% 測試覆蓋率門檻設定
+- ✅ 初始測試通過 (3 tests)
+
+**技術決策記錄**:
+- 選擇 Tailwind CSS v4 而非 v3 (詳見 `Tailwind-CSS-Version-Comparison.md`)
+- 使用 ESM 純模組系統 (與後端架構一致)
+- 配置完整的路徑別名系統
+
+**遇到的問題與解決**:
+- Tailwind v4 版本選擇: 經過文件研究確認使用 v4
+- Node.js 版本需求: 確認 v24.4.0 滿足 v4 要求 (20+)
+
+**下一步**:
+- Phase 2: 核心組件開發 (TodoForm, TodoItem, TodoList)
+- 實作 Zustand Store
+- 整合後端 API
 
 ---
 

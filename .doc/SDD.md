@@ -6,7 +6,7 @@
 | 項目 | 內容 |
 |------|------|
 | 文件標題 | TodoList 應用程式系統設計文件 (SDD) |
-| 版本號 | 1.1.0 |
+| 版本號 | 1.2.0 |
 | 撰寫日期 | 2025-10-14 |
 | 最後更新 | 2025-10-17 |
 | 撰寫人 | Technical Team |
@@ -18,6 +18,7 @@
 |------|------|---------|--------|
 | 1.0.0 | 2025-10-14 | 初始版本建立 | Technical Team |
 | 1.1.0 | 2025-10-17 | 重新組織文件結構，符合標準 SDD 格式 | Technical Team |
+| 1.2.0 | 2025-10-17 | 新增前端架構實作細節 (Phase 1 完成記錄) | Frontend Team |
 
 ---
 
@@ -135,11 +136,13 @@
 
 | 技術 | 版本 | 選擇理由 | 替代方案 |
 |------|------|---------|---------|
-| **React** | 18.3.1 | • 業界標準，生態系統豐富<br>• 組件化開發效率高<br>• 虛擬 DOM 效能優異<br>• TypeScript 支援完善 | Vue 3, Angular |
-| **TypeScript** | 5.5+ | • 靜態型別檢查，減少執行時錯誤<br>• 優秀的 IDE 支援與自動完成<br>• 大型專案維護性佳<br>• 重構安全性高 | JavaScript |
-| **Vite** | 5.4+ | • 開發伺服器啟動極快 (< 1s)<br>• 熱模組替換 (HMR) 快速<br>• 原生 ES modules 支援<br>• 生產建置優化 | Webpack, Parcel |
+| **React** | 19.1.1 | • 業界標準，生態系統豐富<br>• 組件化開發效率高<br>• 虛擬 DOM 效能優異<br>• TypeScript 支援完善 | Vue 3, Angular |
+| **TypeScript** | 5.9.3 | • 靜態型別檢查，減少執行時錯誤<br>• 優秀的 IDE 支援與自動完成<br>• 大型專案維護性佳<br>• 重構安全性高<br>• ESM 模組系統 | JavaScript |
+| **Vite** | 7.1.10 | • 開發伺服器啟動極快 (< 1s)<br>• 熱模組替換 (HMR) 快速<br>• 原生 ES modules 支援<br>• 生產建置優化 | Webpack, Parcel |
 | **Zustand** | 4.5+ | • 極小體積 (~1.2KB gzipped)<br>• 簡單 API，學習曲線低<br>• 無需 Provider 包裝<br>• 優秀的 TypeScript 推斷<br>• 內建 DevTools 支援 | Redux Toolkit, Jotai, Recoil |
-| **Tailwind CSS** | 3.4+ | • Utility-first 開發速度快<br>• Tree-shakable CSS<br>• 無 runtime overhead<br>• 響應式設計簡單<br>• 可搖樹優化 | Styled Components, Emotion, CSS Modules |
+| **Tailwind CSS** | 4.0.0 | • Utility-first 開發速度快<br>• Tree-shakable CSS<br>• 無 runtime overhead<br>• 響應式設計簡單<br>• v4 原生 CSS 整合 (`@import`)<br>• CSS 變數配置 (`@theme`) | Styled Components, Emotion, CSS Modules |
+| **Vitest** | 3.2.4 | • 與 Vite 無縫整合<br>• 快速測試執行<br>• 支援 TypeScript<br>• 覆蓋率報告內建 | Jest, Mocha |
+| **React Testing Library** | 16.3.0 | • 測試使用者行為導向<br>• 無障礙測試支援<br>• 與 Vitest 整合良好 | Enzyme |
 
 #### 後端技術棧
 
@@ -237,6 +240,35 @@
 - ✅ 開發效率高
 - ✅ 易於測試
 - ⚠️ 相對較新 (但已成熟)
+
+---
+
+#### ADR-004: 選擇 Tailwind CSS v4 而非 v3
+
+**日期**: 2025-10-17
+
+**狀態**: 已採用
+
+**背景**: Tailwind CSS 發布 v4,需要評估是否採用最新版本
+
+**決策**: 使用 Tailwind CSS v4
+
+**理由**:
+- 效能提升: v4 提供更快的建置速度
+- 現代化架構: 使用 CSS 原生 `@import` 取代 `@tailwind` 指令
+- CSS 變數配置: 使用 `@theme` 定義主題,取代 JavaScript 配置檔案
+- Vite 專用插件: `@tailwindcss/vite` 提供更好的整合
+- 學習最新技術: 為團隊未來發展做準備
+- 專案啟動階段: 新專案無遷移成本
+
+**後果**:
+- ✅ 更快的建置與 HMR 速度
+- ✅ 更簡潔的配置方式 (CSS 變數)
+- ✅ 與 Vite 更好的整合
+- ⚠️ 需要 Node.js 20+ (已滿足: v24.4.0)
+- ⚠️ 部分語法變更 (已文件化於 `Tailwind-CSS-Version-Comparison.md`)
+
+**參考文件**: `.doc/Tailwind-CSS-Version-Comparison.md`
 
 ---
 
@@ -446,6 +478,220 @@ backend/src/
 | **middleware** | 請求預處理、驗證、錯誤處理 | 無 |
 | **config** | 應用配置、資料庫連線 | Prisma |
 | **utils** | 共用工具函式 | 無 |
+
+### 4.4 前端架構實作細節 (Phase 1 完成)
+
+#### 4.4.1 專案設置狀態
+
+**完成日期**: 2025-10-17
+
+**Phase 1 任務完成狀態**:
+- ✅ Task 1.1: 初始化 React + Vite 專案
+- ✅ Task 1.2: 配置 TypeScript 嚴格模式與路徑別名
+- ✅ Task 1.3: 設置 Tailwind CSS v4
+- ✅ Task 1.4: 配置 Vitest + React Testing Library
+- ✅ Task 1.5: 建立專案結構
+
+#### 4.4.2 技術配置詳情
+
+**TypeScript 配置** (`tsconfig.app.json`):
+```json
+{
+  "compilerOptions": {
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "verbatimModuleSyntax": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@components/*": ["./src/components/*"],
+      "@store/*": ["./src/store/*"],
+      "@hooks/*": ["./src/hooks/*"],
+      "@types/*": ["./src/types/*"],
+      "@utils/*": ["./src/utils/*"]
+    }
+  }
+}
+```
+
+**Vite 配置** (`vite.config.ts`):
+```typescript
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+import path from 'path'
+
+export default defineConfig({
+  plugins: [
+    react(),
+    tailwindcss(), // Tailwind CSS v4 Vite 插件
+  ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+      '@components': path.resolve(__dirname, './src/components'),
+      '@store': path.resolve(__dirname, './src/store'),
+      '@hooks': path.resolve(__dirname, './src/hooks'),
+      '@types': path.resolve(__dirname, './src/types'),
+      '@utils': path.resolve(__dirname, './src/utils'),
+    },
+  },
+})
+```
+
+**Tailwind CSS v4 配置** (`src/index.css`):
+```css
+@import "tailwindcss";
+
+/* 使用 @theme 定義自訂主題 (v4 新語法) */
+@theme {
+  --color-primary-50: #eff6ff;
+  --color-primary-500: #3b82f6;
+  --color-primary-600: #2563eb;
+  --color-primary-700: #1d4ed8;
+}
+
+/* 自訂 utilities (v4 新語法) */
+@utility sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+```
+
+**Vitest 配置** (`vitest.config.ts`):
+```typescript
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './src/test/setup.ts',
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html', 'lcov'],
+      exclude: [
+        'node_modules/',
+        'src/test/',
+        '**/*.test.{ts,tsx}',
+        '**/*.config.{ts,js}',
+      ],
+      thresholds: {
+        statements: 80,
+        branches: 80,
+        functions: 80,
+        lines: 80,
+      },
+    },
+  },
+})
+```
+
+#### 4.4.3 專案結構實作
+
+**已建立的目錄結構**:
+```
+frontend/
+├── src/
+│   ├── components/
+│   │   ├── todo/         # Todo 相關組件目錄
+│   │   ├── ui/           # 可重用 UI 組件目錄
+│   │   └── layout/       # 佈局組件目錄
+│   ├── store/            # Zustand 狀態管理目錄
+│   ├── hooks/            # 自訂 React Hooks 目錄
+│   ├── types/            # TypeScript 型別定義目錄
+│   ├── utils/            # 工具函式目錄
+│   ├── test/             # 測試配置目錄
+│   │   └── setup.ts      # Vitest 測試設定檔案
+│   ├── App.tsx           # 主應用組件
+│   ├── App.test.tsx      # 主應用測試
+│   ├── main.tsx          # 應用進入點
+│   └── index.css         # Tailwind CSS 入口 (v4 語法)
+├── vite.config.ts        # Vite 配置 (含 Tailwind v4 插件)
+├── vitest.config.ts      # Vitest 測試配置
+├── tsconfig.json         # TypeScript 基礎配置
+├── tsconfig.app.json     # TypeScript 應用配置 (含路徑別名)
+├── tsconfig.node.json    # TypeScript Node 配置
+├── package.json          # 專案依賴 (type: "module")
+└── README.md             # 專案說明
+```
+
+#### 4.4.4 ESM 模組系統
+
+**模組系統一致性**:
+- ✅ `package.json` 設定 `"type": "module"`
+- ✅ 所有 TypeScript 配置使用 `"module": "ESNext"`
+- ✅ 所有 import/export 使用 ES 模組語法
+- ✅ 與後端 ESM 架構一致
+
+**範例**:
+```typescript
+// ✅ ESM import/export
+import { useState } from 'react'
+export default function App() { }
+
+// ❌ 不使用 CommonJS
+// const React = require('react')
+// module.exports = App
+```
+
+#### 4.4.5 測試框架設置
+
+**測試配置**:
+- **框架**: Vitest 3.2.4 + React Testing Library 16.3.0
+- **環境**: jsdom (模擬瀏覽器環境)
+- **覆蓋率目標**: 80% (statements, branches, functions, lines)
+- **當前測試狀態**: 3 測試通過
+
+**測試設定檔案** (`src/test/setup.ts`):
+```typescript
+import '@testing-library/jest-dom'
+import { cleanup } from '@testing-library/react'
+import { afterEach } from 'vitest'
+
+afterEach(() => {
+  cleanup()
+})
+```
+
+#### 4.4.6 開發工具整合
+
+**已配置工具**:
+- ✅ ESLint 9.36.0 (程式碼品質檢查)
+- ✅ TypeScript 5.9.3 (型別檢查)
+- ✅ Vite HMR (熱模組替換)
+- ✅ React Fast Refresh (組件快速刷新)
+
+**開發命令**:
+```bash
+npm run dev          # 啟動開發伺服器 (localhost:5173)
+npm run build        # 生產建置
+npm run test         # 執行測試
+npm run test:ui      # 測試 UI 介面
+npm run test:coverage # 測試覆蓋率報告
+npm run lint         # ESLint 檢查
+```
+
+#### 4.4.7 效能指標
+
+**專案大小**:
+- `node_modules`: ~450MB (開發依賴)
+- 預期生產 bundle: < 150KB gzipped (目標)
+
+**建置速度** (初步測試):
+- Vite 開發伺服器啟動: < 1s
+- HMR 更新速度: < 100ms
+- 生產建置: 待測試
 
 ---
 
