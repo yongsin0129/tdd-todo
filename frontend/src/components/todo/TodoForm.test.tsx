@@ -112,12 +112,8 @@ describe('TodoForm', () => {
         updatedAt: new Date(),
       };
 
-      // Mock: initial fetchTodos on mount + createTodo + fetchTodos after create
+      // Mock: createTodo + fetchTodos
       mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({ success: true, data: [] }),
-        })
         .mockResolvedValueOnce({
           ok: true,
           json: async () => ({ success: true, data: newTodo }),
@@ -151,12 +147,8 @@ describe('TodoForm', () => {
         updatedAt: new Date(),
       };
 
-      // Mock: initial fetchTodos + createTodo + fetchTodos after create
+      // Mock: createTodo + fetchTodos
       mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({ success: true, data: [] }),
-        })
         .mockResolvedValueOnce({
           ok: true,
           json: async () => ({ success: true, data: newTodo }),
@@ -205,12 +197,8 @@ describe('TodoForm', () => {
         updatedAt: new Date(),
       };
 
-      // Mock: initial fetchTodos + createTodo + fetchTodos after create
+      // Mock: createTodo + fetchTodos
       mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({ success: true, data: [] }),
-        })
         .mockResolvedValueOnce({
           ok: true,
           json: async () => ({ success: true, data: newTodo }),
@@ -243,12 +231,8 @@ describe('TodoForm', () => {
         updatedAt: new Date(),
       };
 
-      // Mock: initial fetchTodos + createTodo + fetchTodos after create
+      // Mock: createTodo + fetchTodos
       mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({ success: true, data: [] }),
-        })
         .mockResolvedValueOnce({
           ok: true,
           json: async () => ({ success: true, data: newTodo }),
@@ -324,12 +308,8 @@ describe('TodoForm', () => {
         updatedAt: new Date(),
       };
 
-      // Mock: initial fetchTodos + createTodo + fetchTodos after create
+      // Mock: createTodo + fetchTodos
       mockFetch
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({ success: true, data: [] }),
-        })
         .mockResolvedValueOnce({
           ok: true,
           json: async () => ({ success: true, data: newTodo }),
@@ -379,13 +359,8 @@ describe('TodoForm', () => {
         },
       ];
 
-      // Mock: initial fetchTodos + all create/fetch pairs
+      // Mock: all create/fetch pairs
       mockFetch
-        // Initial mount fetchTodos
-        .mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({ success: true, data: [] }),
-        })
         // First todo create + fetch
         .mockResolvedValueOnce({
           ok: true,

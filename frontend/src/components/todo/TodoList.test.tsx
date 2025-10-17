@@ -5,6 +5,20 @@ import { useTodoStore } from '@store/todoStore';
 
 // Mock useTodos hook to prevent API calls in tests
 vi.mock('@hooks/useTodos', () => ({
+  useTodoActions: () => ({
+    fetchTodos: vi.fn().mockResolvedValue(undefined),
+    createTodo: vi.fn().mockResolvedValue(undefined),
+    updateTodo: vi.fn().mockResolvedValue(undefined),
+    deleteTodo: vi.fn().mockResolvedValue(undefined),
+    toggleTodo: vi.fn().mockResolvedValue(undefined),
+  }),
+  useInitTodos: () => ({
+    fetchTodos: vi.fn().mockResolvedValue(undefined),
+    createTodo: vi.fn().mockResolvedValue(undefined),
+    updateTodo: vi.fn().mockResolvedValue(undefined),
+    deleteTodo: vi.fn().mockResolvedValue(undefined),
+    toggleTodo: vi.fn().mockResolvedValue(undefined),
+  }),
   useTodos: () => ({
     fetchTodos: vi.fn().mockResolvedValue(undefined),
     createTodo: vi.fn().mockResolvedValue(undefined),

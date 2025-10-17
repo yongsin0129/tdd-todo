@@ -5,21 +5,34 @@ import { useTodoStore } from '@store/todoStore';
 
 // Mock useTodos hook to prevent API calls in tests
 vi.mock('@hooks/useTodos', () => ({
+  useTodoActions: () => ({
+    fetchTodos: vi.fn().mockResolvedValue(undefined),
+    createTodo: vi.fn().mockResolvedValue(undefined),
+    // updateTodo should return the updated todo object (like the real API)
+    updateTodo: vi.fn().mockImplementation((id, updates) => {
+      // Simulate API returning updated todo
+      return Promise.resolve({
+        id,
+        ...updates,
+        updatedAt: new Date(),
+      });
+    }),
+    deleteTodo: vi.fn().mockResolvedValue(undefined),
+    toggleTodo: vi.fn().mockResolvedValue(undefined),
+  }),
+  useInitTodos: () => ({
+    fetchTodos: vi.fn().mockResolvedValue(undefined),
+    createTodo: vi.fn().mockResolvedValue(undefined),
+    updateTodo: vi.fn().mockResolvedValue(undefined),
+    deleteTodo: vi.fn().mockResolvedValue(undefined),
+    toggleTodo: vi.fn().mockResolvedValue(undefined),
+  }),
   useTodos: () => ({
     fetchTodos: vi.fn().mockResolvedValue(undefined),
     createTodo: vi.fn().mockResolvedValue(undefined),
-    updateTodo: vi.fn().mockImplementation((id, updates) => {
-      // Return the updated todo object that the component expects
-      const todo = useTodoStore.getState().todos.find(t => t.id === id);
-      return Promise.resolve({ ...todo, ...updates });
-    }),
+    updateTodo: vi.fn().mockResolvedValue(undefined),
     deleteTodo: vi.fn().mockResolvedValue(undefined),
-    toggleTodo: vi.fn().mockImplementation((id) => {
-      // Return the toggled todo object that the component expects
-      const todo = useTodoStore.getState().todos.find(t => t.id === id);
-      if (!todo) throw new Error('Todo not found');
-      return Promise.resolve({ ...todo, isCompleted: !todo.isCompleted });
-    }),
+    toggleTodo: vi.fn().mockResolvedValue(undefined),
   }),
 }));
 
