@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, type FormEvent } from 'react';
+import { useState, useEffect, useRef, forwardRef, type FormEvent } from 'react';
 import { useTodos } from '@hooks/useTodos';
 
 /**
@@ -15,11 +15,14 @@ import { useTodos } from '@hooks/useTodos';
  *
  * @see .doc/Frontend-Team-Todolist.md Task 2.3, Task 2.6
  */
-export function TodoForm() {
+export const TodoForm = forwardRef<HTMLInputElement>((props, externalRef) => {
   const [title, setTitle] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const internalRef = useRef<HTMLInputElement>(null);
+
+  // Use external ref if provided, otherwise use internal ref
+  const inputRef = (externalRef || internalRef) as React.RefObject<HTMLInputElement>;
 
   const { createTodo, fetchTodos } = useTodos();
 
@@ -71,21 +74,27 @@ export function TodoForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-2">
+    <form onSubmit={handleSubmit} className="space-y-2" aria-label="Create new todo">
       <div>
+        <label htmlFor="todo-title" className="sr-only">
+          Todo title
+        </label>
         <input
+          id="todo-title"
           ref={inputRef}
           type="text"
           value={title}
           onChange={(e) => handleChange(e.target.value)}
           placeholder="What needs to be done?"
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+          aria-invalid={error ? 'true' : 'false'}
+          aria-describedby={error ? 'todo-title-error' : undefined}
+          className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
           maxLength={255}
         />
       </div>
 
       {error && (
-        <p className="text-sm text-red-600" role="alert">
+        <p id="todo-title-error" className="text-xs sm:text-sm text-red-600" role="alert">
           {error}
         </p>
       )}
@@ -93,10 +102,13 @@ export function TodoForm() {
       <button
         type="submit"
         disabled={isSubmitting}
-        className="w-full px-4 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+        aria-busy={isSubmitting}
+        className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base bg-primary-600 text-white rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 active:scale-95"
       >
         {isSubmitting ? 'Adding...' : 'Add Todo'}
       </button>
     </form>
   );
-}
+});
+
+TodoForm.displayName = 'TodoForm';

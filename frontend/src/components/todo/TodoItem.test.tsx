@@ -273,8 +273,10 @@ describe('TodoItem', () => {
       render(<TodoItem todo={mockTodo} />);
 
       const deleteButton = screen.getByRole('button', { name: /delete/i });
-      expect(deleteButton).toHaveClass('opacity-0');
-      expect(deleteButton).toHaveClass('group-hover:opacity-100');
+      // Delete button is visible on mobile (opacity-100), hidden on desktop (sm:opacity-0)
+      expect(deleteButton).toHaveClass('opacity-100');
+      expect(deleteButton.className).toMatch(/sm:opacity-0/);
+      expect(deleteButton.className).toMatch(/sm:group-hover:opacity-100/);
     });
   });
 });

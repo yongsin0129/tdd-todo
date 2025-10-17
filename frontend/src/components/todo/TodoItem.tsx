@@ -136,34 +136,51 @@ export function TodoItem({ todo }: TodoItemProps) {
   };
 
   return (
-    <div className="group flex items-center gap-3 py-3 px-4 hover:bg-gray-50 rounded-lg transition-colors">
+    <div className="group flex items-center gap-2 sm:gap-3 py-2.5 sm:py-3 px-3 sm:px-4 hover:bg-gray-50 transition-colors animate-slide-up">
       {/* Checkbox */}
       <input
         type="checkbox"
         checked={todo.isCompleted}
         onChange={handleToggle}
         aria-label={`Mark "${todo.title}" as ${todo.isCompleted ? 'incomplete' : 'complete'}`}
-        className="w-5 h-5 rounded border-gray-300 text-primary-600 focus:ring-2 focus:ring-primary-500 cursor-pointer"
+        className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 rounded border-gray-300 text-primary-600 focus:ring-2 focus:ring-primary-500 cursor-pointer transition-transform hover:scale-110"
       />
 
       {/* Title (View or Edit mode) */}
       <div className="flex-1 min-w-0">
         {isEditing ? (
-          <input
-            ref={editInputRef}
-            type="text"
-            value={editText}
-            onChange={(e) => setEditText(e.target.value)}
-            onKeyDown={handleKeyDown}
-            onBlur={handleBlur}
-            disabled={isUpdating}
-            className="w-full px-2 py-1 border border-primary-500 rounded focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50"
-            maxLength={255}
-          />
+          <div>
+            <label htmlFor={`edit-${todo.id}`} className="sr-only">
+              Edit todo title
+            </label>
+            <input
+              id={`edit-${todo.id}`}
+              ref={editInputRef}
+              type="text"
+              value={editText}
+              onChange={(e) => setEditText(e.target.value)}
+              onKeyDown={handleKeyDown}
+              onBlur={handleBlur}
+              disabled={isUpdating}
+              aria-invalid="false"
+              aria-label={`Edit "${todo.title}"`}
+              className="w-full px-2 py-1 text-sm sm:text-base border border-primary-500 rounded focus:outline-none focus:ring-2 focus:ring-primary-500 disabled:opacity-50"
+              maxLength={255}
+            />
+          </div>
         ) : (
           <span
             onDoubleClick={handleDoubleClick}
-            className={`block cursor-pointer select-none ${
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handleDoubleClick();
+              }
+            }}
+            aria-label={`Todo: ${todo.title}. Double click or press Enter to edit.`}
+            className={`block cursor-pointer select-none text-sm sm:text-base break-words focus:outline-none focus:ring-2 focus:ring-primary-500 rounded px-1 -ml-1 ${
               todo.isCompleted ? 'line-through opacity-50 text-gray-500' : 'text-gray-900'
             }`}
           >
@@ -172,12 +189,12 @@ export function TodoItem({ todo }: TodoItemProps) {
         )}
       </div>
 
-      {/* Delete Button */}
+      {/* Delete Button - visible on mobile, hover on desktop */}
       <button
         type="button"
         onClick={handleDelete}
         aria-label={`Delete "${todo.title}"`}
-        className="opacity-0 group-hover:opacity-100 px-3 py-1 text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-all focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-red-500"
+        className="flex-shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 px-2 sm:px-3 py-1 text-xs sm:text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded transition-all focus:opacity-100 focus:outline-none focus:ring-2 focus:ring-red-500"
       >
         Delete
       </button>
