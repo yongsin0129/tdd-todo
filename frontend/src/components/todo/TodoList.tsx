@@ -1,4 +1,5 @@
 import { useTodoStore } from '@store/todoStore';
+import { useTodos } from '@hooks/useTodos';
 import { TodoForm } from './TodoForm';
 import { TodoItem } from './TodoItem';
 import type { TodoFilter } from '@types/todo';
@@ -13,10 +14,14 @@ import type { TodoFilter } from '@types/todo';
  * - Displays statistics (total, active, completed counts)
  * - Handles empty states for different filters
  * - Shows loading and error states
+ * - Integrates with API via useTodos hook (automatic data fetching on mount)
  *
- * @see .doc/Frontend-Team-Todolist.md Task 2.5
+ * @see .doc/Frontend-Team-Todolist.md Task 2.5, Task 2.6
  */
 export function TodoList() {
+  // Initialize API integration (fetches todos on mount)
+  useTodos();
+
   const todos = useTodoStore((state) => state.todos);
   const filter = useTodoStore((state) => state.filter);
   const loading = useTodoStore((state) => state.loading);

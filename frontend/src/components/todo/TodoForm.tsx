@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, type FormEvent } from 'react';
-import { useTodoStore } from '@store/todoStore';
+import { useTodos } from '@hooks/useTodos';
 
 /**
  * TodoForm Component
@@ -11,22 +11,24 @@ import { useTodoStore } from '@store/todoStore';
  * - Trim whitespace
  * - Clear input after submission
  * - Accessible error messages
+ * - API integration for creating todos
  *
- * @see .doc/Frontend-Team-Todolist.md Task 2.3
+ * @see .doc/Frontend-Team-Todolist.md Task 2.3, Task 2.6
  */
 export function TodoForm() {
   const [title, setTitle] = useState('');
   const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const addTodo = useTodoStore((state) => state.addTodo);
+  const { createTodo, fetchTodos } = useTodos();
 
   // Auto-focus input on mount
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // Validation: Empty title
@@ -41,12 +43,23 @@ export function TodoForm() {
       return;
     }
 
-    // Add todo to store
-    addTodo(title);
+    setIsSubmitting(true);
 
-    // Clear form
-    setTitle('');
-    setError('');
+    try {
+      // Create todo via API
+      await createTodo({ title: title.trim() });
+
+      // Refresh from server to update UI
+      await fetchTodos();
+
+      // Clear form
+      setTitle('');
+      setError('');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to create todo');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (value: string) => {
@@ -79,9 +92,10 @@ export function TodoForm() {
 
       <button
         type="submit"
-        className="w-full px-4 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors font-medium"
+        disabled={isSubmitting}
+        className="w-full px-4 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
       >
-        Add Todo
+        {isSubmitting ? 'Adding...' : 'Add Todo'}
       </button>
     </form>
   );

@@ -1,7 +1,11 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TodoForm } from './TodoForm';
 import { useTodoStore } from '@store/todoStore';
+
+// Mock fetch globally
+const mockFetch = vi.fn();
+global.fetch = mockFetch;
 
 describe('TodoForm', () => {
   beforeEach(() => {
@@ -11,6 +15,15 @@ describe('TodoForm', () => {
       filter: 'all',
       loading: false,
       error: null,
+    });
+
+    // Clear mock
+    vi.clearAllMocks();
+
+    // Default mock for fetchTodos (returns empty array)
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ success: true, data: [] }),
     });
   });
 
@@ -90,7 +103,30 @@ describe('TodoForm', () => {
   });
 
   describe('Form Submission', () => {
-    it('should add todo to store when submitting valid title', () => {
+    it('should add todo to store when submitting valid title', async () => {
+      const newTodo = {
+        id: '1',
+        title: 'New Todo',
+        isCompleted: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      // Mock: initial fetchTodos on mount + createTodo + fetchTodos after create
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true, data: [] }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true, data: newTodo }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true, data: [newTodo] }),
+        });
+
       render(<TodoForm />);
 
       const input = screen.getByPlaceholderText(/what needs to be done/i);
@@ -99,12 +135,37 @@ describe('TodoForm', () => {
       fireEvent.change(input, { target: { value: 'New Todo' } });
       fireEvent.click(button);
 
-      const todos = useTodoStore.getState().todos;
-      expect(todos).toHaveLength(1);
-      expect(todos[0].title).toBe('New Todo');
+      await waitFor(() => {
+        const todos = useTodoStore.getState().todos;
+        expect(todos).toHaveLength(1);
+        expect(todos[0].title).toBe('New Todo');
+      });
     });
 
-    it('should clear input after successful submission', () => {
+    it('should clear input after successful submission', async () => {
+      const newTodo = {
+        id: '1',
+        title: 'New Todo',
+        isCompleted: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      // Mock: initial fetchTodos + createTodo + fetchTodos after create
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true, data: [] }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true, data: newTodo }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true, data: [newTodo] }),
+        });
+
       render(<TodoForm />);
 
       const input = screen.getByPlaceholderText(/what needs to be done/i) as HTMLInputElement;
@@ -113,7 +174,9 @@ describe('TodoForm', () => {
       fireEvent.change(input, { target: { value: 'New Todo' } });
       fireEvent.click(button);
 
-      expect(input.value).toBe('');
+      await waitFor(() => {
+        expect(input.value).toBe('');
+      });
     });
 
     it('should clear error after successful submission', () => {
@@ -133,7 +196,30 @@ describe('TodoForm', () => {
       expect(screen.queryByText(/title cannot be empty/i)).not.toBeInTheDocument();
     });
 
-    it('should trim whitespace from title before submission', () => {
+    it('should trim whitespace from title before submission', async () => {
+      const newTodo = {
+        id: '1',
+        title: 'New Todo',
+        isCompleted: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      // Mock: initial fetchTodos + createTodo + fetchTodos after create
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true, data: [] }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true, data: newTodo }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true, data: [newTodo] }),
+        });
+
       render(<TodoForm />);
 
       const input = screen.getByPlaceholderText(/what needs to be done/i);
@@ -142,11 +228,36 @@ describe('TodoForm', () => {
       fireEvent.change(input, { target: { value: '  New Todo  ' } });
       fireEvent.click(button);
 
-      const todos = useTodoStore.getState().todos;
-      expect(todos[0].title).toBe('New Todo');
+      await waitFor(() => {
+        const todos = useTodoStore.getState().todos;
+        expect(todos[0].title).toBe('New Todo');
+      });
     });
 
-    it('should handle Enter key submission', () => {
+    it('should handle Enter key submission', async () => {
+      const newTodo = {
+        id: '1',
+        title: 'New Todo',
+        isCompleted: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      // Mock: initial fetchTodos + createTodo + fetchTodos after create
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true, data: [] }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true, data: newTodo }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true, data: [newTodo] }),
+        });
+
       render(<TodoForm />);
 
       const input = screen.getByPlaceholderText(/what needs to be done/i);
@@ -154,9 +265,11 @@ describe('TodoForm', () => {
       fireEvent.change(input, { target: { value: 'New Todo' } });
       fireEvent.submit(input.closest('form')!);
 
-      const todos = useTodoStore.getState().todos;
-      expect(todos).toHaveLength(1);
-      expect(todos[0].title).toBe('New Todo');
+      await waitFor(() => {
+        const todos = useTodoStore.getState().todos;
+        expect(todos).toHaveLength(1);
+        expect(todos[0].title).toBe('New Todo');
+      });
     });
   });
 
@@ -201,22 +314,106 @@ describe('TodoForm', () => {
       expect(input.value).toBe('Test Todo');
     });
 
-    it('should accept titles exactly 255 characters', () => {
+    it('should accept titles exactly 255 characters', async () => {
+      const maxTitle = 'a'.repeat(255);
+      const newTodo = {
+        id: '1',
+        title: maxTitle,
+        isCompleted: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      // Mock: initial fetchTodos + createTodo + fetchTodos after create
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true, data: [] }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true, data: newTodo }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true, data: [newTodo] }),
+        });
+
       render(<TodoForm />);
 
       const input = screen.getByPlaceholderText(/what needs to be done/i);
       const button = screen.getByRole('button', { name: /add todo/i });
 
-      const maxTitle = 'a'.repeat(255);
       fireEvent.change(input, { target: { value: maxTitle } });
       fireEvent.click(button);
 
-      const todos = useTodoStore.getState().todos;
-      expect(todos).toHaveLength(1);
-      expect(todos[0].title).toBe(maxTitle);
+      await waitFor(() => {
+        const todos = useTodoStore.getState().todos;
+        expect(todos).toHaveLength(1);
+        expect(todos[0].title).toBe(maxTitle);
+      });
     });
 
-    it('should handle rapid submissions gracefully', () => {
+    it('should handle rapid submissions gracefully', async () => {
+      const todos = [
+        {
+          id: '1',
+          title: 'Todo 1',
+          isCompleted: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: '2',
+          title: 'Todo 2',
+          isCompleted: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: '3',
+          title: 'Todo 3',
+          isCompleted: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+
+      // Mock: initial fetchTodos + all create/fetch pairs
+      mockFetch
+        // Initial mount fetchTodos
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true, data: [] }),
+        })
+        // First todo create + fetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true, data: todos[0] }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true, data: [todos[0]] }),
+        })
+        // Second todo create + fetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true, data: todos[1] }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true, data: [todos[0], todos[1]] }),
+        })
+        // Third todo create + fetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true, data: todos[2] }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true, data: todos }),
+        });
+
       render(<TodoForm />);
 
       const input = screen.getByPlaceholderText(/what needs to be done/i);
@@ -226,14 +423,20 @@ describe('TodoForm', () => {
       fireEvent.change(input, { target: { value: 'Todo 1' } });
       fireEvent.click(button);
 
+      await waitFor(() => expect(useTodoStore.getState().todos).toHaveLength(1));
+
       fireEvent.change(input, { target: { value: 'Todo 2' } });
       fireEvent.click(button);
+
+      await waitFor(() => expect(useTodoStore.getState().todos).toHaveLength(2));
 
       fireEvent.change(input, { target: { value: 'Todo 3' } });
       fireEvent.click(button);
 
-      const todos = useTodoStore.getState().todos;
-      expect(todos).toHaveLength(3);
+      await waitFor(() => {
+        const finalTodos = useTodoStore.getState().todos;
+        expect(finalTodos).toHaveLength(3);
+      });
     });
   });
 
