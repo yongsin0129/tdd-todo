@@ -20,9 +20,6 @@ export default [
         console: 'readonly',
         __dirname: 'readonly',
         __filename: 'readonly',
-        module: 'readonly',
-        require: 'readonly',
-        exports: 'writable',
         // Jest globals
         global: 'readonly',
         describe: 'readonly',

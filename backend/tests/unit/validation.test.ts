@@ -3,7 +3,7 @@ import {
   validateTitle,
   validatePriority,
   validateDate,
-} from '../../src/utils/validation';
+} from '../../src/utils/validation.js';
 
 describe('Validation Utilities - Unit Tests', () => {
   describe('validateUUID', () => {

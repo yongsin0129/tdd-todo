@@ -1,4 +1,4 @@
-import { handleError } from '../../src/utils/errorHandler';
+import { handleError } from '../../src/utils/errorHandler.js';
 
 describe('Error Handler Utilities - Unit Tests', () => {
   describe('handleError', () => {

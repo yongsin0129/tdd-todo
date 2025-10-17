@@ -1,8 +1,8 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
-import todoRoutes from './routes/todoRoutes';
-import swaggerSpec from './config/swagger';
+import todoRoutes from './routes/todoRoutes.js';
+import swaggerSpec from './config/swagger.js';
 
 const app = express();
 

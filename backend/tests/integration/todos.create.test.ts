@@ -1,7 +1,7 @@
 import request from 'supertest';
-import { app } from '../../src/app';
-import prisma from '../../src/config/database';
-import { CreateTodoDto } from '../../src/types/todo.types';
+import { app } from '../../src/app.js';
+import prisma from '../../src/config/database.js';
+import { CreateTodoDto } from '../../src/types/todo.types.js';
 
 describe('POST /api/todos - Create Todo Integration Tests', () => {
   // Clean up database before and after each test to ensure test isolation

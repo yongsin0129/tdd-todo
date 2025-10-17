@@ -1,7 +1,12 @@
 import { Request, Response } from 'express';
-import prisma from '../config/database';
-import { handleError } from '../utils/errorHandler';
-import { validateUUID, validateTitle, validatePriority, validateDate } from '../utils/validation';
+import prisma from '../config/database.js';
+import { handleError } from '../utils/errorHandler.js';
+import {
+  validateUUID,
+  validateTitle,
+  validatePriority,
+  validateDate,
+} from '../utils/validation.js';
 
 /**
  * @swagger
