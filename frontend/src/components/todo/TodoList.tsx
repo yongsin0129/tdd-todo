@@ -1,11 +1,13 @@
-import { useRef, useState } from 'react';
+import { useRef, useState, lazy, Suspense } from 'react';
 import { useTodoStore } from '@store/todoStore';
 import { useTodos } from '@hooks/useTodos';
 import { useKeyboardShortcuts } from '@hooks/useKeyboardShortcuts';
 import { TodoForm } from './TodoForm';
 import { TodoItem } from './TodoItem';
-import { ShortcutHelp } from '../ui/ShortcutHelp';
 import type { TodoFilter } from '@/types/todo';
+
+// Lazy load ShortcutHelp modal - only loads when user opens it
+const ShortcutHelp = lazy(() => import('../ui/ShortcutHelp').then(module => ({ default: module.ShortcutHelp })));
 
 /**
  * TodoList Component
@@ -198,7 +200,11 @@ export function TodoList() {
       </div>
 
       {/* Keyboard Shortcuts Help Dialog */}
-      <ShortcutHelp isOpen={showShortcuts} onClose={() => setShowShortcuts(false)} />
+      {showShortcuts && (
+        <Suspense fallback={null}>
+          <ShortcutHelp isOpen={showShortcuts} onClose={() => setShowShortcuts(false)} />
+        </Suspense>
+      )}
 
       {/* Keyboard Shortcut Hint */}
       <div className="fixed bottom-4 right-4 bg-white shadow-lg rounded-lg p-3 text-xs text-gray-600 border border-gray-200 animate-fade-in hidden sm:block">

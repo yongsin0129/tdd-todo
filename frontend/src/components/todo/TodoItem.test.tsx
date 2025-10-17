@@ -8,9 +8,17 @@ vi.mock('@hooks/useTodos', () => ({
   useTodos: () => ({
     fetchTodos: vi.fn().mockResolvedValue(undefined),
     createTodo: vi.fn().mockResolvedValue(undefined),
-    updateTodo: vi.fn().mockResolvedValue(undefined),
+    updateTodo: vi.fn().mockImplementation((id, updates) => {
+      // Return the updated todo object that the component expects
+      const todo = useTodoStore.getState().todos.find(t => t.id === id);
+      return Promise.resolve({ ...todo, ...updates });
+    }),
     deleteTodo: vi.fn().mockResolvedValue(undefined),
-    toggleTodo: vi.fn().mockResolvedValue(undefined),
+    toggleTodo: vi.fn().mockImplementation((id) => {
+      // Return the toggled todo object that the component expects
+      const todo = useTodoStore.getState().todos.find(t => t.id === id);
+      return Promise.resolve({ ...todo, isCompleted: !todo.isCompleted });
+    }),
   }),
 }));
 

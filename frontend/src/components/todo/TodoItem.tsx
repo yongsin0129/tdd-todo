@@ -62,14 +62,11 @@ export function TodoItem({ todo }: TodoItemProps) {
     setIsUpdating(true);
 
     try {
-      // Update via API
-      await updateTodo(todo.id, { title: trimmedText });
+      // Update via API (returns the updated todo from server)
+      const updatedTodo = await updateTodo(todo.id, { title: trimmedText });
 
-      // Update local store for immediate UI update
-      updateTodoLocal(todo.id, { title: trimmedText });
-
-      // Refresh from server
-      await fetchTodos();
+      // Update local store with server response to ensure sync
+      updateTodoLocal(todo.id, updatedTodo);
 
       setIsEditing(false);
     } catch (err) {
@@ -103,14 +100,16 @@ export function TodoItem({ todo }: TodoItemProps) {
 
   const handleToggle = async () => {
     try {
+      // Store the current state BEFORE optimistic update
+      const newCompletedState = !todo.isCompleted;
+
       // Optimistic update
       toggleTodoLocal(todo.id);
 
-      // Update via API
-      await toggleTodo(todo.id);
+      // Update via API with the NEW state (not reading from store)
+      await updateTodo(todo.id, { isCompleted: newCompletedState });
 
-      // Refresh from server
-      await fetchTodos();
+      // No need to update local store again - optimistic update already handled it
     } catch (err) {
       console.error('Failed to toggle todo:', err);
       // Revert on error
@@ -126,11 +125,10 @@ export function TodoItem({ todo }: TodoItemProps) {
       // Delete via API
       await deleteTodo(todo.id);
 
-      // Refresh from server
-      await fetchTodos();
+      // No need to refresh - optimistic delete already updated UI
     } catch (err) {
       console.error('Failed to delete todo:', err);
-      // Note: Cannot easily revert delete, would need to re-fetch
+      // On error, re-fetch to restore the deleted item
       await fetchTodos();
     }
   };
