@@ -2,7 +2,8 @@ import { useEffect } from 'react';
 import { useTodoStore } from '@/store/todoStore';
 import type { Todo, CreateTodoInput, UpdateTodoInput } from '@/types/todo';
 
-const API_BASE = '/api';
+// Use environment variable for API URL, fallback to '/api' for local development
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 /**
  * useTodoActions Hook
