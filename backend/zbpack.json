@@ -1,5 +1,5 @@
   {
-    "build_command": "cp prisma/schema.production.prisma prisma/schema.prisma && npm run build && npx prisma generate",
-    "start_command": "npx prisma db push --accept-data-loss && npm start",
-    "install_command": "npm ci"
+    "install_command": "npm ci --ignore-scripts",
+    "build_command": "cp prisma/schema.production.prisma prisma/schema.prisma && npx prisma generate && npm run build",
+    "start_command": "npm start"
   }
