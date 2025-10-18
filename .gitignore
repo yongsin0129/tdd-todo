@@ -6,6 +6,7 @@
 !.gitignore
 !.doc/
 !.husky/
+!.env.example
 
 # WARP 相關文件
 warp.md

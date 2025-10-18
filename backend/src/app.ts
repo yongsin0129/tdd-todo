@@ -3,11 +3,12 @@ import cors from 'cors';
 import swaggerUi from 'swagger-ui-express';
 import todoRoutes from './routes/todoRoutes.js';
 import swaggerSpec from './config/swagger.js';
+import { corsOptions } from './config/cors.js';
 
 const app = express();
 
 // Middleware Configuration
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // JSON parsing error handler
