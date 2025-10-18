@@ -1,12 +1,12 @@
-# Zeabur Deployment Guide
-# Complete Guide to Deploy Full-Stack Todo Application on Zeabur
+# Zeabur CLI Deployment Guide
+# Deploy Full-Stack Todo Application using Zeabur CLI
 
 ## Document Information
 
 | Item | Details |
 |------|---------|
-| Document Title | Zeabur Deployment Guide for TDD TodoList Application |
-| Version | 1.0.0 |
+| Document Title | Zeabur CLI Deployment Guide for TDD TodoList Application |
+| Version | 2.0.0 |
 | Date Created | 2025-10-18 |
 | Last Updated | 2025-10-18 |
 | Author | DevOps Team |
@@ -16,43 +16,42 @@
 
 ## Table of Contents
 
-1. [Introduction to Zeabur](#1-introduction-to-zeabur)
+1. [Introduction](#1-introduction)
 2. [Project Overview](#2-project-overview)
 3. [Prerequisites](#3-prerequisites)
 4. [Database Configuration](#4-database-configuration)
-5. [Backend Deployment](#5-backend-deployment)
-6. [Frontend Deployment](#6-frontend-deployment)
+5. [Backend Configuration](#5-backend-configuration)
+6. [Frontend Configuration](#6-frontend-configuration)
 7. [Environment Variables](#7-environment-variables)
-8. [Deployment Steps](#8-deployment-steps)
+8. [CLI Deployment Steps](#8-cli-deployment-steps)
 9. [Post-Deployment Configuration](#9-post-deployment-configuration)
 10. [Troubleshooting](#10-troubleshooting)
 11. [Best Practices](#11-best-practices)
 
 ---
 
-## 1. Introduction to Zeabur
+## 1. Introduction
+
+### About This Guide
+
+This guide focuses on deploying your TDD TodoList application using the **Zeabur CLI** (Command Line Interface). The CLI approach offers:
+
+- **Command-line control**: Perfect for developers comfortable with terminal
+- **Automation-friendly**: Easy to integrate into scripts and CI/CD pipelines
+- **Fast iteration**: Quick deployments with single commands
+- **Git-based workflow**: Seamless integration with your development flow
 
 ### What is Zeabur?
 
-Zeabur is a modern Platform-as-a-Service (PaaS) that allows you to deploy full-stack applications with minimal configuration. It automatically detects your project type and handles the build and deployment process.
+Zeabur is a modern Platform-as-a-Service (PaaS) with a powerful CLI that allows you to deploy full-stack applications using simple commands.
 
-### Key Features
+### Why Use Zeabur CLI?
 
-- **Automatic Detection**: Recognizes Node.js, React, and other frameworks automatically
-- **Built-in Database Support**: PostgreSQL, MySQL, Redis, MongoDB
-- **Zero Configuration**: Works out of the box for most projects
-- **Environment Variables**: Easy management of secrets and configuration
-- **Monorepo Support**: Can deploy multiple services from a single repository
-- **Custom Domains**: Support for custom domain binding
-- **Auto-scaling**: Handles traffic spikes automatically
-
-### Why Zeabur for This Project?
-
-- Simple deployment for Node.js + React stack
-- Built-in PostgreSQL support (we'll migrate from SQLite)
-- Easy environment variable management
-- Automatic HTTPS
-- Pay-as-you-go pricing model
+- **Simple commands**: Deploy with `zeabur` command
+- **Built-in PostgreSQL support**: Easy database provisioning
+- **Automatic HTTPS**: Secure connections out of the box
+- **Environment variable management**: Configure via CLI or dashboard
+- **Rapid deployment**: From code to production in minutes
 
 ---
 
@@ -109,27 +108,45 @@ Zeabur is a modern Platform-as-a-Service (PaaS) that allows you to deploy full-s
 
 ## 3. Prerequisites
 
-### Required Accounts and Tools
+### Required Tools
 
-1. **Zeabur Account**
+1. **Zeabur CLI**
+   Install globally:
+   ```bash
+   npm install -g zeabur
+   ```
+
+   Or use without installing:
+   ```bash
+   npx zeabur@latest
+   ```
+
+2. **Zeabur Account**
    - Sign up at https://zeabur.com
-   - Link your GitHub account
+   - Link your GitHub account (required for deployment)
 
-2. **GitHub Repository**
+3. **GitHub Repository**
    - Your code must be in a GitHub repository
-   - Zeabur needs read access to deploy
+   - Push your latest code before deployment
 
-3. **Local Development Tools**
+4. **Local Development Tools**
    - Node.js 18+ installed
    - Git installed
    - npm or pnpm
 
-### Optional Tools
+### Verify Installation
 
-- Zeabur CLI (for command-line deployment)
-  ```bash
-  npm install -g zeabur
-  ```
+Check if CLI is installed:
+```bash
+zeabur --version
+```
+
+Login to Zeabur:
+```bash
+zeabur auth login
+```
+
+This will open a browser for authentication.
 
 ---
 
@@ -190,9 +207,7 @@ Add Prisma migration scripts to `/backend/package.json`:
 
 ---
 
-## 5. Backend Deployment
-
-### Backend Configuration
+## 5. Backend Configuration
 
 #### Step 1: Verify PORT Environment Variable
 
@@ -249,7 +264,7 @@ Ensure `/backend/package.json` has the correct scripts:
 
 ---
 
-## 6. Frontend Deployment
+## 6. Frontend Configuration
 
 ### Frontend Configuration
 
@@ -383,123 +398,29 @@ VITE_API_URL=https://your-backend.zeabur.app/api
 
 ---
 
-## 8. Deployment Steps
+## 8. CLI Deployment Steps
 
-### Method 1: Deploy via Zeabur Dashboard (Recommended)
+### Overview
 
-This is the easiest method for first-time deployment.
+We'll use the Zeabur CLI to deploy all services. This method is perfect for developers who prefer command-line tools and want to integrate deployment into their workflow.
 
-#### Step 1: Create a New Project
+### Prerequisites Check
 
-1. Log in to https://dash.zeabur.com
-2. Click "Create New Project"
-3. Choose a project name (e.g., "tdd-todolist")
-4. Select a region (choose one closest to your users)
+Before starting, ensure:
+- [ ] Zeabur CLI is installed (`zeabur --version`)
+- [ ] You're logged in (`zeabur auth login`)
+- [ ] All code changes are committed to Git
+- [ ] zbpack.json files are in place (backend and frontend)
 
-#### Step 2: Add PostgreSQL Service
-
-1. In your project, click "Add Service"
-2. Select "Marketplace"
-3. Search for "PostgreSQL"
-4. Click "Deploy"
-5. Wait for PostgreSQL to be ready (usually 1-2 minutes)
-
-**Important**: Note the service name (usually `postgres` or `postgresql`)
-
-#### Step 3: Deploy Backend Service
-
-1. Click "Add Service" again
-2. Select "Git"
-3. If prompted, install the Zeabur GitHub App
-4. Select your repository: `TDD-test-todolist`
-5. Zeabur will auto-detect the backend in `/backend` folder
-6. Click "Deploy"
-
-**Configuration:**
-- Service Name: `backend` (or `todolist-backend`)
-- Root Directory: `/backend` (auto-detected)
-- Branch: `master` (or `main`)
-
-**Add Environment Variables:**
-```env
-DATABASE_URL=${POSTGRES_DATABASE_URL}
-NODE_ENV=production
-```
-
-**Build Configuration:**
-- Build Command: `npm run build && npx prisma generate`
-- Start Command: `npx prisma migrate deploy && npm start`
-
-#### Step 4: Deploy Frontend Service
-
-1. Click "Add Service" again
-2. Select "Git"
-3. Select the same repository
-4. Choose the frontend directory
-5. Click "Deploy"
-
-**Configuration:**
-- Service Name: `frontend`
-- Root Directory: `/frontend` (auto-detected)
-- Branch: `master` (or `main`)
-
-**Add Environment Variables:**
-```env
-VITE_API_URL=https://your-backend-url.zeabur.app/api
-```
-
-**Note**: Replace `your-backend-url` with the actual URL from Step 3.
-
-#### Step 5: Configure Domains
-
-**Backend:**
-1. Go to backend service
-2. Click "Domain" tab
-3. Click "Generate Domain" to get a free `.zeabur.app` domain
-4. Or add a custom domain
-
-**Frontend:**
-1. Go to frontend service
-2. Click "Domain" tab
-3. Click "Generate Domain"
-4. Or add a custom domain
-
-#### Step 6: Update Frontend Environment Variable
-
-After getting the backend domain, update the frontend's `VITE_API_URL`:
-
-```env
-VITE_API_URL=https://your-actual-backend.zeabur.app/api
-```
-
-Then redeploy the frontend service.
-
----
-
-### Method 2: Deploy via Zeabur CLI
-
-For developers who prefer command-line tools.
-
-#### Step 1: Install Zeabur CLI
-
-```bash
-npm install -g zeabur
-```
-
-Or use without installing:
-```bash
-npx zeabur@latest
-```
-
-#### Step 2: Login to Zeabur
+### Step 1: Login to Zeabur
 
 ```bash
 zeabur auth login
 ```
 
-This will open a browser for authentication.
+This will open a browser for authentication. After successful login, you can close the browser and return to the terminal.
 
-#### Step 3: Deploy Backend
+### Step 2: Deploy Backend
 
 Navigate to the backend directory:
 
@@ -510,23 +431,109 @@ cd /mnt/d/software/TDD-test-todolist/backend
 Initialize and deploy:
 
 ```bash
-# First time deployment
 zeabur
-
-# Follow the prompts:
-# 1. Select or create a project
-# 2. Choose deployment region
-# 3. Wait for deployment to complete
 ```
 
-#### Step 4: Add PostgreSQL via CLI
+You'll be prompted to:
+1. **Create or select a project**:
+   - If first time: Create a new project (e.g., "tdd-todolist")
+   - If returning: Select existing project
+2. **Choose deployment region**:
+   - Select region closest to your users (e.g., US West, Asia Pacific)
+3. **Wait for deployment**:
+   - Zeabur will detect Node.js
+   - Run build commands from zbpack.json
+   - Deploy the backend service
 
+**Example interaction:**
 ```bash
-# In the same project, add PostgreSQL
+$ zeabur
+? Select a project:
+  ❯ Create new project
+    my-existing-project
+
+? Enter project name: tdd-todolist
+
+? Select region:
+  ❯ US West (Oregon)
+    US East (Virginia)
+    Europe (Frankfurt)
+    Asia Pacific (Singapore)
+
+✓ Building backend service...
+✓ Deploying to production...
+✓ Service deployed successfully!
+
+URLs:
+  Backend: https://backend-abc123.zeabur.app
+```
+
+**Important**: Note the backend URL for later use.
+
+### Step 3: Add PostgreSQL Database
+
+After the backend is deployed, add a PostgreSQL service to the same project.
+
+**Option A: Via CLI** (if supported):
+```bash
 zeabur service add postgresql
 ```
 
-#### Step 5: Deploy Frontend
+**Option B: Via Dashboard** (recommended):
+1. Visit https://dash.zeabur.com
+2. Open your project (e.g., "tdd-todolist")
+3. Click "Add Service"
+4. Select "Marketplace"
+5. Search for "PostgreSQL"
+6. Click "Deploy"
+7. Wait for PostgreSQL to be ready (~1-2 minutes)
+
+### Step 4: Configure Backend Environment Variables
+
+You need to configure environment variables via the Zeabur dashboard:
+
+1. Go to https://dash.zeabur.com
+2. Select your project
+3. Click on the backend service
+4. Go to "Variables" tab
+5. Add these variables:
+
+```env
+DATABASE_URL=${POSTGRES_DATABASE_URL}
+NODE_ENV=production
+```
+
+**Explanation:**
+- `${POSTGRES_DATABASE_URL}` is a Zeabur template variable that automatically references your PostgreSQL service
+- `NODE_ENV=production` enables production mode
+
+6. Click "Save" or "Redeploy" to apply changes
+
+The backend will automatically redeploy with the new environment variables.
+
+### Step 5: Verify Backend Deployment
+
+Check if the backend is running:
+
+```bash
+curl https://your-backend-url.zeabur.app/health
+```
+
+Expected response:
+```json
+{
+  "status": "ok",
+  "timestamp": "2025-10-18T10:00:00.000Z"
+}
+```
+
+Check API documentation:
+```bash
+# Visit in browser
+https://your-backend-url.zeabur.app/api-docs
+```
+
+### Step 6: Deploy Frontend
 
 Navigate to the frontend directory:
 
@@ -534,49 +541,114 @@ Navigate to the frontend directory:
 cd /mnt/d/software/TDD-test-todolist/frontend
 ```
 
-Deploy:
+Deploy using the same project:
 
 ```bash
 zeabur
 ```
 
-**Note**: Make sure to select the same project as the backend.
+You'll be prompted to:
+1. **Select project**: Choose the same project as backend (e.g., "tdd-todolist")
+2. **Wait for deployment**: Zeabur will detect Vite and deploy as static site
 
----
+**Example interaction:**
+```bash
+$ zeabur
+? Select a project:
+  ❯ tdd-todolist
+    Create new project
 
-### Method 3: Deploy Monorepo (Both Services Together)
+? Confirm deployment? Yes
 
-If you want to deploy both services from the root directory.
+✓ Building frontend service...
+✓ Deploying to production...
+✓ Service deployed successfully!
 
-#### Step 1: Create Root zbpack Configuration
-
-Create `/zbpack.backend.json`:
-
-```json
-{
-  "app_dir": "backend",
-  "build_command": "cd backend && npm run build && npx prisma generate",
-  "start_command": "cd backend && npx prisma migrate deploy && npm start"
-}
+URLs:
+  Frontend: https://frontend-xyz789.zeabur.app
 ```
 
-Create `/zbpack.frontend.json`:
+### Step 7: Configure Frontend Environment Variables
 
-```json
-{
-  "app_dir": "frontend",
-  "build_command": "cd frontend && npm run build",
-  "output_dir": "frontend/dist"
-}
+Similar to backend, configure via dashboard:
+
+1. Go to https://dash.zeabur.com
+2. Select your project
+3. Click on the frontend service
+4. Go to "Variables" tab
+5. Add this variable:
+
+```env
+VITE_API_URL=https://your-backend-url.zeabur.app/api
 ```
 
-#### Step 2: Deploy via Dashboard
+**Important**: Replace `your-backend-url.zeabur.app` with your actual backend URL from Step 2.
 
-1. Create a new project
-2. Add PostgreSQL service
-3. Add a Git service, select the repository
-4. Zeabur will detect both services
-5. Deploy each one separately
+6. Save and redeploy the frontend
+
+### Step 8: Configure Domains (Optional)
+
+By default, Zeabur provides `.zeabur.app` domains. You can:
+
+1. **Use generated domains**: Already created automatically
+2. **Generate custom Zeabur domains**:
+   - Go to service > Domain tab > Generate Domain
+3. **Add your own custom domain**:
+   - Go to service > Domain tab > Add Domain
+   - Follow DNS configuration instructions
+
+### Step 9: Final Verification
+
+Test the full stack:
+
+1. **Visit frontend URL**:
+   ```
+   https://your-frontend.zeabur.app
+   ```
+
+2. **Create a test todo**:
+   - Click "Add Todo"
+   - Enter title and description
+   - Submit
+
+3. **Verify in backend**:
+   ```bash
+   curl https://your-backend.zeabur.app/api/todos
+   ```
+
+4. **Check for errors**:
+   - Open browser console (F12)
+   - Look for any errors
+   - Check network tab for failed requests
+
+### Deployment Complete! 🎉
+
+Your application is now live:
+- **Frontend**: https://your-frontend.zeabur.app
+- **Backend**: https://your-backend.zeabur.app
+- **API Docs**: https://your-backend.zeabur.app/api-docs
+
+### Quick CLI Commands Reference
+
+```bash
+# Login
+zeabur auth login
+
+# Deploy current directory
+zeabur
+
+# View logs
+zeabur logs
+
+# List services
+zeabur list
+
+# Open project in dashboard
+zeabur open
+
+# Help
+zeabur --help
+```
 
 ---
 
@@ -881,37 +953,41 @@ curl http://localhost:3000/api/todos
 curl http://localhost:3000/health
 ```
 
-### Environment Variable Templates
-
-**Backend (.env.production):**
-```env
-DATABASE_URL=${POSTGRES_DATABASE_URL}
-NODE_ENV=production
-PORT=3000
-```
-
-**Frontend (.env.production):**
-```env
-VITE_API_URL=https://your-backend.zeabur.app/api
-```
-
 ### Zeabur CLI Commands
 
 ```bash
 # Login
 zeabur auth login
 
+# Logout
+zeabur auth logout
+
 # Deploy current directory
 zeabur
 
-# View logs
+# View logs (follow mode)
 zeabur logs
 
-# List services
+# View logs for specific service
+zeabur logs --service backend
+
+# List services in project
 zeabur list
 
-# Open dashboard
+# Open dashboard in browser
 zeabur open
+
+# Check CLI version
+zeabur --version
+
+# Get help
+zeabur --help
+
+# Deploy with specific config
+zeabur deploy
+
+# Check service status
+zeabur status
 ```
 
 ---
@@ -944,7 +1020,7 @@ zeabur open
 **Document Owner**: DevOps Team
 **Last Updated**: 2025-10-18
 **Next Review Date**: 2025-11-18
-**Version**: 1.0.0
+**Version**: 2.0.0 (CLI-focused version)
 
 ---
 

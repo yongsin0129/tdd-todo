@@ -1,5 +1,5 @@
-# Zeabur Deployment Summary
-# Quick Overview and Architecture
+# Zeabur CLI Deployment Summary
+# Quick Overview and CLI-Based Deployment Architecture
 
 ## Deployment Architecture
 
@@ -122,59 +122,49 @@ datasource db {
 
 ## Deployment Flow
 
-### Option 1: Dashboard Deployment (Recommended for First Time)
+### CLI Deployment Workflow
 
 ```
-1. Create Project
-   ├─▶ Login to Zeabur
-   ├─▶ Create new project
-   └─▶ Select region
+1. Install & Login
+   ├─▶ Install Zeabur CLI (npm install -g zeabur)
+   ├─▶ Login to Zeabur (zeabur auth login)
+   └─▶ Link GitHub account
 
-2. Add PostgreSQL
-   ├─▶ Add Service > Marketplace
-   ├─▶ Select PostgreSQL
-   └─▶ Deploy (wait ~2 min)
+2. Deploy Backend
+   ├─▶ Navigate to backend directory
+   ├─▶ Run: zeabur
+   ├─▶ Create/select project
+   ├─▶ Choose region
+   ├─▶ Wait for deployment
+   └─▶ Note backend URL
 
-3. Deploy Backend
-   ├─▶ Add Service > Git
-   ├─▶ Connect GitHub repository
-   ├─▶ Auto-detects /backend
+3. Add PostgreSQL
+   ├─▶ Via CLI: zeabur service add postgresql
+   └─▶ Or via Dashboard (recommended)
+
+4. Configure Backend
+   ├─▶ Open Zeabur dashboard
    ├─▶ Add environment variables
-   └─▶ Deploy
+   │   ├─ DATABASE_URL=${POSTGRES_DATABASE_URL}
+   │   └─ NODE_ENV=production
+   └─▶ Wait for auto-redeploy
 
-4. Deploy Frontend
-   ├─▶ Add Service > Git
-   ├─▶ Same repository
-   ├─▶ Auto-detects /frontend
-   ├─▶ Add VITE_API_URL
-   └─▶ Deploy
+5. Deploy Frontend
+   ├─▶ Navigate to frontend directory
+   ├─▶ Run: zeabur
+   ├─▶ Select same project
+   ├─▶ Wait for deployment
+   └─▶ Note frontend URL
 
-5. Configure Domains
-   ├─▶ Generate domains for both
-   ├─▶ Update frontend's VITE_API_URL
-   └─▶ Redeploy frontend
-```
+6. Configure Frontend
+   ├─▶ Open Zeabur dashboard
+   ├─▶ Add VITE_API_URL (backend URL)
+   └─▶ Wait for auto-redeploy
 
-### Option 2: CLI Deployment
-
-```bash
-# 1. Install CLI
-npm install -g zeabur
-
-# 2. Login
-zeabur auth login
-
-# 3. Deploy Backend
-cd backend
-zeabur
-
-# 4. Add PostgreSQL (via dashboard or CLI)
-
-# 5. Deploy Frontend
-cd ../frontend
-zeabur
-
-# 6. Configure via dashboard
+7. Verify & Go Live
+   ├─▶ Test backend health endpoint
+   ├─▶ Test frontend functionality
+   └─▶ Monitor logs for errors
 ```
 
 ## What Zeabur Does Automatically
@@ -299,16 +289,20 @@ Visit frontend URL and test:
 ### Issue: Migrations don't run
 **Fix**: Verify start command includes `prisma migrate deploy`
 
-## Estimated Deployment Time
+## Estimated Deployment Time (CLI Method)
 
 | Step | Time |
 |------|------|
-| Create project | 1 min |
-| Deploy PostgreSQL | 2 min |
-| Deploy Backend | 3-5 min |
-| Deploy Frontend | 2-3 min |
-| Configuration | 5 min |
-| **Total** | **15-20 min** |
+| Install & Login to CLI | 2 min |
+| Deploy Backend via CLI | 3-5 min |
+| Add PostgreSQL | 2 min |
+| Configure Backend Vars | 2 min |
+| Deploy Frontend via CLI | 2-3 min |
+| Configure Frontend Vars | 2 min |
+| Verification | 2 min |
+| **Total** | **15-18 min** |
+
+*Subsequent deployments are faster (~2-3 min) as Zeabur caches builds*
 
 ## Cost Estimation (Zeabur)
 
@@ -324,9 +318,9 @@ Visit frontend URL and test:
 
 *Note: Prices are approximate and depend on traffic and resource usage*
 
-## Continuous Deployment
+## Continuous Deployment with CLI
 
-Once set up, Zeabur automatically deploys when you push to GitHub:
+Once deployed via CLI, Zeabur automatically redeploys when you push to GitHub:
 
 ```bash
 # Make changes locally
@@ -340,6 +334,15 @@ git push origin master
 # 3. Runs migrations
 # 4. Deploys to production
 # 5. Notifies you of completion
+```
+
+You can also manually trigger deployments:
+```bash
+# Redeploy current service
+zeabur deploy
+
+# Or push changes and Zeabur auto-deploys
+git push
 ```
 
 ## Security Considerations
@@ -410,9 +413,9 @@ Start here: `.doc/Zeabur-Deployment-Checklist.md`
 
 Or dive deep: `.doc/Zeabur-Deployment-Guide.md`
 
-Good luck with your deployment! 🚀
+Good luck with your CLI deployment! 🚀
 
 ---
 
 Last Updated: 2025-10-18
-Version: 1.0.0
+Version: 2.0.0 (CLI-focused)
