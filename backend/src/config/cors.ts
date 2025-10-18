@@ -11,10 +11,13 @@ export const corsOptions: CorsOptions = {
    * 允許沒有來源的請求（如行動應用程式、Postman 或 curl 請求）
    * 從 CORS_ORIGIN 環境變數獲取允許的來源列表，用逗號分隔並去除空白
    * 如果來源在允許列表中則允許，否則拒絕
+   * 會在控制台記錄詳細的 CORS 檢查資訊
    */
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
     // 允許沒有來源的請求（如行動應用程式、Postman 或 curl 請求）
-    if (!origin) return callback(null, true);
+    if (!origin) {
+      return callback(null, true);
+    }
 
     // 從環境變數獲取允許的來源
     const corsOrigin = process.env.CORS_ORIGIN;
@@ -25,11 +28,15 @@ export const corsOptions: CorsOptions = {
 
     // 以逗號分割並去除空白
     const allowedOrigins = corsOrigin.split(',').map(url => url.trim());
+    console.log('CORS: 允許的來源列表:', allowedOrigins);
+    console.log('CORS: 當前請求來源:', origin);
 
     // 檢查來源是否在允許列表中
     if (allowedOrigins.includes(origin)) {
+      console.log('CORS: 來源已允許，允許請求');
       callback(null, true);
     } else {
+      console.log('CORS: 來源未在允許列表中，拒絕請求');
       callback(new Error('CORS 不允許'));
     }
   },
