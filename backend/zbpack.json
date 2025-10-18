@@ -1,5 +1,5 @@
 {
   "install_command": "npm ci --ignore-scripts",
-  "build_command": "cp prisma/schema.production.prisma prisma/schema.prisma && echo '=== Prisma Schema Configuration ===' && grep -A 2 'datasource db' prisma/schema.prisma && echo '===================================' && npx prisma generate && echo '=== Generated Prisma Client Schema ===' && grep -A 2 'datasource db' node_modules/.prisma/client/schema.prisma && echo '======================================' && npm run build",
+  "build_command": "cp prisma/schema.production.prisma prisma/schema.prisma && npx prisma generate && npm run build && bash scripts/build.sh",
   "start_command": "npx prisma db push && npm start"
 }
