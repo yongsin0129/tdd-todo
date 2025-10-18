@@ -6,19 +6,21 @@
 | 項目 | 內容 |
 |------|------|
 | 文件標題 | TodoList 應用程式系統設計文件 (SDD) |
-| 版本號 | 1.2.0 |
+| 版本號 | 1.3.0 |
 | 撰寫日期 | 2025-10-14 |
-| 最後更新 | 2025-01-17 |
+| 最後更新 | 2025-10-18 |
 | 撰寫人 | Technical Team |
-| 審核人 | - |
+| 審核人 | DevOps Team |
+| 狀態 | 已核准 |
 
 ## 變更歷史記錄
 
-| 版本 | 日期 | 變更內容 | 變更人 |
-|------|------|---------|--------|
-| 1.0.0 | 2025-10-14 | 初始版本建立 | Technical Team |
-| 1.1.0 | 2025-10-17 | 重新組織文件結構，符合標準 SDD 格式 | Technical Team |
-| 1.2.0 | 2025-01-17 | 前端架構重構：移除 localStorage、Hook 分層設計、E2E 測試優化 | Technical Team |
+| 版本 | 日期 | 變更內容 | 變更人 | 相關 CR |
+|------|------|---------|--------|---------|
+| 1.3.0 | 2025-10-18 | 新增 Zeabur 部署平台相關內容：更新部署架構圖、新增 ADR-008、更新第三方整合清單、新增部署文檔連結 | DevOps Team | - |
+| 1.2.0 | 2025-01-17 | 前端架構重構：移除 localStorage、Hook 分層設計、E2E 測試優化 | Technical Team | - |
+| 1.1.0 | 2025-10-17 | 重新組織文件結構，符合標準 SDD 格式 | Technical Team | - |
+| 1.0.0 | 2025-10-14 | 初始版本建立 | Technical Team | - |
 
 ---
 
@@ -98,7 +100,7 @@
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### 1.2 部署架構圖 (未來)
+### 1.2 部署架構圖 (Zeabur 平台)
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -107,25 +109,37 @@
                               │
                               ↓ HTTPS
 ┌─────────────────────────────────────────────────────────────┐
-│                        CDN (CloudFlare)                      │
-│                    靜態資源快取與分發                          │
+│                      Zeabur Platform                         │
+│                  自動 HTTPS + CDN 加速                        │
+│                  GitHub Auto Deployment                      │
 └─────────────────────────────────────────────────────────────┘
                               │
               ┌───────────────┴───────────────┐
               ↓                               ↓
 ┌──────────────────────────┐    ┌──────────────────────────┐
-│   Frontend (Vercel)      │    │   Backend (Railway)      │
-│   - React Build          │    │   - Node.js API          │
+│   Frontend (Zeabur)      │    │   Backend (Zeabur)       │
+│   - React 19 + Vite      │    │   - Node.js 20 LTS       │
 │   - Static Hosting       │    │   - Express Server       │
+│   - Tailwind CSS v4      │    │   - Prisma ORM           │
+│   - 自動建置部署          │    │   - 自動執行 Migration    │
 └──────────────────────────┘    └──────────────────────────┘
                                             │
-                                            ↓
+                                            ↓ ${POSTGRES_DATABASE_URL}
                               ┌──────────────────────────┐
-                              │   Database (Supabase)    │
-                              │   - PostgreSQL           │
+                              │   Database (Zeabur)      │
+                              │   - PostgreSQL 15        │
                               │   - 自動備份              │
+                              │   - 模板變數自動連接      │
                               └──────────────────────────┘
 ```
+
+**部署特性**:
+- **一鍵部署**: 推送至 GitHub main 分支自動觸發部署
+- **環境隔離**: 開發環境使用 SQLite，生產環境使用 PostgreSQL
+- **零配置**: Zeabur 自動檢測 Monorepo 結構 (`/backend`, `/frontend`)
+- **模板變數**: 使用 `${POSTGRES_DATABASE_URL}` 自動連接資料庫服務
+- **HTTPS/SSL**: 自動生成並更新 SSL 證書
+- **域名管理**: 提供免費 `.zeabur.app` 子域名，支援自訂域名
 
 ---
 
@@ -397,6 +411,47 @@ function OldComponent() {
 - 使用語義化選擇器
 - 處理動態 DOM 屬性變化
 - 串行執行避免數據競爭
+
+---
+
+#### ADR-008: 選擇 Zeabur 作為部署平台
+
+**日期**: 2025-10-18
+
+**狀態**: 已採用
+
+**背景**: 需要選擇雲端部署平台來部署全棧 TodoList 應用
+
+**決策**: 使用 Zeabur 作為統一部署平台
+
+**理由**:
+- **一站式部署**: 前端、後端、資料庫統一管理
+- **自動檢測**: 自動識別 Node.js、React、Prisma 專案
+- **Monorepo 支援**: 原生支援 `/backend` 和 `/frontend` 目錄結構
+- **環境變數模板**: 使用 `${POSTGRES_DATABASE_URL}` 自動連接服務
+- **零配置 HTTPS**: 自動生成 SSL 證書和域名
+- **快速部署**: 推送 GitHub 自動觸發部署 (~2-3 分鐘)
+- **免費方案**: 提供免費額度適合 MVP 測試
+- **GitHub 整合**: 無縫連接 GitHub repository
+- **開發體驗**: zbpack.json 配置簡潔，支援自訂 build/start 命令
+
+**後果**:
+- ✅ 簡化部署流程（單一平台管理）
+- ✅ 降低學習曲線（無需學習多個平台）
+- ✅ 降低運維成本（統一監控和日誌）
+- ✅ 快速迭代（自動化 CI/CD）
+- ✅ 環境一致性（開發環境 SQLite，生產環境 PostgreSQL 無縫切換）
+- ⚠️ 平台依賴（需要遷移計畫作為備案）
+
+**技術實作**:
+- Backend zbpack.json: `npx prisma migrate deploy && npm start`
+- Frontend zbpack.json: `npm run build`
+- 環境變數模板: `DATABASE_URL=${POSTGRES_DATABASE_URL}`
+
+**相關文件**:
+- `docs/04-execution/devops/Zeabur-Deployment-Guide.md` - 完整部署指南
+- `docs/02-design/Database-Migration-Guide.md` - 資料庫遷移說明
+- `docs/04-execution/devops/Zeabur-Deployment-Checklist.md` - 部署檢查清單
 
 ---
 
@@ -1087,34 +1142,43 @@ export const logger = {
 | **Jest** | 測試框架 | npm package |
 | **Supertest** | API 測試 | npm package |
 
-### 10.2 未來可能整合服務
+### 10.2 已整合與未來服務
 
-| 服務 | 用途 | 優先級 |
-|------|------|--------|
-| **Sentry** | 錯誤監控 | P1 |
-| **Google Analytics** | 使用者行為分析 | P2 |
-| **Vercel** | 前端部署 | P1 |
-| **Railway/Render** | 後端部署 | P1 |
-| **Supabase** | PostgreSQL 託管 | P1 |
-| **SendGrid** | Email 通知 | P3 |
-| **Redis Cloud** | 快取服務 | P2 |
+**已完成整合**:
+
+| 服務 | 用途 | 狀態 | 說明 |
+|------|------|------|------|
+| **Zeabur** | 全棧部署平台 | ✅ 已部署 | 前端、後端、資料庫統一部署平台 |
+
+**計劃整合**:
+
+| 服務 | 用途 | 優先級 | 說明 |
+|------|------|--------|------|
+| **Sentry** | 錯誤監控 | P1 | 生產環境錯誤追蹤與報警 |
+| **Google Analytics** | 使用者行為分析 | P2 | 了解使用者行為模式 |
+| **SendGrid** | Email 通知 | P3 | 任務提醒和通知功能 |
+| **Redis Cloud** | 快取服務 | P2 | 提升 API 查詢效能 |
 
 ### 10.3 整合架構
 
 ```
 TodoList App
     │
-    ├─> Prisma ──────> SQLite/PostgreSQL
+    ├─> Prisma ──────> SQLite (Dev) / PostgreSQL (Prod)
     │
     ├─> Swagger UI ──> API Documentation
     │
     ├─> Jest ────────> Unit/Integration Tests
     │
+    ├─> Zeabur ──────> Deployment Platform
+    │   ├─> Frontend Hosting (React + Vite)
+    │   ├─> Backend Hosting (Node.js + Express)
+    │   └─> PostgreSQL Database
+    │
     └─> (Future)
         ├─> Sentry ──────> Error Tracking
-        ├─> Vercel ──────> Frontend Hosting
-        ├─> Railway ─────> Backend Hosting
-        └─> Supabase ────> Database Hosting
+        ├─> Redis ───────> Caching Layer
+        └─> SendGrid ────> Email Notifications
 ```
 
 ---
@@ -1123,10 +1187,29 @@ TodoList App
 
 ### 11.1 相關文件連結
 
-- **API 規格文件**: `API-Specification.md` (詳細的 API 端點定義)
-- **資料庫設計文件**: `Database-Design.md` (資料表結構、索引、關聯)
-- **專案路線圖**: `Project-Roadmap.md` (開發時程與里程碑)
-- **產品需求文件**: `PRD.md` (功能需求與使用者故事)
+**核心文檔**:
+- **需求文檔**: `docs/01-requirements/PRD.md` (產品需求文件)
+- **設計文檔**: `docs/02-design/SDD.md` (系統設計文件 - 本文件)
+- **API 規格**: `docs/02-design/API-Specification.md` (詳細的 API 端點定義)
+- **資料庫設計**: `docs/02-design/Database-Design.md` (資料表結構、索引、關聯)
+- **專案路線圖**: `docs/03-planning/Project-Roadmap.md` (開發時程與里程碑)
+
+**技術參考文檔**:
+- **Tailwind CSS v4**: `docs/02-design/Tailwind-CSS-Version-Comparison.md` (v3 vs v4 比較)
+
+**執行文檔**:
+- **前端團隊**: `docs/04-execution/frontend/Frontend-Team-Todolist.md`
+- **後端團隊**: `docs/04-execution/backend/Backend-Team-Todolist.md`
+
+**部署文檔**:
+- **部署導航**: `docs/04-execution/devops/Zeabur-Deployment-README.md` (部署指南索引)
+- **完整指南**: `docs/04-execution/devops/Zeabur-Deployment-Guide.md` (逐步部署說明)
+- **快速概覽**: `docs/04-execution/devops/Zeabur-Deployment-Summary.md` (架構圖與概要)
+- **檢查清單**: `docs/04-execution/devops/Zeabur-Deployment-Checklist.md` (部署前檢查)
+- **資料庫遷移**: `docs/02-design/Database-Migration-Guide.md` (SQLite→PostgreSQL)
+
+**變更管理**:
+- **變更日誌**: `docs/05-change-management/Change-Log.md` (所有變更記錄)
 
 ### 11.2 開發環境設置
 
@@ -1178,7 +1261,7 @@ npm run dev
 **更新頻率**: 每個重大技術決策變更時更新
 **版本控制**: 使用 Git 追蹤變更
 
-**最後更新**: 2025-10-17
+**最後更新**: 2025-10-18
 **下一次審查**: 2025-11-01
 
 ---

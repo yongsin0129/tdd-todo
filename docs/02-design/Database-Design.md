@@ -6,18 +6,20 @@
 | 項目 | 內容 |
 |------|------|
 | 文件標題 | TodoList 應用程式資料庫設計文件 (Database Design Document) |
-| 版本號 | 1.0.0 |
+| 版本號 | 1.1.0 |
 | 撰寫日期 | 2025-10-17 |
-| 最後更新 | 2025-10-17 |
+| 最後更新 | 2025-10-18 |
 | 撰寫人 | Backend Development Team |
-| 審核人 | Database Architect |
+| 審核人 | Database Architect, DevOps Team |
+| 狀態 | 已核准 |
 | 相關文件 | SDD.md, API-Specification.md, PRD.md |
 
 ## 變更歷史記錄
 
-| 版本 | 日期 | 變更內容 | 變更人 |
-|------|------|---------|--------|
-| 1.0.0 | 2025-10-17 | 初始版本建立，定義 Todo 資料表結構 | Backend Team |
+| 版本 | 日期 | 變更內容 | 變更人 | 相關 CR |
+|------|------|---------|--------|---------|
+| 1.1.0 | 2025-10-18 | 新增 Zeabur 部署環境資訊：更新生產環境配置、新增 Zeabur 遷移步驟、新增環境變數說明 | DevOps Team | - |
+| 1.0.0 | 2025-10-17 | 初始版本建立，定義 Todo 資料表結構 | Backend Team | - |
 
 ---
 
@@ -79,14 +81,18 @@
 
 ### 1.2 資料庫基本資訊
 
-| 項目 | 開發環境 | 生產環境 (未來) |
-|------|---------|----------------|
-| **資料庫系統** | SQLite 3 | PostgreSQL 14+ |
+| 項目 | 開發環境 | 生產環境 (Zeabur) |
+|------|---------|-------------------|
+| **資料庫系統** | SQLite 3 | PostgreSQL 15 |
 | **ORM 工具** | Prisma 6.17.1 | Prisma 6.17.1 |
 | **字元編碼** | UTF-8 | UTF-8 |
 | **時區設定** | UTC | UTC |
-| **資料庫檔案** | `prisma/dev.db` | Cloud Database |
-| **連線字串** | `file:./dev.db` | `postgresql://...` |
+| **資料庫檔案** | `prisma/dev.db` | Zeabur Managed Database |
+| **連線字串** | `file:./dev.db` | `${POSTGRES_DATABASE_URL}` |
+| **部署平台** | Local | Zeabur Platform |
+| **自動備份** | 手動備份 | ✅ Zeabur 自動備份 |
+| **連線池** | 不需要 | ✅ Zeabur 自動管理 |
+| **高可用性** | 單機 | ✅ Zeabur 提供 |
 
 ### 1.3 資料庫設計目標
 
@@ -777,6 +783,103 @@ npx prisma studio  # 檢查資料完整性
 | REAL | NUMERIC / DOUBLE PRECISION | 精度處理 |
 | BOOLEAN | BOOLEAN | SQLite 用 0/1 儲存 |
 | DATETIME | TIMESTAMP | 時區處理 |
+
+#### 6.4.3 Zeabur 平台部署遷移步驟
+
+**適用場景**: 使用 Zeabur 平台進行生產環境部署
+
+**前置條件**:
+- GitHub repository 已更新
+- Prisma schema 已改為 `provider = "postgresql"`
+- 已創建 zbpack.json 配置文件
+
+**步驟 1: 在 Zeabur 創建專案**
+
+```bash
+# 登入 Zeabur Dashboard
+https://dash.zeabur.com
+
+# 創建新專案
+# 1. 點擊 "Create New Project"
+# 2. 命名: "tdd-todolist"
+# 3. 選擇部署區域 (推薦: ap-east 或最接近用戶的區域)
+```
+
+**步驟 2: 部署 PostgreSQL 服務**
+
+```bash
+# 在 Zeabur 專案中
+# 1. 點擊 "Add Service" → "Marketplace"
+# 2. 搜尋並選擇 "PostgreSQL"
+# 3. 點擊 "Deploy"
+# 4. 等待服務啟動 (~1-2 分鐘)
+# 5. 記下服務名稱 (通常為 "postgres" 或 "postgresql")
+```
+
+**步驟 3: 部署後端服務**
+
+```bash
+# 在 Zeabur 專案中
+# 1. 點擊 "Add Service" → "Git"
+# 2. 連接 GitHub 並選擇 repository
+# 3. Zeabur 自動檢測 `/backend` 目錄
+# 4. 配置環境變數:
+```
+
+環境變數設定：
+```env
+DATABASE_URL=${POSTGRES_DATABASE_URL}
+NODE_ENV=production
+```
+
+zbpack.json 配置：
+```json
+{
+  "build_command": "npm run build && npx prisma generate",
+  "start_command": "npx prisma migrate deploy && npm start"
+}
+```
+
+**步驟 4: 驗證遷移**
+
+```bash
+# 查看 Zeabur 後端服務日誌
+# 確認以下訊息:
+# ✓ Prisma Migrate applied successfully
+# ✓ Database migrations completed
+# ✓ Server started on port 3000
+```
+
+**步驟 5: 部署前端服務**
+
+```bash
+# 1. 點擊 "Add Service" → "Git"
+# 2. 選擇同一個 repository
+# 3. Zeabur 自動檢測 `/frontend` 目錄
+# 4. 配置環境變數:
+```
+
+前端環境變數：
+```env
+VITE_API_URL=https://your-backend-url.zeabur.app/api
+```
+
+**環境變數特殊語法**:
+
+Zeabur 提供模板變數功能：
+- `${POSTGRES_DATABASE_URL}` - 自動指向 PostgreSQL 服務
+- `${SERVICE_NAME.DATABASE_URL}` - 指定服務名稱引用
+- 格式: `postgresql://user:pass@host:port/db`
+
+**常見問題排除**:
+
+1. **遷移失敗**: 檢查 Prisma schema provider 是否為 `postgresql`
+2. **連線錯誤**: 確認 `DATABASE_URL=${POSTGRES_DATABASE_URL}` 正確設定
+3. **服務無法啟動**: 檢查 zbpack.json 的 start_command 是否包含遷移指令
+
+**參考文件**:
+- 完整部署指南: `docs/04-execution/devops/Zeabur-Deployment-Guide.md`
+- 資料庫遷移: `docs/02-design/Database-Migration-Guide.md`
 
 ---
 

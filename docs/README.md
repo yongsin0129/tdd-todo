@@ -9,14 +9,42 @@
 ```
 PRD (產品需求) → SDD (系統設計) → 實作計畫 (路線圖 + 團隊任務)
                         ↓
-                   技術附件 (API 規格 + 資料庫設計)
+                   技術附件 (API 規格 + 資料庫設計 + 部署指南)
+```
+
+## 🗂️ 目錄結構
+
+```
+docs/
+├── 01-requirements/          # 📋 需求文件
+│   └── PRD.md               # 產品需求文件
+├── 02-design/                # 🎨 設計文件
+│   ├── SDD.md               # 系統設計文件
+│   ├── API-Specification.md # API 規格文件
+│   ├── Database-Design.md   # 資料庫設計文件
+│   ├── Database-Migration-Guide.md  # 資料庫遷移指南
+│   └── Tailwind-CSS-Version-Comparison.md  # Tailwind CSS 版本比較
+├── 03-planning/              # 📅 規劃文件
+│   └── Project-Roadmap.md   # 專案路線圖
+├── 04-execution/             # 🚀 執行文件
+│   ├── frontend/            # 前端團隊
+│   │   └── Frontend-Team-Todolist.md
+│   ├── backend/             # 後端團隊
+│   │   └── Backend-Team-Todolist.md
+│   └── devops/              # DevOps 部署
+│       ├── Zeabur-Deployment-README.md      # 部署導航
+│       ├── Zeabur-Deployment-Guide.md       # 完整部署指南
+│       ├── Zeabur-Deployment-Summary.md     # 部署概覽
+│       └── Zeabur-Deployment-Checklist.md   # 部署檢查清單
+└── 05-change-management/     # 📝 變更管理
+    └── Change-Log.md         # 變更日誌
 ```
 
 ---
 
 ## 📄 核心文件
 
-### 1. [PRD.md](./PRD.md) - 產品需求文件
+### 1. [PRD.md](./01-requirements/PRD.md) - 產品需求文件
 **閱讀對象**: 產品經理、專案負責人、所有團隊成員
 
 **內容概要**:
@@ -32,7 +60,7 @@ PRD (產品需求) → SDD (系統設計) → 實作計畫 (路線圖 + 團隊�
 
 ---
 
-### 2. [SDD.md](./SDD.md) - 系統設計文件
+### 2. [SDD.md](./02-design/SDD.md) - 系統設計文件
 **閱讀對象**: 技術團隊、架構師、開發人員
 
 **內容概要**:
@@ -53,7 +81,7 @@ PRD (產品需求) → SDD (系統設計) → 實作計畫 (路線圖 + 團隊�
 
 ## 📑 技術附件
 
-### 3. [API-Specification.md](./API-Specification.md) - API 規格文件
+### 3. [API-Specification.md](./02-design/API-Specification.md) - API 規格文件
 **閱讀對象**: 前端開發者、後端開發者、測試人員
 
 **內容概要**:
@@ -71,7 +99,7 @@ PRD (產品需求) → SDD (系統設計) → 實作計畫 (路線圖 + 團隊�
 
 ---
 
-### 4. [Database-Design.md](./Database-Design.md) - 資料庫設計文件
+### 4. [Database-Design.md](./02-design/Database-Design.md) - 資料庫設計文件
 **閱讀對象**: 後端開發者、DBA、資料工程師
 
 **內容概要**:
@@ -92,7 +120,7 @@ PRD (產品需求) → SDD (系統設計) → 實作計畫 (路線圖 + 團隊�
 
 ## 🗺️ 專案規劃
 
-### 5. [Project-Roadmap.md](./Project-Roadmap.md) - 專案總體路線圖
+### 5. [Project-Roadmap.md](./03-planning/Project-Roadmap.md) - 專案總體路線圖
 **閱讀對象**: 專案經理、團隊負責人、所有成員
 
 **內容概要**:
@@ -112,7 +140,7 @@ PRD (產品需求) → SDD (系統設計) → 實作計畫 (路線圖 + 團隊�
 
 ## 👨‍💻 團隊任務清單
 
-### 6. [Backend-Team-Todolist.md](./Backend-Team-Todolist.md) - 後端團隊待辦清單
+### 6. [Backend-Team-Todolist.md](./04-execution/backend/Backend-Team-Todolist.md) - 後端團隊待辦清單
 **閱讀對象**: 後端開發者、後端團隊負責人
 
 **內容概要**:
@@ -135,7 +163,7 @@ PRD (產品需求) → SDD (系統設計) → 實作計畫 (路線圖 + 團隊�
 
 ---
 
-### 7. [Frontend-Team-Todolist.md](./Frontend-Team-Todolist.md) - 前端團隊待辦清單
+### 7. [Frontend-Team-Todolist.md](./04-execution/frontend/Frontend-Team-Todolist.md) - 前端團隊待辦清單
 **閱讀對象**: 前端開發者、前端團隊負責人
 
 **內容概要**:
@@ -155,6 +183,56 @@ PRD (產品需求) → SDD (系統設計) → 實作計畫 (路線圖 + 團隊�
 - 開始前端開發前
 - 選擇下一個組件實作時
 - 追蹤前端進度時
+
+---
+
+### 8. [Zeabur 部署文件](./04-execution/devops/Zeabur-Deployment-README.md) - 部署導航索引
+**閱讀對象**: DevOps 團隊、後端開發者、專案負責人
+
+**內容概要**:
+- 🚀 完整 Zeabur 部署指南 (4 份文件，2,213 行)
+- 📋 部署架構與流程圖
+- ⚙️ 環境配置與變數設定
+- 🗄️ 資料庫遷移 (SQLite → PostgreSQL)
+- ✅ 部署檢查清單
+- 🐛 常見問題排除
+
+**快速連結**:
+- [完整部署指南](./04-execution/devops/Zeabur-Deployment-Guide.md) (951 行) - 逐步部署說明
+- [部署概覽](./04-execution/devops/Zeabur-Deployment-Summary.md) (418 行) - 架構與配置
+- [部署檢查清單](./04-execution/devops/Zeabur-Deployment-Checklist.md) (345 行) - 快速參考
+- [資料庫遷移指南](./02-design/Database-Migration-Guide.md) (499 行) - SQLite→PostgreSQL
+
+**何時閱讀**:
+- 準備部署至生產環境時
+- 設定 CI/CD pipeline 時
+- 資料庫遷移時
+- 排除部署問題時
+
+---
+
+## 📝 變更管理
+
+### 9. [Change-Log.md](./05-change-management/Change-Log.md) - 變更日誌
+**閱讀對象**: 所有團隊成員、專案經理
+
+**內容概要**:
+- 📅 專案所有重要變更記錄
+- 🔄 文件版本更新歷史
+- 🏗️ 架構變更記錄
+- 📊 變更統計與審核狀態
+- 📌 後續行動項目
+
+**最新變更**:
+- 2025-10-18: Zeabur 部署平台整合
+- 2025-10-18: 文件結構重組 (.doc/ → docs/)
+- 2025-10-18: SDD.md v1.3.0 (新增 ADR-008)
+- 2025-10-18: Database-Design.md v1.1.0 (新增 Zeabur 環境)
+
+**何時閱讀**:
+- 了解專案變更歷史時
+- 追蹤文件更新時
+- 審核變更請求 (CR) 時
 
 ---
 
@@ -195,30 +273,40 @@ PRD (產品需求) → SDD (系統設計) → 實作計畫 (路線圖 + 團隊�
 
 ### 我是產品經理
 **建議閱讀順序**:
-1. PRD.md - 了解產品需求
-2. Project-Roadmap.md - 追蹤專案進度
-3. Backend/Frontend-Team-Todolist.md - 檢視團隊進度
+1. [PRD.md](./01-requirements/PRD.md) - 了解產品需求
+2. [Project-Roadmap.md](./03-planning/Project-Roadmap.md) - 追蹤專案進度
+3. [Backend](./04-execution/backend/Backend-Team-Todolist.md)/[Frontend-Team-Todolist.md](./04-execution/frontend/Frontend-Team-Todolist.md) - 檢視團隊進度
+4. [Change-Log.md](./05-change-management/Change-Log.md) - 了解變更歷史
 
 ### 我是後端開發者
 **建議閱讀順序**:
-1. PRD.md (快速瀏覽) - 了解背景
-2. SDD.md - 了解技術架構
-3. API-Specification.md - 實作 API 規格
-4. Database-Design.md - 設計資料表
-5. Backend-Team-Todolist.md - 開始開發任務
+1. [PRD.md](./01-requirements/PRD.md) (快速瀏覽) - 了解背景
+2. [SDD.md](./02-design/SDD.md) - 了解技術架構
+3. [API-Specification.md](./02-design/API-Specification.md) - 實作 API 規格
+4. [Database-Design.md](./02-design/Database-Design.md) - 設計資料表
+5. [Backend-Team-Todolist.md](./04-execution/backend/Backend-Team-Todolist.md) - 開始開發任務
+6. [Zeabur-Deployment-Guide.md](./04-execution/devops/Zeabur-Deployment-Guide.md) - 部署準備
 
 ### 我是前端開發者
 **建議閱讀順序**:
-1. PRD.md (快速瀏覽) - 了解功能需求
-2. SDD.md - 了解前端技術選型
-3. API-Specification.md - 了解如何串接 API
-4. Frontend-Team-Todolist.md - 開始開發任務
+1. [PRD.md](./01-requirements/PRD.md) (快速瀏覽) - 了解功能需求
+2. [SDD.md](./02-design/SDD.md) - 了解前端技術選型
+3. [API-Specification.md](./02-design/API-Specification.md) - 了解如何串接 API
+4. [Frontend-Team-Todolist.md](./04-execution/frontend/Frontend-Team-Todolist.md) - 開始開發任務
+
+### 我是 DevOps / 部署工程師
+**建議閱讀順序**:
+1. [SDD.md](./02-design/SDD.md) - 了解系統架構
+2. [Zeabur-Deployment-README.md](./04-execution/devops/Zeabur-Deployment-README.md) - 部署導航
+3. [Zeabur-Deployment-Guide.md](./04-execution/devops/Zeabur-Deployment-Guide.md) - 完整部署指南
+4. [Database-Migration-Guide.md](./02-design/Database-Migration-Guide.md) - 資料庫遷移
+5. [Zeabur-Deployment-Checklist.md](./04-execution/devops/Zeabur-Deployment-Checklist.md) - 部署檢查清單
 
 ### 我是測試人員
 **建議閱讀順序**:
-1. PRD.md - 了解驗收標準
-2. API-Specification.md - 撰寫 API 測試
-3. Backend/Frontend-Team-Todolist.md - 了解測試要求
+1. [PRD.md](./01-requirements/PRD.md) - 了解驗收標準
+2. [API-Specification.md](./02-design/API-Specification.md) - 撰寫 API 測試
+3. [Backend](./04-execution/backend/Backend-Team-Todolist.md)/[Frontend-Team-Todolist.md](./04-execution/frontend/Frontend-Team-Todolist.md) - 了解測試要求
 
 ---
 
@@ -231,9 +319,9 @@ PRD (產品需求) → SDD (系統設計) → 實作計畫 (路線圖 + 團隊�
 | **Phase 3: API 文件** | ✅ 完成 | 100% |
 | **Phase 4: 前端開發** | ⏳ 待開始 | 0% |
 | **Phase 5: 整合測試** | ⏳ 待開始 | 0% |
-| **Phase 6: 部署** | ⏳ 待開始 | 0% |
+| **Phase 6: 部署** | 🔄 文件完成 | 50% (Zeabur 文件完成，待實際部署) |
 
-**整體進度**: 約 30% (後端完成，前端待開始)
+**整體進度**: 約 40% (後端完成，部署文件完成，前端待開始)
 
 **目標 MVP 上線日期**: 2025-11-06
 
@@ -257,7 +345,7 @@ PRD (產品需求) → SDD (系統設計) → 實作計畫 (路線圖 + 團隊�
 ## 📞 聯絡資訊
 
 **文件維護負責人**: Technical Team
-**最後更新日期**: 2025-10-17
+**最後更新日期**: 2025-10-18 (文件結構重組 + Zeabur 部署整合)
 **下次審查日期**: 2025-11-01
 
 ---
