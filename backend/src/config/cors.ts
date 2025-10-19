@@ -31,8 +31,19 @@ export const corsOptions: CorsOptions = {
     console.log('CORS: 允許的來源列表:', allowedOrigins);
     console.log('CORS: 當前請求來源:', origin);
 
-    // 檢查來源是否在允許列表中
-    if (allowedOrigins.includes(origin)) {
+    // 檢查來源是否在允許列表中（支援萬用字元 * 匹配）
+    const isAllowed = allowedOrigins.some(pattern => {
+      // 如果包含萬用字元，轉換為正則表達式
+      if (pattern.includes('*')) {
+        const regexPattern = pattern.replace(/\*/g, '.*').replace(/\./g, '\\.');
+        const regex = new RegExp(`^${regexPattern}$`);
+        return regex.test(origin);
+      }
+      // 否則進行精確匹配
+      return pattern === origin;
+    });
+
+    if (isAllowed) {
       console.log('CORS: 來源已允許，允許請求');
       callback(null, true);
     } else {
