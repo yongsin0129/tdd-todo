@@ -1,81 +1,86 @@
-FROM node:22
-LABEL "language"="nodejs"
-LABEL "framework"="express"
+# Backend Dockerfile
+FROM node:22-alpine AS builder
 
-WORKDIR /src
-COPY . .
+WORKDIR /app
 
-# 詳細除錯 - 檢查專案根目錄結構
-RUN echo "=== 專案根目錄結構 ===" && \
-    ls -la && \
-    echo "=== 尋找所有 prisma 相關檔案 ===" && \
-    find . -name "*prisma*" -type f && \
-    echo "=== 尋找所有 .prisma 檔案 ===" && \
-    find . -name "*.prisma" && \
-    echo "=== 尋找 scripts 目錄 ===" && \
-    find . -name "scripts" -type d && \
-    echo "=== 尋找 build.sh 檔案 ===" && \
-    find . -name "build.sh"
-
-# 檢查 backend 目錄
-RUN echo "=== backend 目錄結構 ===" && \
-    if [ -d backend ]; then \
-        ls -la backend/; \
-    else \
-        echo "backend 目錄不存在"; \
-    fi
-
-# 檢查 prisma 目錄
-RUN echo "=== prisma 目錄結構 ===" && \
-    if [ -d prisma ]; then \
-        echo "prisma 目錄在根目錄:" && \
-        ls -la prisma/; \
-    fi && \
-    if [ -d backend/prisma ]; then \
-        echo "prisma 目錄在 backend 目錄:" && \
-        ls -la backend/prisma/; \
-    fi
+# 複製 package files
+COPY package*.json ./
+COPY prisma ./prisma/
 
 # 安裝依賴
-RUN echo "=== 安裝依賴 ===" && \
-    cd backend && npm ci --ignore-scripts
+RUN npm ci
 
-# 建置應用程式 - 帶詳細日誌
-RUN echo "=== 開始建置流程 ===" && \
-    cd backend && \
-    echo "目前工作目錄: $(pwd)" && \
-    echo "檢查 schema.production.prisma 檔案:" && \
-    if [ -f prisma/schema.production.prisma ]; then \
-        echo "找到 prisma/schema.production.prisma" && \
-        ls -la prisma/schema.production.prisma && \
-        echo "複製 schema.production.prisma 到 schema.prisma" && \
-        cp prisma/schema.production.prisma prisma/schema.prisma && \
-        echo "複製完成，檢查結果:" && \
-        ls -la prisma/schema.prisma; \
-    else \
-        echo "未找到 prisma/schema.production.prisma，檢查其他可能位置:" && \
-        find . -name "schema.production.prisma" 2>/dev/null || echo "完全找不到 schema.production.prisma"; \
-    fi && \
-    echo "=== 執行 prisma generate ===" && \
-    if [ -f prisma/schema.prisma ]; then \
-        npx prisma generate; \
-    else \
-        echo "找不到 schema.prisma，跳過 prisma generate"; \
-    fi && \
-    echo "=== 執行 npm run build ===" && \
-    npm run build && \
-    echo "=== 執行 build.sh 腳本 ===" && \
-    if [ -f scripts/build.sh ]; then \
-        echo "找到 scripts/build.sh，執行中..." && \
-        bash scripts/build.sh; \
-    else \
-        echo "未找到 scripts/build.sh，檢查其他可能位置:" && \
-        find . -name "build.sh" 2>/dev/null || echo "完全找不到 build.sh"; \
-    fi
+# 複製源代碼
+COPY . .
 
-WORKDIR /src/backend
-EXPOSE 8080
+# 使用 PostgreSQL schema
+RUN cp prisma/schema.production.prisma prisma/schema.prisma
 
+# 生成 Prisma Client
+RUN npx prisma generate
 
-# 啟動應用程式
-CMD ["sh", "-c", "echo '=== 啟動應用程式 ===' && if [ -f /src/backend/prisma/schema.prisma ]; then echo '執行 prisma db push' && cd /src/backend && npx prisma db push; else echo '跳過 prisma db push'; fi && echo '啟動 npm start' && npm start"]
+# 建置應用程式
+RUN npm run build
+
+# Production stage
+FROM node:22-alpine
+
+WORKDIR /app
+
+# 複製 package files
+COPY package*.json ./
+
+# 複製 prisma 目錄（包含 schema.production.prisma）
+COPY prisma ./prisma/
+
+# 使用 PostgreSQL schema（在 production stage 也要替換）
+RUN cp prisma/schema.production.prisma prisma/schema.prisma
+
+# 只安裝生產依賴（包含 prisma）
+# --ignore-scripts: 跳過 prepare 腳本（不需要 husky）
+RUN npm ci --only=production --ignore-scripts
+
+# 重新生成 Prisma Client（使用 PostgreSQL schema）
+RUN npx prisma generate
+
+# 從 builder 複製建置好的應用程式碼
+COPY --from=builder /app/dist ./dist
+
+# 暴露端口
+EXPOSE 3000
+
+# ==================== 啟動指令說明 ====================
+# 使用 `prisma db push` 而不是 `prisma migrate deploy`
+#
+# 背景：
+# 本專案有 SQLite (開發) 和 PostgreSQL (生產) 兩種資料庫配置
+# 現有的 migration 檔案是為 SQLite 生成的 (見 prisma/migrations/)
+#
+# 為什麼用 db push？
+# 1. 現有 migration 是 SQLite 語法 (DATETIME, PRIMARY KEY 等)
+# 2. PostgreSQL 語法不完全相同 (應使用 TIMESTAMP)
+# 3. migrate deploy 會嘗試執行 SQLite migration → 可能報錯
+# 4. db push 會根據 schema.production.prisma 直接同步到 PostgreSQL
+#
+# prisma migrate deploy vs prisma db push：
+# ┌─────────────────┬──────────────────┬─────────────────────┐
+# │                 │ migrate deploy   │ db push             │
+# ├─────────────────┼──────────────────┼─────────────────────┤
+# │ 執行方式        │ 執行 migration   │ 直接同步 schema     │
+# │ 需要 migration  │ ✅ 必須           │ ❌ 不需要            │
+# │ 歷史記錄        │ ✅ 有             │ ❌ 無                │
+# │ 跨資料庫        │ ❌ 需匹配語法     │ ✅ 自動適配          │
+# │ 安全性          │ 高（生產推薦）   │ 中等                │
+# └─────────────────┴──────────────────┴─────────────────────┘
+#
+# 如何改用 migrate deploy？（未來如果需要）
+# 1. 為 PostgreSQL 生成新的 migration：
+#    - 切換到 schema.production.prisma
+#    - 執行 npx prisma migrate dev --name init_postgres
+# 2. 將新 migration 檔案 commit 到 git
+# 3. 修改此行為: npx prisma migrate deploy
+#
+# --skip-generate: 跳過重新生成 Prisma Client（建置時已生成）
+# ======================================================
+
+CMD ["sh", "-c", "npx prisma db push --skip-generate && npm start"]

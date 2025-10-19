@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # Backend API (開發模式 - 使用 SQLite)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: todolist-backend-dev
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: file:./dev.db
+      PORT: ${BACKEND_PORT:-3000}
+      NODE_ENV: ${NODE_ENV:-development}
+      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:5173}
+    ports:
+      - "${BACKEND_PORT:-3000}:3000"
+    volumes:
+      # 掛載源代碼實現熱重載
+      - ./backend/src:/app/src
+      - ./backend/prisma:/app/prisma
+      # SQLite 資料庫持久化
+      - backend_dev_db:/app/prisma
+    networks:
+      - todolist-network
+    # 使用 Dockerfile.dev 中定義的 CMD（包含 prisma db push）
+    # command: npm run dev  # ❌ 這會覆蓋 Dockerfile 的 CMD，導致 db push 不執行
+
+  # Frontend (開發模式)
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: todolist-frontend-dev
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:3000/api}
+    ports:
+      - "${FRONTEND_PORT:-5173}:5173"
+    volumes:
+      # 掛載源代碼實現熱重載
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+    networks:
+      - todolist-network
+    depends_on:
+      - backend
+    # 使用 Dockerfile.dev 中定義的 CMD
+    # command: npm run dev -- --host  # ❌ 這會覆蓋 Dockerfile 的 CMD
+
+networks:
+  todolist-network:
+    driver: bridge
+
+volumes:
+  backend_dev_db:
+    driver: local
