@@ -7,6 +7,9 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './e2e',
 
+  /* 測試超時時間設定為 60 秒 */
+  timeout: 60000,
+
   /* 平行執行測試 - 禁用以避免共享數據庫時的測試干擾 */
   fullyParallel: false,
 

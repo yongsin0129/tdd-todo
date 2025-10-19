@@ -490,23 +490,20 @@ Code Review
 └─────────────────────────────────────────────────────────────┘
                               │
                               ↓ HTTPS
-┌─────────────────────────────────────────────────────────────┐
-│                        CDN (CloudFlare)                      │
-│                    靜態資源快取與分發                          │
-└─────────────────────────────────────────────────────────────┘
                               │
               ┌───────────────┴───────────────┐
               ↓                               ↓
 ┌──────────────────────────┐    ┌──────────────────────────┐
-│   Frontend (Vercel)      │    │   Backend (Railway)      │
+│   Frontend (Vercel)      │    │   Backend (Zeabur)       │
 │   - React Build          │    │   - Node.js API          │
 │   - Static Hosting       │    │   - Express Server       │
-│   - Auto Scaling         │    │   - Docker Container     │
+│   - Auto CDN             │    │   - Prisma ORM           │
+│   - GitHub Auto Deploy   │    │   - Auto Migration       │
 └──────────────────────────┘    └──────────────────────────┘
                                             │
                                             ↓
                               ┌──────────────────────────┐
-                              │   Database (Railway)     │
+                              │   Database (Zeabur)      │
                               │   - PostgreSQL           │
                               │   - Auto Backup          │
                               └──────────────────────────┘
@@ -560,7 +557,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - Deploy frontend to Vercel
-      - Deploy backend to Railway
+      - Deploy backend to Zeabur
       - Run health checks
       - Notify team
 ```
@@ -596,13 +593,13 @@ jobs:
 
 ### 7.5 監控與警報
 
-| 監控項目 | 工具 | 閾值 | 警報方式 |
-|---------|------|------|---------|
-| **應用可用性** | UptimeRobot | < 99% | Email, Slack |
-| **API 回應時間** | New Relic | > 500ms | Slack |
-| **錯誤率** | Sentry | > 1% | Email, Slack |
-| **伺服器負載** | Railway Dashboard | > 80% | Email |
-| **資料庫連線** | Railway Metrics | 異常 | Email |
+| 指標 | 目標值 | 衡量方式 |
+|------|--------|---------|
+| **應用可用性** | < 99% | Email, Slack |
+| **API 回應時間** | > 500ms | Slack |
+| **錯誤率** | > 1% | Email, Slack |
+| **伺服器負載** | > 80% | Email |
+| **資料庫連線** | 異常 | Email |
 
 ### 7.6 回滾計畫
 
@@ -616,8 +613,8 @@ jobs:
 ```bash
 # 1. 立即停止部署
 # 2. 切換至上一個穩定版本
-vercel rollback
-railway rollback
+vercel rollback  # 前端回滾
+zeabur rollback  # 後端回滾
 
 # 3. 驗證回滾成功
 curl https://api.yourdomain.com/health
@@ -766,8 +763,8 @@ curl https://api.yourdomain.com/health
 
 | 服務 | 選項 | 優勢 | 決策 |
 |------|------|------|------|
-| 前端 | Vercel | 自動部署、CDN、零配置 | ✅ 採用 |
-| 後端 | Railway | Docker 支援、PostgreSQL 整合 | ✅ 採用 |
+| 前端 | Vercel | 全球 CDN、自動優化、零配置 | ✅ 採用 |
+| 後端 | Zeabur | PostgreSQL 整合、Prisma 支援 | ✅ 採用 |
 | 替代 | AWS/GCP | 功能完整但複雜 | ❌ 不採用 |
 
 ---
@@ -922,10 +919,10 @@ curl https://api.yourdomain.com/health
 | 類別 | 項目 | 月費用 | 年費用 | 備註 |
 |------|------|--------|--------|------|
 | **託管服務** | Vercel (Hobby) | $0 | $0 | 免費方案 |
-| **託管服務** | Railway (Starter) | $5 | $60 | PostgreSQL 包含 |
+| **託管服務** | Zeabur (Free) | $0 | $0 | 免費方案 (PostgreSQL 包含) |
 | **域名** | .com 域名 | $1 | $12 | 第一年優惠 |
 | **監控** | Sentry (Developer) | $0 | $0 | 免費方案 |
-| **總計** | - | **$6** | **$72** | 極低成本 |
+| **總計** | - | **$1** | **$12** | 極低成本 |
 
 **注意**: MVP 階段使用免費/低成本方案，待產品驗證後再升級。
 

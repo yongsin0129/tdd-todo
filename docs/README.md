@@ -186,11 +186,11 @@ docs/
 
 ---
 
-### 8. [Zeabur 部署文件](./04-execution/devops/Zeabur-Deployment-README.md) - 部署導航索引
+### 8. [部署文件](./04-execution/devops/) - 部署導航索引
 **閱讀對象**: DevOps 團隊、後端開發者、專案負責人
 
 **內容概要**:
-- 🚀 完整 Zeabur 部署指南 (4 份文件，2,213 行)
+- 🚀 完整部署指南（Vercel 前端 + Zeabur 後端）
 - 📋 部署架構與流程圖
 - ⚙️ 環境配置與變數設定
 - 🗄️ 資料庫遷移 (SQLite → PostgreSQL)
@@ -198,9 +198,7 @@ docs/
 - 🐛 常見問題排除
 
 **快速連結**:
-- [完整部署指南](./04-execution/devops/Zeabur-Deployment-Guide.md) (951 行) - 逐步部署說明
-- [部署概覽](./04-execution/devops/Zeabur-Deployment-Summary.md) (418 行) - 架構與配置
-- [部署檢查清單](./04-execution/devops/Zeabur-Deployment-Checklist.md) (345 行) - 快速參考
+- [Zeabur CLI 文檔](./04-execution/devops/Zeabur%20CLI.md) - Zeabur 命令行工具使用指南
 - [資料庫遷移指南](./02-design/Database-Migration-Guide.md) (499 行) - SQLite→PostgreSQL
 
 **何時閱讀**:
@@ -224,6 +222,7 @@ docs/
 - 📌 後續行動項目
 
 **最新變更**:
+- 2025-10-19: 部署架構更新為 Vercel (前端) + Zeabur (後端/資料庫) 混合架構
 - 2025-10-18: Zeabur 部署平台整合
 - 2025-10-18: 文件結構重組 (.doc/ → docs/)
 - 2025-10-18: SDD.md v1.3.0 (新增 ADR-008)
@@ -285,7 +284,7 @@ docs/
 3. [API-Specification.md](./02-design/API-Specification.md) - 實作 API 規格
 4. [Database-Design.md](./02-design/Database-Design.md) - 設計資料表
 5. [Backend-Team-Todolist.md](./04-execution/backend/Backend-Team-Todolist.md) - 開始開發任務
-6. [Zeabur-Deployment-Guide.md](./04-execution/devops/Zeabur-Deployment-Guide.md) - 部署準備
+6. 部署準備：查看 `docs/04-execution/devops/` 目錄下的部署文件
 
 ### 我是前端開發者
 **建議閱讀順序**:
@@ -297,10 +296,9 @@ docs/
 ### 我是 DevOps / 部署工程師
 **建議閱讀順序**:
 1. [SDD.md](./02-design/SDD.md) - 了解系統架構
-2. [Zeabur-Deployment-README.md](./04-execution/devops/Zeabur-Deployment-README.md) - 部署導航
-3. [Zeabur-Deployment-Guide.md](./04-execution/devops/Zeabur-Deployment-Guide.md) - 完整部署指南
+2. [部署文件目錄](./04-execution/devops/) - 查看所有部署相關文件
+3. [Zeabur CLI 文檔](./04-execution/devops/Zeabur%20CLI.md) - Zeabur 命令行工具
 4. [Database-Migration-Guide.md](./02-design/Database-Migration-Guide.md) - 資料庫遷移
-5. [Zeabur-Deployment-Checklist.md](./04-execution/devops/Zeabur-Deployment-Checklist.md) - 部署檢查清單
 
 ### 我是測試人員
 **建議閱讀順序**:
@@ -319,7 +317,7 @@ docs/
 | **Phase 3: API 文件** | ✅ 完成 | 100% |
 | **Phase 4: 前端開發** | ⏳ 待開始 | 0% |
 | **Phase 5: 整合測試** | ⏳ 待開始 | 0% |
-| **Phase 6: 部署** | 🔄 文件完成 | 50% (Zeabur 文件完成，待實際部署) |
+| **Phase 6: 部署** | 🔄 文件完成 | 50% (部署文件完成，待實際部署) |
 
 **整體進度**: 約 40% (後端完成，部署文件完成，前端待開始)
 
@@ -345,7 +343,7 @@ docs/
 ## 📞 聯絡資訊
 
 **文件維護負責人**: Technical Team
-**最後更新日期**: 2025-10-18 (文件結構重組 + Zeabur 部署整合)
+**最後更新日期**: 2025-10-19 (更新部署架構為 Vercel + Zeabur 混合架構)
 **下次審查日期**: 2025-11-01
 
 ---

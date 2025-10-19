@@ -6,9 +6,9 @@
 | 項目 | 內容 |
 |------|------|
 | 文件標題 | TodoList 應用程式系統設計文件 (SDD) |
-| 版本號 | 1.3.0 |
+| 版本號 | 1.4.0 |
 | 撰寫日期 | 2025-10-14 |
-| 最後更新 | 2025-10-18 |
+| 最後更新 | 2025-10-19 |
 | 撰寫人 | Technical Team |
 | 審核人 | DevOps Team |
 | 狀態 | 已核准 |
@@ -17,6 +17,7 @@
 
 | 版本 | 日期 | 變更內容 | 變更人 | 相關 CR |
 |------|------|---------|--------|---------|
+| 1.4.0 | 2025-10-19 | 更新部署架構為 Vercel (前端) + Zeabur (後端/資料庫) 混合架構，更新 ADR-008、部署架構圖 | DevOps Team | - |
 | 1.3.0 | 2025-10-18 | 新增 Zeabur 部署平台相關內容：更新部署架構圖、新增 ADR-008、更新第三方整合清單、新增部署文檔連結 | DevOps Team | - |
 | 1.2.0 | 2025-01-17 | 前端架構重構：移除 localStorage、Hook 分層設計、E2E 測試優化 | Technical Team | - |
 | 1.1.0 | 2025-10-17 | 重新組織文件結構，符合標準 SDD 格式 | Technical Team | - |
@@ -100,7 +101,7 @@
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### 1.2 部署架構圖 (Zeabur 平台)
+### 1.2 部署架構圖 (Vercel + Zeabur 平台)
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -108,20 +109,16 @@
 └─────────────────────────────────────────────────────────────┘
                               │
                               ↓ HTTPS
-┌─────────────────────────────────────────────────────────────┐
-│                      Zeabur Platform                         │
-│                  自動 HTTPS + CDN 加速                        │
-│                  GitHub Auto Deployment                      │
-└─────────────────────────────────────────────────────────────┘
                               │
               ┌───────────────┴───────────────┐
               ↓                               ↓
 ┌──────────────────────────┐    ┌──────────────────────────┐
-│   Frontend (Zeabur)      │    │   Backend (Zeabur)       │
+│   Frontend (Vercel)      │    │   Backend (Zeabur)       │
 │   - React 19 + Vite      │    │   - Node.js 20 LTS       │
 │   - Static Hosting       │    │   - Express Server       │
 │   - Tailwind CSS v4      │    │   - Prisma ORM           │
-│   - 自動建置部署          │    │   - 自動執行 Migration    │
+│   - 自動 CDN 加速         │    │   - 自動執行 Migration    │
+│   - GitHub Auto Deploy   │    │   - GitHub Auto Deploy   │
 └──────────────────────────┘    └──────────────────────────┘
                                             │
                                             ↓ ${POSTGRES_DATABASE_URL}
@@ -134,12 +131,19 @@
 ```
 
 **部署特性**:
-- **一鍵部署**: 推送至 GitHub main 分支自動觸發部署
-- **環境隔離**: 開發環境使用 SQLite，生產環境使用 PostgreSQL
-- **零配置**: Zeabur 自動檢測 Monorepo 結構 (`/backend`, `/frontend`)
-- **模板變數**: 使用 `${POSTGRES_DATABASE_URL}` 自動連接資料庫服務
-- **HTTPS/SSL**: 自動生成並更新 SSL 證書
-- **域名管理**: 提供免費 `.zeabur.app` 子域名，支援自訂域名
+- **前端 (Vercel)**:
+  - 自動 CDN 加速與邊緣網絡優化
+  - 推送至 GitHub 自動觸發部署
+  - 自動 HTTPS/SSL 證書
+  - 提供免費 `.vercel.app` 域名，支援自訂域名
+  - 即時預覽分支部署
+
+- **後端 + 數據庫 (Zeabur)**:
+  - 環境隔離：開發環境使用 SQLite，生產環境使用 PostgreSQL
+  - 零配置：自動檢測 Node.js 專案結構
+  - 模板變數：使用 `${POSTGRES_DATABASE_URL}` 自動連接資料庫
+  - GitHub 自動部署
+  - 自動 HTTPS + 域名管理
 
 ---
 
@@ -414,44 +418,54 @@ function OldComponent() {
 
 ---
 
-#### ADR-008: 選擇 Zeabur 作為部署平台
+#### ADR-008: 選擇 Vercel + Zeabur 混合部署架構
 
-**日期**: 2025-10-18
+**日期**: 2025-10-18 (更新: 2025-10-19)
 
 **狀態**: 已採用
 
 **背景**: 需要選擇雲端部署平台來部署全棧 TodoList 應用
 
-**決策**: 使用 Zeabur 作為統一部署平台
+**決策**:
+- **前端**: 使用 Vercel
+- **後端 + 資料庫**: 使用 Zeabur
 
 **理由**:
-- **一站式部署**: 前端、後端、資料庫統一管理
-- **自動檢測**: 自動識別 Node.js、React、Prisma 專案
-- **Monorepo 支援**: 原生支援 `/backend` 和 `/frontend` 目錄結構
+
+*前端選擇 Vercel:*
+- **邊緣網絡優化**: 全球 CDN 加速，提供最佳的靜態資源載入速度
+- **自動優化**: 針對 Next.js/React/Vite 應用做了特別優化
+- **即時預覽**: 每個 PR 自動生成預覽環境
+- **零配置**: 推送 GitHub 自動檢測並部署
+- **免費方案**: 慷慨的免費額度，適合個人專案
+- **域名與 SSL**: 自動 HTTPS 和免費 `.vercel.app` 域名
+
+*後端選擇 Zeabur:*
+- **專案整合**: 後端與資料庫在同一平台，便於管理
 - **環境變數模板**: 使用 `${POSTGRES_DATABASE_URL}` 自動連接服務
-- **零配置 HTTPS**: 自動生成 SSL 證書和域名
-- **快速部署**: 推送 GitHub 自動觸發部署 (~2-3 分鐘)
-- **免費方案**: 提供免費額度適合 MVP 測試
-- **GitHub 整合**: 無縫連接 GitHub repository
-- **開發體驗**: zbpack.json 配置簡潔，支援自訂 build/start 命令
+- **Prisma 支援**: 自動執行 Migration，無需手動配置
+- **快速部署**: GitHub 自動觸發部署
+- **PostgreSQL 內建**: 提供託管資料庫服務
+- **開發體驗**: zbpack.json 配置簡潔
 
 **後果**:
-- ✅ 簡化部署流程（單一平台管理）
-- ✅ 降低學習曲線（無需學習多個平台）
-- ✅ 降低運維成本（統一監控和日誌）
+- ✅ 前端效能最佳化（Vercel 全球 CDN）
+- ✅ 後端與資料庫整合便利（Zeabur 統一管理）
+- ✅ 各取所長（利用各平台的優勢）
+- ✅ 降低成本（兩者皆提供免費方案）
 - ✅ 快速迭代（自動化 CI/CD）
-- ✅ 環境一致性（開發環境 SQLite，生產環境 PostgreSQL 無縫切換）
-- ⚠️ 平台依賴（需要遷移計畫作為備案）
+- ⚠️ 需管理兩個平台（稍微增加管理複雜度）
+- ⚠️ CORS 設定需正確配置前後端通訊
 
 **技術實作**:
+- Frontend (Vercel): 自動檢測 Vite 專案並建置
 - Backend zbpack.json: `npx prisma migrate deploy && npm start`
-- Frontend zbpack.json: `npm run build`
-- 環境變數模板: `DATABASE_URL=${POSTGRES_DATABASE_URL}`
+- 環境變數: `DATABASE_URL=${POSTGRES_DATABASE_URL}`
+- CORS 配置: 後端允許 Vercel 域名存取
 
 **相關文件**:
-- `docs/04-execution/devops/Zeabur-Deployment-Guide.md` - 完整部署指南
+- `docs/04-execution/devops/Zeabur CLI.md` - Zeabur 命令行工具使用指南
 - `docs/02-design/Database-Migration-Guide.md` - 資料庫遷移說明
-- `docs/04-execution/devops/Zeabur-Deployment-Checklist.md` - 部署檢查清單
 
 ---
 
@@ -1148,7 +1162,8 @@ export const logger = {
 
 | 服務 | 用途 | 狀態 | 說明 |
 |------|------|------|------|
-| **Zeabur** | 全棧部署平台 | ✅ 已部署 | 前端、後端、資料庫統一部署平台 |
+| **Vercel** | 前端部署平台 | ✅ 已部署 | React + Vite 靜態網站託管，全球 CDN 加速 |
+| **Zeabur** | 後端 + 資料庫部署平台 | ✅ 已部署 | Node.js 後端與 PostgreSQL 統一部署平台 |
 
 **計劃整合**:
 
@@ -1170,8 +1185,9 @@ TodoList App
     │
     ├─> Jest ────────> Unit/Integration Tests
     │
-    ├─> Zeabur ──────> Deployment Platform
-    │   ├─> Frontend Hosting (React + Vite)
+    ├─> Vercel ──────> Frontend Deployment (React + Vite)
+    │
+    ├─> Zeabur ──────> Backend + Database Deployment
     │   ├─> Backend Hosting (Node.js + Express)
     │   └─> PostgreSQL Database
     │
@@ -1202,10 +1218,7 @@ TodoList App
 - **後端團隊**: `docs/04-execution/backend/Backend-Team-Todolist.md`
 
 **部署文檔**:
-- **部署導航**: `docs/04-execution/devops/Zeabur-Deployment-README.md` (部署指南索引)
-- **完整指南**: `docs/04-execution/devops/Zeabur-Deployment-Guide.md` (逐步部署說明)
-- **快速概覽**: `docs/04-execution/devops/Zeabur-Deployment-Summary.md` (架構圖與概要)
-- **檢查清單**: `docs/04-execution/devops/Zeabur-Deployment-Checklist.md` (部署前檢查)
+- **Zeabur CLI**: `docs/04-execution/devops/Zeabur CLI.md` (Zeabur 命令行工具使用指南)
 - **資料庫遷移**: `docs/02-design/Database-Migration-Guide.md` (SQLite→PostgreSQL)
 
 **變更管理**:

@@ -360,7 +360,7 @@ backend/src/
 | **5.2** | 配置環境變數管理 | Backend Team | 2h | P0 | ⏳ 待辦 | 2025-11-04 |
 | **5.3** | 設置 CI/CD Pipeline | DevOps | 6h | P0 | ⏳ 待辦 | 2025-11-04 |
 | **5.4** | 遷移至 PostgreSQL (選用) | Backend Team | 4h | P1 | ⏳ 待辦 | 2025-11-05 |
-| **5.5** | 部署至 Railway | DevOps | 4h | P0 | ⏳ 待辦 | 2025-11-05 |
+| **5.5** | 部署至 Zeabur | DevOps | 4h | P0 | ⏳ 待辦 | 2025-11-05 |
 | **5.6** | 生產環境測試與驗證 | Full Team | 4h | P0 | ⏳ 待辦 | 2025-11-06 |
 
 **總工作量**: 23h (約 3 天)
@@ -438,7 +438,7 @@ jobs:
   deploy:
     - Build Docker image
     - Push to container registry
-    - Deploy to Railway
+    - Deploy to Zeabur
 ```
 
 **驗收標準**:
@@ -462,12 +462,12 @@ jobs:
 - 所有測試通過
 - 資料遷移成功
 
-#### Task 5.5: 部署至 Railway
+#### Task 5.5: 部署至 Zeabur
 
 **目標**: 將應用部署至生產環境
 
 **部署清單**:
-- [ ] 建立 Railway 專案
+- [ ] 建立 Zeabur 專案
 - [ ] 連結 GitHub Repository
 - [ ] 設定環境變數
 - [ ] 配置 PostgreSQL 資料庫
