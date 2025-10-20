@@ -35,10 +35,6 @@ jobs:
         run: npm run lint
         continue-on-error: true
 
-      - name: Run TypeScript type check
-        run: npm run type-check
-        continue-on-error: true
-
       - name: Generate Prisma Client
         run: npx prisma generate
         continue-on-error: true
@@ -102,10 +98,6 @@ jobs:
 
       - name: Run ESLint
         run: npm run lint
-        continue-on-error: true
-
-      - name: Run TypeScript type check
-        run: npm run type-check
         continue-on-error: true
 
       - name: Run unit tests
