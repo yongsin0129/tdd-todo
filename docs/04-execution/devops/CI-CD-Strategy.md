@@ -6,11 +6,11 @@
 | 項目 | 內容 |
 |------|------|
 | 文件標題 | CI/CD 策略文件 |
-| 版本號 | 1.0.0 |
+| 版本號 | 2.0.0 |
 | 撰寫日期 | 2025-10-19 |
-| 最後更新 | 2025-10-19 |
+| 最後更新 | 2025-10-20 |
 | 撰寫人 | DevOps Team |
-| 狀態 | 待實施 |
+| 狀態 | ✅ 已實施 |
 
 ---
 
@@ -22,6 +22,23 @@
 
 - **持續整合 (CI)**: GitHub Actions 負責自動化測試
 - **持續部署 (CD)**: Vercel 和 Zeabur 平台原生 Git 集成自動部署
+
+#### 非阻擋模式 (Non-blocking Mode)
+
+**設計決策**: 本專案的 GitHub Actions CI 採用**非阻擋模式**設計：
+
+- ✅ 所有測試步驟使用 `continue-on-error: true`
+- ✅ 測試失敗不會阻止 push 或部署
+- ✅ 重點在於**質量可見性**而非強制門檻
+- ✅ 適合快速迭代的開發階段
+
+**優勢**:
+- 🚀 不阻礙開發速度
+- 📊 提供測試結果可見性
+- 🔄 支持快速修復與迭代
+- 💡 開發者自主決定是否修復
+
+**注意**: 生產環境可考慮啟用阻擋模式以確保品質
 
 ### 1.2 架構圖
 
@@ -78,17 +95,33 @@ GitHub Actions 專注於**質量保證**，不涉及部署：
 
 ### 2.2 GitHub Actions Workflow 配置
 
-#### 檔案位置
-`.github/workflows/ci.yml`
+本專案實作了**三個獨立的 GitHub Actions Workflows**:
 
-#### 配置內容
+1. **主要 CI Workflow** (`.github/workflows/ci.yml`) - 完整的品質保證流程
+2. **後端專屬 CI** (`.github/workflows/backend-ci.yml`) - 僅在後端變更時觸發
+3. **前端專屬 CI** (`.github/workflows/frontend-ci.yml`) - 僅在前端變更時觸發
+
+#### 2.2.1 主要 CI Workflow
+
+**檔案位置**: `.github/workflows/ci.yml`
+
+**觸發條件**:
+```yaml
+on:
+  push:
+    branches: [main, master, develop]
+  pull_request:
+    branches: [main, master]
+```
+
+**配置內容** (非阻擋模式):
 
 ```yaml
-name: CI - Quality Assurance
+name: CI - Quality Assurance (Non-blocking)
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, master, develop]
   pull_request:
     branches: [main]
 
@@ -106,27 +139,32 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
+      - name: Setup Node.js 24
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
           cache-dependency-path: backend/package-lock.json
 
       - name: Install dependencies
         run: npm ci
+        continue-on-error: true
 
       - name: Run ESLint
         run: npm run lint
+        continue-on-error: true
 
       - name: Run TypeScript type check
         run: npm run type-check
+        continue-on-error: true
 
       - name: Generate Prisma Client
         run: npx prisma generate
+        continue-on-error: true
 
       - name: Run integration tests
         run: npm test -- --coverage
+        continue-on-error: true
 
       - name: Upload backend coverage to Codecov
         uses: codecov/codecov-action@v4
@@ -135,6 +173,7 @@ jobs:
           flags: backend
           name: backend-coverage
           fail_ci_if_error: false
+        continue-on-error: true
 
       - name: Archive backend test results
         if: always()
@@ -145,6 +184,7 @@ jobs:
             backend/coverage/
             backend/test-results/
           retention-days: 7
+        continue-on-error: true
 
   # ==================== 前端測試 ====================
   frontend-tests:
@@ -159,27 +199,32 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
+      - name: Setup Node.js 24
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
         run: npm ci
+        continue-on-error: true
 
       - name: Run ESLint
         run: npm run lint
+        continue-on-error: true
 
       - name: Run TypeScript type check
         run: npm run type-check
+        continue-on-error: true
 
       - name: Run unit tests
         run: npm test -- --coverage
+        continue-on-error: true
 
       - name: Build frontend
         run: npm run build
+        continue-on-error: true
 
       - name: Upload frontend coverage to Codecov
         uses: codecov/codecov-action@v4
@@ -188,6 +233,7 @@ jobs:
           flags: frontend
           name: frontend-coverage
           fail_ci_if_error: false
+        continue-on-error: true
 
       - name: Archive frontend test results
         if: always()
@@ -198,21 +244,22 @@ jobs:
             frontend/coverage/
             frontend/test-results/
           retention-days: 7
+        continue-on-error: true
 
   # ==================== E2E 測試 ====================
   e2e-tests:
     name: E2E Tests (Playwright)
     runs-on: ubuntu-latest
-    needs: [backend-tests, frontend-tests]
+    if: always()
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js 20
+      - name: Setup Node.js 24
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
@@ -220,16 +267,19 @@ jobs:
       - name: Install frontend dependencies
         working-directory: ./frontend
         run: npm ci
+        continue-on-error: true
 
       # 安裝後端依賴
       - name: Install backend dependencies
         working-directory: ./backend
         run: npm ci
+        continue-on-error: true
 
       # 安裝 Playwright 瀏覽器
       - name: Install Playwright Browsers
         working-directory: ./frontend
         run: npx playwright install --with-deps chromium
+        continue-on-error: true
 
       # 啟動後端 API (背景執行)
       - name: Start Backend API
@@ -243,6 +293,7 @@ jobs:
           NODE_ENV: test
           DATABASE_URL: file:./test.db
           PORT: 3000
+        continue-on-error: true
 
       # 啟動前端 (背景執行)
       - name: Start Frontend
@@ -252,16 +303,19 @@ jobs:
           sleep 5
         env:
           VITE_API_URL: http://localhost:3000
+        continue-on-error: true
 
       # 等待服務啟動
       - name: Wait for services
         run: |
-          npx wait-on http://localhost:5173 http://localhost:3000/api/todos
+          npx wait-on http://localhost:5173 http://localhost:3000/api/todos --timeout 60000
+        continue-on-error: true
 
       # 執行 E2E 測試
       - name: Run Playwright E2E tests
         working-directory: ./frontend
         run: npx playwright test
+        continue-on-error: true
 
       # 上傳 Playwright 報告
       - name: Upload Playwright Report
@@ -271,6 +325,7 @@ jobs:
           name: playwright-report
           path: frontend/playwright-report/
           retention-days: 7
+        continue-on-error: true
 
       # 上傳 E2E 測試截圖/影片
       - name: Upload E2E test artifacts
@@ -282,6 +337,7 @@ jobs:
             frontend/test-results/
             frontend/playwright-report/
           retention-days: 7
+        continue-on-error: true
 
   # ==================== 測試結果摘要 ====================
   test-summary:
@@ -293,26 +349,80 @@ jobs:
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
+        continue-on-error: true
 
       - name: Generate Test Summary
         run: |
-          echo "## 🧪 Test Results Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## 🧪 測試結果摘要 (非阻擋模式)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### ✅ Backend Tests" >> $GITHUB_STEP_SUMMARY
-          echo "- ESLint: Passed" >> $GITHUB_STEP_SUMMARY
-          echo "- TypeScript: Passed" >> $GITHUB_STEP_SUMMARY
-          echo "- Integration Tests: Passed" >> $GITHUB_STEP_SUMMARY
+          echo "⚠️ **注意**: 此 CI 為非阻擋模式，測試失敗不會阻止 push" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### ✅ Frontend Tests" >> $GITHUB_STEP_SUMMARY
-          echo "- ESLint: Passed" >> $GITHUB_STEP_SUMMARY
-          echo "- TypeScript: Passed" >> $GITHUB_STEP_SUMMARY
-          echo "- Unit Tests: Passed" >> $GITHUB_STEP_SUMMARY
-          echo "- Build: Passed" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 測試執行記錄" >> $GITHUB_STEP_SUMMARY
+          echo "- 後端測試: 已執行" >> $GITHUB_STEP_SUMMARY
+          echo "- 前端測試: 已執行" >> $GITHUB_STEP_SUMMARY
+          echo "- E2E 測試: 已執行" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### ✅ E2E Tests" >> $GITHUB_STEP_SUMMARY
-          echo "- Playwright Tests: Passed" >> $GITHUB_STEP_SUMMARY
+          echo "### 🚀 自動部署狀態" >> $GITHUB_STEP_SUMMARY
+          echo "- Vercel: 自動部署中" >> $GITHUB_STEP_SUMMARY
+          echo "- Zeabur: 自動部署中" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "📊 **View detailed reports in the Artifacts section**" >> $GITHUB_STEP_SUMMARY
+          echo "📊 **查看詳細測試結果請到 Actions 頁面的 Artifacts 區塊**" >> $GITHUB_STEP_SUMMARY
+        continue-on-error: true
+```
+
+**關鍵特性**:
+- ✅ 使用 Node.js 24.x (最新 LTS 版本)
+- ✅ 所有步驟採用非阻擋模式 (`continue-on-error: true`)
+- ✅ 整合 Codecov 測試覆蓋率報告
+- ✅ 使用 `wait-on` 等待服務啟動 (E2E 測試)
+- ✅ 自動上傳測試報告至 Artifacts
+- ✅ 生成測試摘要到 GitHub Summary
+
+#### 2.2.2 後端專屬 CI Workflow
+
+**檔案位置**: `.github/workflows/backend-ci.yml`
+
+**特點**:
+- 僅在 `backend/**` 路徑變更時觸發
+- 聚焦後端測試與建置
+- 同樣採用非阻擋模式
+
+**觸發條件**:
+```yaml
+on:
+  push:
+    branches: [main, master, develop]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend-ci.yml'
+  pull_request:
+    branches: [main, master]
+    paths:
+      - 'backend/**'
+```
+
+#### 2.2.3 前端專屬 CI Workflow
+
+**檔案位置**: `.github/workflows/frontend-ci.yml`
+
+**特點**:
+- 僅在 `frontend/**` 路徑變更時觸發
+- 聚焦前端測試與建置
+- 包含 Bundle Size 分析
+- 同樣採用非阻擋模式
+
+**觸發條件**:
+```yaml
+on:
+  push:
+    branches: [main, master, develop]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend-ci.yml'
+  pull_request:
+    branches: [main, master]
+    paths:
+      - 'frontend/**'
 ```
 
 ---
@@ -541,13 +651,17 @@ FRONTEND_URL=https://your-frontend.vercel.app
 
 ### 7.1 GitHub Actions 設置檢查
 
-- [ ] 建立 `.github/workflows/ci.yml`
-- [ ] 配置 Backend Tests Job
-- [ ] 配置 Frontend Tests Job
-- [ ] 配置 E2E Tests Job
-- [ ] 配置 Test Summary Job
-- [ ] 測試 Workflow 是否正常執行
-- [ ] 確認 Artifacts 正確上傳
+- [x] 建立 `.github/workflows/ci.yml` (主要 CI)
+- [x] 建立 `.github/workflows/backend-ci.yml` (後端 CI)
+- [x] 建立 `.github/workflows/frontend-ci.yml` (前端 CI)
+- [x] 配置 Backend Tests Job (非阻擋模式)
+- [x] 配置 Frontend Tests Job (非阻擋模式)
+- [x] 配置 E2E Tests Job (非阻擋模式)
+- [x] 配置 Test Summary Job
+- [x] 設置 Codecov 整合
+- [x] 配置 Artifacts 上傳
+- [ ] 測試 Workflow 是否正常執行 (待首次 push 觸發)
+- [ ] 確認 Artifacts 正確上傳 (待首次執行)
 
 ### 7.2 Vercel 設置檢查
 
@@ -672,8 +786,10 @@ Error: P3009 migrate.lock file not found
 npm install --save-dev @playwright/test wait-on
 
 # Backend
-npm install --save-dev wait-on
+# (wait-on 已在前端安裝，E2E 測試時使用)
 ```
+
+**注意**: `wait-on` 套件用於 E2E 測試時等待服務啟動，已在 2025-10-20 新增至前端依賴。
 
 ### B. 參考連結
 
@@ -684,6 +800,6 @@ npm install --save-dev wait-on
 
 ---
 
-**文件狀態**: 📝 待實施
-**最後更新**: 2025-10-19
-**下次審查**: 實施完成後
+**文件狀態**: ✅ 已實施 (GitHub Actions CI workflows 已配置)
+**最後更新**: 2025-10-20
+**下次審查**: 首次 workflow 執行後

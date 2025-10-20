@@ -7,6 +7,7 @@
 !.doc/
 !.husky/
 !.env.example
+!.github/
 
 # WARP 相關文件
 warp.md
@@ -75,7 +76,7 @@ Thumbs.db
 .dockerignore
 
 # CI/CD
-.github/workflows/
+# .github/workflows/
 
 # 本地配置
 config/local.json

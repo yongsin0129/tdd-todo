@@ -6,9 +6,9 @@
 | 項目 | 內容 |
 |------|------|
 | 文件標題 | TodoList 應用程式專案路線圖 (Project Roadmap) |
-| 版本號 | 1.6.0 |
+| 版本號 | 1.7.0 |
 | 撰寫日期 | 2025-10-17 |
-| 最後更新 | 2025-10-19 |
+| 最後更新 | 2025-10-20 |
 | 撰寫人 | Project Management Team |
 | 審核人 | Technical Lead, Product Owner |
 | 相關文件 | PRD.md, SDD.md, implementation-plan-backend.md, implementation-plan-frontend.md |
@@ -24,12 +24,13 @@
 | 1.4.0 | 2025-10-17 | 更新 Phase 3 完成 API 整合與效能優化 (Task 2.6, 4.2) | Frontend Team |
 | 1.5.0 | 2025-10-17 | 完成 Phase 4 所有任務 (Tasks 4.2-4.4: 效能優化, 跨瀏覽器測試, Bug修復), 整體進度達 78% | Frontend Team |
 | 1.6.0 | 2025-10-19 | 完成 Phase 5 部署任務，Vercel + Zeabur 混合架構已上線，MVP 100% 完成 | DevOps Team |
+| 1.7.0 | 2025-10-20 | 新增 GitHub Actions CI/CD workflows (非阻擋模式), 實作三個獨立 CI pipelines | DevOps Team |
 
 ---
 
 ## 📊 專案進度儀表板 (Project Dashboard)
 
-**最後更新**: 2025-10-19 | **當前階段**: Phase 5 部署完成 🎉
+**最後更新**: 2025-10-20 | **當前階段**: Phase 5 部署完成 🎉
 
 ### 整體進度概覽
 
@@ -66,14 +67,14 @@
 | 🔌 **後端部署** | Node.js + Express API | ✅ | Zeabur | DevOps |
 | 🗄️ **資料庫部署** | PostgreSQL | ✅ | Zeabur | DevOps |
 | ⚙️ **環境變數配置** | CORS + API URL | ✅ | Vercel + Zeabur | DevOps |
-| 🔄 **CI/CD 設置** | GitHub Actions 測試 | ⏳ | 待配置 | DevOps |
+| 🔄 **CI/CD 設置** | GitHub Actions 測試 | ✅ | 已配置 (非阻擋模式) | DevOps |
 | 📊 **資料庫遷移** | Prisma Migration | ✅ | Zeabur | Backend |
 | 🧪 **E2E 測試** | 生產環境驗證 | ✅ | 完成 | QA |
 | 🚀 **正式上線** | MVP 已上線 | ✅ | 完成 | Full Team |
 
 **部署架構**: Vercel (前端 CDN) + Zeabur (後端 API + PostgreSQL)
 **部署方式**: 平台原生 Git 自動部署（已啟用）
-**CI/CD 策略**: GitHub Actions 測試（待配置）+ 平台自動部署（已完成）
+**CI/CD 策略**: GitHub Actions 測試（✅ 已配置 - 非阻擋模式）+ 平台自動部署（✅ 已完成）
 
 詳見: `docs/04-execution/devops/CI-CD-Strategy.md`
 
@@ -637,7 +638,10 @@ curl https://api.yourdomain.com/health
 
 - [x] 正式上線的應用 (Vercel + Zeabur)
 - [x] 平台原生自動部署配置（Vercel + Zeabur Git 集成）
-- [ ] GitHub Actions CI 測試流程（待配置）
+- [x] GitHub Actions CI 測試流程（已配置 - 非阻擋模式）
+  - ✅ 主要 CI Workflow (`.github/workflows/ci.yml`)
+  - ✅ 後端專屬 CI (`.github/workflows/backend-ci.yml`)
+  - ✅ 前端專屬 CI (`.github/workflows/frontend-ci.yml`)
 - [x] 監控與警報設置
 - [x] 部署文件 (docs/04-execution/devops/)
 - [x] 運維手冊
@@ -646,7 +650,8 @@ curl https://api.yourdomain.com/health
 **備註**:
 - ✅ MVP 已成功部署上線
 - ✅ Vercel 和 Zeabur 已啟用 Git 自動部署
-- ⏳ GitHub Actions CI 測試流程待配置（詳見 CI-CD-Strategy.md）
+- ✅ GitHub Actions CI 測試流程已配置（採用非阻擋模式，詳見 CI-CD-Strategy.md v2.0.0）
+- 📊 待首次 push 觸發 workflows 並驗證執行結果
 
 ---
 
@@ -1078,8 +1083,8 @@ curl https://api.yourdomain.com/health
 **更新頻率**: 每週更新進度，重大變更即時更新
 **版本控制**: 使用 Git 追蹤變更
 
-**最後更新**: 2025-10-17 (Phase 4 測試與優化完成, 專案進度 78%)
-**下一次審查**: 2025-11-04 (Phase 5 部署前)
+**最後更新**: 2025-10-20 (GitHub Actions CI/CD workflows 已配置)
+**下一次審查**: 2025-10-27 (Phase 5 完整驗證後)
 
 ---
 
