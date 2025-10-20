@@ -43,8 +43,17 @@ jobs:
         run: npx prisma generate
         continue-on-error: true
 
+      - name: Setup test database
+        run: npx prisma migrate deploy
+        env:
+          DATABASE_URL: file:./test.db
+        continue-on-error: true
+
       - name: Run integration tests
         run: npm test -- --coverage
+        env:
+          DATABASE_URL: file:./test.db
+          NODE_ENV: test
         continue-on-error: true
 
       - name: Upload backend coverage to Codecov
