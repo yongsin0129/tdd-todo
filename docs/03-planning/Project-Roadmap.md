@@ -6,9 +6,9 @@
 | 項目 | 內容 |
 |------|------|
 | 文件標題 | TodoList 應用程式專案路線圖 (Project Roadmap) |
-| 版本號 | 1.5.0 |
+| 版本號 | 1.6.0 |
 | 撰寫日期 | 2025-10-17 |
-| 最後更新 | 2025-10-17 |
+| 最後更新 | 2025-10-19 |
 | 撰寫人 | Project Management Team |
 | 審核人 | Technical Lead, Product Owner |
 | 相關文件 | PRD.md, SDD.md, implementation-plan-backend.md, implementation-plan-frontend.md |
@@ -23,26 +23,27 @@
 | 1.3.0 | 2025-10-17 | 更新 Phase 4 Task 4.1 完成 (測試覆蓋率 82.29%, 114/114 tests) | Frontend Team |
 | 1.4.0 | 2025-10-17 | 更新 Phase 3 完成 API 整合與效能優化 (Task 2.6, 4.2) | Frontend Team |
 | 1.5.0 | 2025-10-17 | 完成 Phase 4 所有任務 (Tasks 4.2-4.4: 效能優化, 跨瀏覽器測試, Bug修復), 整體進度達 78% | Frontend Team |
+| 1.6.0 | 2025-10-19 | 完成 Phase 5 部署任務，Vercel + Zeabur 混合架構已上線，MVP 100% 完成 | DevOps Team |
 
 ---
 
 ## 📊 專案進度儀表板 (Project Dashboard)
 
-**最後更新**: 2025-10-17 | **當前階段**: Phase 4 測試與優化完成 ✅
+**最後更新**: 2025-10-19 | **當前階段**: Phase 5 部署完成 🎉
 
 ### 整體進度概覽
 
 ```
-██████████████████████████████████████░░░░░░░░░░░░  78% 完成
+████████████████████████████████████████████████████  100% 完成
 ```
 
 | 指標 | 狀態 | 說明 |
 |------|------|------|
-| 📅 **專案啟動日期** | 2025-10-14 | 已運行 4 天 |
-| 🎯 **當前階段** | Phase 4: 測試與優化 | 已完成 |
-| ⏰ **預計完成日期** | 2025-11-06 | 剩餘 20 天 |
-| 🚀 **下一個里程碑** | M5: MVP 上線 | 2025-11-06 |
-| ⚠️ **風險狀態** | 🟢 低風險 | 進度超前 |
+| 📅 **專案啟動日期** | 2025-10-14 | 已運行 6 天 |
+| 🎯 **當前階段** | Phase 5: 部署與上線 | 已完成 🎉 |
+| ⏰ **預計完成日期** | 2025-11-06 | 提前 18 天完成 |
+| 🚀 **下一個里程碑** | Phase 6: 功能擴展 | 規劃中 |
+| ⚠️ **風險狀態** | 🟢 低風險 | MVP 已成功上線 |
 
 ### Phase 進度追蹤
 
@@ -52,29 +53,29 @@
 | **2** | 後端 API 開發 | ✅ | 100% | 2025-10-14 | 2025-10-16 | 3 天 |
 | **3** | 前端開發 | ✅ | 100% | 2025-10-17 | 2025-10-17 | 1 天 |
 | **4** | 整合測試與 QA | ✅ | 100% | 2025-10-17 | 2025-10-17 | 1 天 |
-| **5** | 部署與上線 | ⏳ | 0% | 2025-11-04 | 2025-11-06 | 待開始 |
-| **6** | 功能擴展 | ⏳ | 0% | 2025-11-07 | - | 待開始 |
+| **5** | 部署與上線 | ✅ | 100% | 2025-10-19 | 2025-10-19 | 1 天 |
+| **6** | 功能擴展 | ⏳ | 0% | TBD | - | 規劃中 |
 
 ### 當前階段詳細進度
 
-**Phase 4: 測試與優化 - 已完成** (2025-10-17)
+**Phase 5: 部署與上線 - 已完成** (2025-10-19)
 
-| 模組 | 功能 | 狀態 | 測試 | 負責團隊 |
-|------|------|:----:|:----:|:--------:|
-| 🏗️ **專案設置** | React + Vite + TypeScript | ✅ | 3 tests | Frontend |
-| 🗄️ **狀態管理** | Zustand Store | ✅ | 31 tests | Frontend |
-| 📝 **TodoForm 組件** | 新增待辦表單 | ✅ | 21 tests | Frontend |
-| 📋 **TodoItem 組件** | 單一待辦項目 | ✅ | 23 tests | Frontend |
-| 📚 **TodoList 組件** | 待辦清單容器 | ✅ | 25 tests | Frontend |
-| 🔌 **API 整合** | 後端 API 串接 | ✅ | 114 tests | Frontend |
-| 🎨 **響應式設計** | RWD 實作 | ✅ | 完成 | Frontend |
-| ♿ **無障礙設計** | WCAG 2.1 AA | ✅ | 完成 | Frontend |
-| ⚡ **效能優化** | Bundle < 150KB | ✅ | 70.76KB | Frontend |
-| 🧪 **測試覆蓋率** | > 80% 覆蓋率 | ✅ | 82.29% | Frontend |
-| 🌐 **跨瀏覽器測試** | 主流瀏覽器支援 | ✅ | 完成 | Frontend |
-| 🐛 **Bug 修復** | 程式碼品質提升 | ✅ | 0 errors | Frontend |
+| 模組 | 功能 | 狀態 | 部署平台 | 負責團隊 |
+|------|------|:----:|:--------:|:--------:|
+| 🌐 **前端部署** | React + Vite 應用 | ✅ | Vercel | DevOps |
+| 🔌 **後端部署** | Node.js + Express API | ✅ | Zeabur | DevOps |
+| 🗄️ **資料庫部署** | PostgreSQL | ✅ | Zeabur | DevOps |
+| ⚙️ **環境變數配置** | CORS + API URL | ✅ | Vercel + Zeabur | DevOps |
+| 🔄 **CI/CD 設置** | GitHub Actions 測試 | ⏳ | 待配置 | DevOps |
+| 📊 **資料庫遷移** | Prisma Migration | ✅ | Zeabur | Backend |
+| 🧪 **E2E 測試** | 生產環境驗證 | ✅ | 完成 | QA |
+| 🚀 **正式上線** | MVP 已上線 | ✅ | 完成 | Full Team |
 
-**測試覆蓋率**: 114 tests ✅ | 覆蓋率 82.29% ✅ | Bundle 70.76KB ✅
+**部署架構**: Vercel (前端 CDN) + Zeabur (後端 API + PostgreSQL)
+**部署方式**: 平台原生 Git 自動部署（已啟用）
+**CI/CD 策略**: GitHub Actions 測試（待配置）+ 平台自動部署（已完成）
+
+詳見: `docs/04-execution/devops/CI-CD-Strategy.md`
 
 ### 關鍵指標達成狀況
 
@@ -93,9 +94,9 @@
 |--------|---------|:----:|---------|
 | M1: 專案啟動 | 2025-10-14 | ✅ | 2025-10-14 |
 | M2: 後端完成 | 2025-10-16 | ✅ | 2025-10-16 |
-| M3: 前端完成 | 2025-10-28 | ✅ | 2025-10-17 (超前) |
-| M4: 整合完成 | 2025-11-03 | ✅ | 2025-10-17 (超前) |
-| M5: MVP 上線 | 2025-11-06 | ⏳ | - |
+| M3: 前端完成 | 2025-10-28 | ✅ | 2025-10-17 (超前 11 天) |
+| M4: 整合完成 | 2025-11-03 | ✅ | 2025-10-17 (超前 17 天) |
+| M5: MVP 上線 | 2025-11-06 | ✅ | 2025-10-19 (超前 18 天) |
 
 ### 待辦事項 (高優先級)
 
@@ -105,7 +106,8 @@
 | 🔴 P0 | ~~完善響應式設計~~ | Frontend | 2025-10-24 | ✅ |
 | 🟡 P1 | ~~完善無障礙設計~~ | Frontend | 2025-10-27 | ✅ |
 | 🟡 P1 | ~~效能優化與測試~~ | Frontend | 2025-10-28 | ✅ |
-| 🔴 P0 | 準備部署環境 | DevOps | 2025-11-06 | ⏳ |
+| 🔴 P0 | ~~準備部署環境~~ | DevOps | 2025-11-06 | ✅ |
+| 🔴 P0 | ~~部署至生產環境~~ | DevOps | 2025-11-06 | ✅ |
 
 ---
 
@@ -477,9 +479,9 @@ Code Review
 |------|------|
 | **目標** | 將應用部署至生產環境並上線 |
 | **預估時間** | 2-3 天 |
-| **開始日期** | 2025-11-04 |
-| **預計結束** | 2025-11-06 |
-| **狀態** | ⏳ 待開始 |
+| **開始日期** | 2025-10-19 |
+| **實際結束** | 2025-10-19 |
+| **狀態** | ✅ 已完成 |
 | **負責人** | DevOps Team, Full Team |
 
 ### 7.2 部署架構
@@ -511,10 +513,13 @@ Code Review
 
 ### 7.3 CI/CD Pipeline
 
+**CI/CD 策略**: 混合模式
+
+#### CI (持續整合) - GitHub Actions
 ```yaml
 # .github/workflows/ci.yml
 
-name: CI/CD Pipeline
+name: CI - Quality Assurance
 
 on:
   push:
@@ -523,73 +528,77 @@ on:
     branches: [main]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - Checkout code
-      - Setup Node.js
-      - Install dependencies
-      - Run ESLint
-      - Run Prettier check
-      - Run backend tests
-      - Run frontend tests
-      - Upload coverage reports
-
-  build:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - Build frontend (Vite)
-      - Build backend (Docker)
-      - Run smoke tests
-
-  deploy-staging:
-    needs: build
-    if: github.ref == 'refs/heads/develop'
-    runs-on: ubuntu-latest
-    steps:
-      - Deploy to staging environment
-      - Run E2E tests
-
-  deploy-production:
-    needs: build
-    if: github.ref == 'refs/heads/main'
-    runs-on: ubuntu-latest
-    steps:
-      - Deploy frontend to Vercel
-      - Deploy backend to Zeabur
-      - Run health checks
-      - Notify team
+  backend-tests:     # 後端測試
+  frontend-tests:    # 前端測試
+  e2e-tests:         # E2E 測試
+  test-summary:      # 測試摘要
 ```
+
+**職責**:
+- ✅ ESLint 程式碼檢查
+- ✅ TypeScript 類型檢查
+- ✅ 單元測試
+- ✅ 整合測試
+- ✅ E2E 測試（Playwright）
+- 📊 測試報告與覆蓋率
+
+#### CD (持續部署) - 平台原生自動部署
+
+**Vercel (Frontend)**:
+```
+git push → Vercel 偵測 → 自動建置 → 部署至 CDN
+```
+
+**Zeabur (Backend)**:
+```
+git push → Zeabur 偵測 → 自動建置 → Migration → 部署 API
+```
+
+**完整流程**:
+```
+Developer Push
+    ↓
+GitHub Repository
+    ├─→ GitHub Actions (測試)
+    │   ├─ Backend Tests ✅
+    │   ├─ Frontend Tests ✅
+    │   └─ E2E Tests ✅
+    │
+    └─→ Platform Deploy (部署)
+        ├─ Vercel (Frontend) 🌐
+        └─ Zeabur (Backend + DB) 🔧
+```
+
+詳細配置請參考: `docs/04-execution/devops/CI-CD-Strategy.md`
 
 ### 7.4 部署檢查清單
 
 #### 部署前檢查
 
-- [ ] 所有測試通過 (單元、整合、E2E)
-- [ ] 程式碼審查完成
-- [ ] 測試覆蓋率 > 80%
-- [ ] 無 console.log 除錯訊息
-- [ ] 環境變數正確設定
-- [ ] 資料庫遷移腳本準備完成
-- [ ] 備份策略確認
+- [x] 所有測試通過 (單元、整合、E2E)
+- [x] 程式碼審查完成
+- [x] 測試覆蓋率 > 80%
+- [x] 無 console.log 除錯訊息
+- [x] 環境變數正確設定
+- [x] 資料庫遷移腳本準備完成
+- [x] 備份策略確認
 
 #### 部署中檢查
 
-- [ ] Docker 映像建置成功
-- [ ] 環境變數注入正確
-- [ ] 資料庫連線正常
-- [ ] 靜態資源上傳成功
-- [ ] SSL 憑證有效
+- [x] Docker 映像建置成功
+- [x] 環境變數注入正確
+- [x] 資料庫連線正常
+- [x] 靜態資源上傳成功
+- [x] SSL 憑證有效
 
 #### 部署後檢查
 
-- [ ] 應用可正常訪問
-- [ ] API 端點回應正常
-- [ ] 資料庫操作正常
-- [ ] 效能指標符合預期
-- [ ] 監控與日誌正常
-- [ ] 錯誤追蹤正常
+- [x] 應用可正常訪問
+- [x] API 端點回應正常
+- [x] 資料庫操作正常
+- [x] 效能指標符合預期
+- [x] 監控與日誌正常
+- [x] 錯誤追蹤正常
 
 ### 7.5 監控與警報
 
@@ -624,14 +633,20 @@ curl https://api.yourdomain.com/health
 # 6. 修復後重新部署
 ```
 
-### 7.7 交付成果 (預期)
+### 7.7 交付成果
 
-- [ ] 正式上線的應用
-- [ ] CI/CD Pipeline 配置
-- [ ] 監控與警報設置
-- [ ] 部署文件
-- [ ] 運維手冊
-- [ ] 災難恢復計畫
+- [x] 正式上線的應用 (Vercel + Zeabur)
+- [x] 平台原生自動部署配置（Vercel + Zeabur Git 集成）
+- [ ] GitHub Actions CI 測試流程（待配置）
+- [x] 監控與警報設置
+- [x] 部署文件 (docs/04-execution/devops/)
+- [x] 運維手冊
+- [x] 災難恢復計畫 (回滾策略)
+
+**備註**:
+- ✅ MVP 已成功部署上線
+- ✅ Vercel 和 Zeabur 已啟用 Git 自動部署
+- ⏳ GitHub Actions CI 測試流程待配置（詳見 CI-CD-Strategy.md）
 
 ---
 

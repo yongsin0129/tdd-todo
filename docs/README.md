@@ -194,10 +194,12 @@ docs/
 - 📋 部署架構與流程圖
 - ⚙️ 環境配置與變數設定
 - 🗄️ 資料庫遷移 (SQLite → PostgreSQL)
+- 🔄 CI/CD 策略（平台自動部署 + GitHub Actions 測試）
 - ✅ 部署檢查清單
 - 🐛 常見問題排除
 
 **快速連結**:
+- [CI/CD 策略文檔](./04-execution/devops/CI-CD-Strategy.md) - GitHub Actions 測試流程 + 平台自動部署
 - [Zeabur CLI 文檔](./04-execution/devops/Zeabur%20CLI.md) - Zeabur 命令行工具使用指南
 - [資料庫遷移指南](./02-design/Database-Migration-Guide.md) (499 行) - SQLite→PostgreSQL
 
@@ -222,6 +224,7 @@ docs/
 - 📌 後續行動項目
 
 **最新變更**:
+- 2025-10-19: **Vercel + Zeabur 混合架構部署完成**（前端 Vercel + 後端/資料庫 Zeabur）
 - 2025-10-19: 部署架構更新為 Vercel (前端) + Zeabur (後端/資料庫) 混合架構
 - 2025-10-18: Zeabur 部署平台整合
 - 2025-10-18: 文件結構重組 (.doc/ → docs/)
@@ -315,13 +318,13 @@ docs/
 | **Phase 1: 專案設置** | ✅ 完成 | 100% |
 | **Phase 2: 後端 CRUD API** | ✅ 完成 | 100% |
 | **Phase 3: API 文件** | ✅ 完成 | 100% |
-| **Phase 4: 前端開發** | ⏳ 待開始 | 0% |
-| **Phase 5: 整合測試** | ⏳ 待開始 | 0% |
-| **Phase 6: 部署** | 🔄 文件完成 | 50% (部署文件完成，待實際部署) |
+| **Phase 4: 前端開發** | ✅ 完成 | 100% |
+| **Phase 5: 整合測試** | ✅ 完成 | 100% |
+| **Phase 6: 部署** | ✅ 完成 | 96% (Vercel + Zeabur 已上線，CI/CD 待配置) |
 
-**整體進度**: 約 40% (後端完成，部署文件完成，前端待開始)
+**整體進度**: 約 96% (MVP 已完成並部署上線，剩餘 CI/CD 自動化)
 
-**目標 MVP 上線日期**: 2025-11-06
+**目標 MVP 上線日期**: 2025-11-06 (已提前完成於 2025-10-19)
 
 ---
 
@@ -343,7 +346,7 @@ docs/
 ## 📞 聯絡資訊
 
 **文件維護負責人**: Technical Team
-**最後更新日期**: 2025-10-19 (更新部署架構為 Vercel + Zeabur 混合架構)
+**最後更新日期**: 2025-10-19 (Vercel + Zeabur 部署完成)
 **下次審查日期**: 2025-11-01
 
 ---

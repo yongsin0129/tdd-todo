@@ -3,11 +3,12 @@
 練習使用 sdd + tdd 進行專案開發
 一律使用 tdd 開發流程，先寫測試，再寫程式碼
 
-USER STORY
-PRD
-SDD + attachment
-ROADMAP
-TEAM-TODO LIST
+文件順序
+1. USER STORY
+2. PRD
+3. SDD + attachment
+4. ROADMAP
+5. TEAM-TODO LIST
 
 後端 > 前端 > E2E 測試 > 部署
 
