@@ -184,6 +184,7 @@ jobs:
           NODE_ENV: test
           DATABASE_URL: file:./test.db
           PORT: 3000
+          CORS_ORIGIN: http://localhost:5173,http://localhost:3000
         continue-on-error: true
 
       # 啟動前端 (背景執行)
