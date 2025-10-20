@@ -1,13 +1,15 @@
-import { useRef, useState, lazy, Suspense } from 'react';
-import { useTodoStore } from '@store/todoStore';
-import { useInitTodos } from '@hooks/useTodos';
-import { useKeyboardShortcuts } from '@hooks/useKeyboardShortcuts';
-import { TodoForm } from './TodoForm';
-import { TodoItem } from './TodoItem';
-import type { TodoFilter } from '@/types/todo';
+import { useRef, useState, lazy, Suspense } from "react";
+import { useTodoStore } from "@store/todoStore";
+import { useInitTodos } from "@hooks/useTodos";
+import { useKeyboardShortcuts } from "@hooks/useKeyboardShortcuts";
+import { TodoForm } from "./TodoForm";
+import { TodoItem } from "./TodoItem";
+import type { TodoFilter } from "@/types/todo";
 
 // Lazy load ShortcutHelp modal - only loads when user opens it
-const ShortcutHelp = lazy(() => import('../ui/ShortcutHelp').then(module => ({ default: module.ShortcutHelp })));
+const ShortcutHelp = lazy(() =>
+  import("../ui/ShortcutHelp").then((module) => ({ default: module.ShortcutHelp }))
+);
 
 /**
  * TodoList Component
@@ -44,24 +46,24 @@ export function TodoList() {
 
   useKeyboardShortcuts([
     {
-      key: 'k',
+      key: "k",
       ctrlKey: true,
-      description: 'Focus on input field',
+      description: "Focus on input field",
       action: () => {
         inputRef.current?.focus();
       },
     },
     {
-      key: '/',
-      description: 'Quick focus on input field',
+      key: "/",
+      description: "Quick focus on input field",
       action: () => {
         inputRef.current?.focus();
       },
     },
     {
-      key: '/',
+      key: "/",
       ctrlKey: true,
-      description: 'Show keyboard shortcuts',
+      description: "Show keyboard shortcuts",
       action: () => {
         setShowShortcuts(true);
       },
@@ -69,21 +71,21 @@ export function TodoList() {
   ]);
 
   const filters: { label: string; value: TodoFilter }[] = [
-    { label: 'All', value: 'all' },
-    { label: 'Active', value: 'active' },
-    { label: 'Completed', value: 'completed' },
+    { label: "All", value: "all" },
+    { label: "Active", value: "active" },
+    { label: "Completed", value: "completed" },
   ];
 
   const getEmptyMessage = () => {
-    if (filter === 'active') return 'No active todos!';
-    if (filter === 'completed') return 'No completed todos yet.';
-    return 'No todos yet!';
+    if (filter === "active") return "No active todos!";
+    if (filter === "completed") return "No completed todos yet.";
+    return "No todos yet!";
   };
 
   const getEmptySubMessage = () => {
-    if (filter === 'active') return 'All tasks are completed or add a new one above.';
-    if (filter === 'completed') return 'Complete some tasks to see them here.';
-    return 'Add your first todo above to get started.';
+    if (filter === "active") return "All tasks are completed or add a new one above.";
+    if (filter === "completed") return "Complete some tasks to see them here.";
+    return "Add your first todo above to get started.";
   };
 
   return (
@@ -91,12 +93,17 @@ export function TodoList() {
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <header className="mb-6 sm:mb-8 text-center">
-          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">My Todos</h1>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
+            My Todos
+          </h1>
           <p className="text-sm sm:text-base text-gray-600">Organize your tasks efficiently</p>
         </header>
 
         {/* Add Todo Form */}
-        <section aria-label="Add new todo" className="bg-white shadow-md rounded-lg p-4 sm:p-6 mb-4 sm:mb-6 animate-fade-in">
+        <section
+          aria-label="Add new todo"
+          className="bg-white shadow-md rounded-lg p-4 sm:p-6 mb-4 sm:mb-6 animate-fade-in"
+        >
           <TodoForm ref={inputRef} />
         </section>
 
@@ -129,7 +136,10 @@ export function TodoList() {
 
         {/* Filter Buttons */}
         {todos.length > 0 && (
-          <nav aria-label="Todo filters" className="bg-white shadow-md rounded-lg p-3 sm:p-4 mb-4 sm:mb-6 animate-fade-in">
+          <nav
+            aria-label="Todo filters"
+            className="bg-white shadow-md rounded-lg p-3 sm:p-4 mb-4 sm:mb-6 animate-fade-in"
+          >
             <div className="flex flex-wrap gap-2 justify-center" role="group">
               {filters.map(({ label, value }) => (
                 <button
@@ -139,8 +149,8 @@ export function TodoList() {
                   aria-label={`Show ${label.toLowerCase()} todos`}
                   className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-sm sm:text-base font-medium transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 hover:scale-105 ${
                     filter === value
-                      ? 'bg-primary-600 text-white'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      ? "bg-primary-600 text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                   }`}
                 >
                   {label}
@@ -151,7 +161,10 @@ export function TodoList() {
         )}
 
         {/* Todo List */}
-        <main aria-label="Todo list" className="bg-white shadow-md rounded-lg overflow-hidden mb-4 sm:mb-6 animate-fade-in">
+        <main
+          aria-label="Todo list"
+          className="bg-white shadow-md rounded-lg overflow-hidden mb-4 sm:mb-6 animate-fade-in"
+        >
           {filteredTodos.length > 0 ? (
             <ul className="divide-y divide-gray-100" role="list">
               {filteredTodos.map((todo) => (
@@ -162,8 +175,12 @@ export function TodoList() {
             </ul>
           ) : (
             <div className="py-8 sm:py-12 px-4 sm:px-6 text-center animate-fade-in" role="status">
-              <div className="text-5xl sm:text-6xl mb-3 sm:mb-4" aria-hidden="true">📝</div>
-              <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-2">{getEmptyMessage()}</h3>
+              <div className="text-5xl sm:text-6xl mb-3 sm:mb-4" aria-hidden="true">
+                📝
+              </div>
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-700 mb-2">
+                {getEmptyMessage()}
+              </h3>
               <p className="text-sm sm:text-base text-gray-500">{getEmptySubMessage()}</p>
             </div>
           )}
@@ -177,19 +194,28 @@ export function TodoList() {
           >
             <div className="flex justify-center gap-4 sm:gap-6 text-sm">
               <div className="text-center transition-transform hover:scale-110">
-                <div className="text-xl sm:text-2xl font-bold text-gray-900" aria-label={`${stats.total} total todos`}>
+                <div
+                  className="text-xl sm:text-2xl font-bold text-gray-900"
+                  aria-label={`${stats.total} total todos`}
+                >
                   {stats.total}
                 </div>
                 <div className="text-xs sm:text-sm text-gray-600">Total</div>
               </div>
               <div className="text-center transition-transform hover:scale-110">
-                <div className="text-xl sm:text-2xl font-bold text-primary-600" aria-label={`${stats.active} active todos`}>
+                <div
+                  className="text-xl sm:text-2xl font-bold text-primary-600"
+                  aria-label={`${stats.active} active todos`}
+                >
                   {stats.active}
                 </div>
                 <div className="text-xs sm:text-sm text-gray-600">Active</div>
               </div>
               <div className="text-center transition-transform hover:scale-110">
-                <div className="text-xl sm:text-2xl font-bold text-green-600" aria-label={`${stats.completed} completed todos`}>
+                <div
+                  className="text-xl sm:text-2xl font-bold text-green-600"
+                  aria-label={`${stats.completed} completed todos`}
+                >
                   {stats.completed}
                 </div>
                 <div className="text-xs sm:text-sm text-gray-600">Completed</div>
@@ -208,7 +234,13 @@ export function TodoList() {
 
       {/* Keyboard Shortcut Hint */}
       <div className="fixed bottom-4 right-4 bg-white shadow-lg rounded-lg p-3 text-xs text-gray-600 border border-gray-200 animate-fade-in hidden sm:block">
-        Press <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded font-mono">Ctrl</kbd> + <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded font-mono">/</kbd> for shortcuts
+        Press{" "}
+        <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded font-mono">
+          Ctrl
+        </kbd>{" "}
+        +{" "}
+        <kbd className="px-1.5 py-0.5 bg-gray-100 border border-gray-300 rounded font-mono">/</kbd>{" "}
+        for shortcuts
       </div>
     </div>
   );

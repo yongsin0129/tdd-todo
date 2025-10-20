@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
 interface ShortcutHelpProps {
   isOpen: boolean;
@@ -11,13 +11,13 @@ interface Shortcut {
 }
 
 const shortcuts: Shortcut[] = [
-  { keys: ['Ctrl', 'K'], description: 'Focus on input field' },
-  { keys: ['/'], description: 'Quick focus on input field' },
-  { keys: ['Ctrl', '/'], description: 'Show keyboard shortcuts' },
-  { keys: ['Enter'], description: 'Submit todo (when in input)' },
-  { keys: ['Escape'], description: 'Cancel editing or close dialog' },
-  { keys: ['Tab'], description: 'Navigate between elements' },
-  { keys: ['Space'], description: 'Toggle todo completion (when focused)' },
+  { keys: ["Ctrl", "K"], description: "Focus on input field" },
+  { keys: ["/"], description: "Quick focus on input field" },
+  { keys: ["Ctrl", "/"], description: "Show keyboard shortcuts" },
+  { keys: ["Enter"], description: "Submit todo (when in input)" },
+  { keys: ["Escape"], description: "Cancel editing or close dialog" },
+  { keys: ["Tab"], description: "Navigate between elements" },
+  { keys: ["Space"], description: "Toggle todo completion (when focused)" },
 ];
 
 export function ShortcutHelp({ isOpen, onClose }: ShortcutHelpProps) {
@@ -25,13 +25,13 @@ export function ShortcutHelp({ isOpen, onClose }: ShortcutHelpProps) {
     if (!isOpen) return;
 
     const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         onClose();
       }
     };
 
-    window.addEventListener('keydown', handleEscape);
-    return () => window.removeEventListener('keydown', handleEscape);
+    window.addEventListener("keydown", handleEscape);
+    return () => window.removeEventListener("keydown", handleEscape);
   }, [isOpen, onClose]);
 
   if (!isOpen) return null;
@@ -57,12 +57,7 @@ export function ShortcutHelp({ isOpen, onClose }: ShortcutHelpProps) {
             aria-label="Close shortcuts dialog"
             className="text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 rounded p-1"
           >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -83,7 +78,7 @@ export function ShortcutHelp({ isOpen, onClose }: ShortcutHelpProps) {
                     key={keyIndex}
                     className="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-300 rounded shadow-sm"
                   >
-                    {key === 'Ctrl' && navigator.platform.includes('Mac') ? '⌘' : key}
+                    {key === "Ctrl" && navigator.platform.includes("Mac") ? "⌘" : key}
                   </kbd>
                 ))}
               </div>
@@ -93,7 +88,11 @@ export function ShortcutHelp({ isOpen, onClose }: ShortcutHelpProps) {
 
         <div className="mt-6 pt-4 border-t border-gray-200">
           <p className="text-xs text-gray-500 text-center">
-            Press <kbd className="px-1.5 py-0.5 text-xs font-semibold bg-gray-100 border border-gray-300 rounded">Esc</kbd> to close
+            Press{" "}
+            <kbd className="px-1.5 py-0.5 text-xs font-semibold bg-gray-100 border border-gray-300 rounded">
+              Esc
+            </kbd>{" "}
+            to close
           </p>
         </div>
       </div>

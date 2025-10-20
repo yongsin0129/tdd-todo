@@ -131,16 +131,16 @@ export interface TodoListQueryParams {
   isCompleted?: boolean;
 
   /** Sort by field, default: 'createdAt' */
-  sortBy?: 'createdAt' | 'updatedAt' | 'title';
+  sortBy?: "createdAt" | "updatedAt" | "title";
 
   /** Sort order, default: 'desc' */
-  order?: 'asc' | 'desc';
+  order?: "asc" | "desc";
 }
 
 /**
  * Filter type for local todo filtering in Zustand store
  */
-export type TodoFilter = 'all' | 'active' | 'completed';
+export type TodoFilter = "all" | "active" | "completed";
 
 /**
  * Statistics about todos

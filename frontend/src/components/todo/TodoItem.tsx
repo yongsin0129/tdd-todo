@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect, type KeyboardEvent } from 'react';
-import { useTodoStore } from '@store/todoStore';
-import { useTodoActions } from '@hooks/useTodos';
-import type { Todo } from '@/types/todo';
+import { useState, useRef, useEffect, type KeyboardEvent } from "react";
+import { useTodoStore } from "@store/todoStore";
+import { useTodoActions } from "@hooks/useTodos";
+import type { Todo } from "@/types/todo";
 
 interface TodoItemProps {
   todo: Todo;
@@ -74,7 +74,7 @@ export function TodoItem({ todo }: TodoItemProps) {
 
       setIsEditing(false);
     } catch (err) {
-      console.error('Failed to update todo:', err);
+      console.error("Failed to update todo:", err);
       // Revert on error
       setEditText(todo.title);
       setIsEditing(false);
@@ -89,9 +89,9 @@ export function TodoItem({ todo }: TodoItemProps) {
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       handleSave();
-    } else if (e.key === 'Escape') {
+    } else if (e.key === "Escape") {
       handleCancel();
     }
   };
@@ -115,7 +115,7 @@ export function TodoItem({ todo }: TodoItemProps) {
 
       // No need to update local store again - optimistic update already handled it
     } catch (err) {
-      console.error('Failed to toggle todo:', err);
+      console.error("Failed to toggle todo:", err);
       // Revert on error
       toggleTodoLocal(todo.id);
     }
@@ -131,7 +131,7 @@ export function TodoItem({ todo }: TodoItemProps) {
 
       // No need to refresh - optimistic delete already updated UI
     } catch (err) {
-      console.error('Failed to delete todo:', err);
+      console.error("Failed to delete todo:", err);
       // On error, re-fetch to restore the deleted item
       await fetchTodos();
     }
@@ -144,7 +144,7 @@ export function TodoItem({ todo }: TodoItemProps) {
         type="checkbox"
         checked={todo.isCompleted}
         onChange={handleToggle}
-        aria-label={`Mark "${todo.title}" as ${todo.isCompleted ? 'incomplete' : 'complete'}`}
+        aria-label={`Mark "${todo.title}" as ${todo.isCompleted ? "incomplete" : "complete"}`}
         className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 rounded border-gray-300 text-primary-600 focus:ring-2 focus:ring-primary-500 cursor-pointer transition-transform hover:scale-110"
       />
 
@@ -176,14 +176,14 @@ export function TodoItem({ todo }: TodoItemProps) {
             role="button"
             tabIndex={0}
             onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
+              if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
                 handleDoubleClick();
               }
             }}
             aria-label={`Todo: ${todo.title}. Double click or press Enter to edit.`}
             className={`block cursor-pointer select-none text-sm sm:text-base break-words focus:outline-none focus:ring-2 focus:ring-primary-500 rounded px-1 -ml-1 ${
-              todo.isCompleted ? 'line-through opacity-50 text-gray-500' : 'text-gray-900'
+              todo.isCompleted ? "line-through opacity-50 text-gray-500" : "text-gray-900"
             }`}
           >
             {todo.title}

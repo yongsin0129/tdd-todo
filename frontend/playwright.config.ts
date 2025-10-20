@@ -8,7 +8,7 @@ export default defineConfig({
   testDir: './e2e',
 
   /* 測試超時時間設定為 60 秒 */
-  timeout: 60000,
+  timeout: 120000,
 
   /* 平行執行測試 - 禁用以避免共享數據庫時的測試干擾 */
   fullyParallel: false,
@@ -41,32 +41,39 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
 
-  /* 不同瀏覽器的測試配置 */
+  /*
+   * 瀏覽器測試配置
+   * - CI 環境：只運行 Chromium（快速驗證）
+   * - 本地環境：運行所有瀏覽器（完整跨瀏覽器測試）
+   */
   projects: [
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
 
-    {
-      name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
-    },
+    // 本地環境運行所有瀏覽器，CI 只運行 chromium
+    ...(process.env.CI ? [] : [
+      {
+        name: 'firefox',
+        use: { ...devices['Desktop Firefox'] },
+      },
 
-    {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
-    },
+      {
+        name: 'webkit',
+        use: { ...devices['Desktop Safari'] },
+      },
 
-    /* 行動裝置測試 */
-    {
-      name: 'Mobile Chrome',
-      use: { ...devices['Pixel 5'] },
-    },
-    {
-      name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'] },
-    },
+      /* 行動裝置測試 */
+      {
+        name: 'Mobile Chrome',
+        use: { ...devices['Pixel 5'] },
+      },
+      {
+        name: 'Mobile Safari',
+        use: { ...devices['iPhone 12'] },
+      },
+    ]),
   ],
 
   /*

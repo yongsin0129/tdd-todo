@@ -5,6 +5,16 @@ import { createServer, PORT } from '../src/server.js';
 describe('Express App Initialization', () => {
   let app: Express;
 
+  // 設置測試環境變數
+  beforeAll(() => {
+    process.env.CORS_ORIGIN = 'http://localhost:3000,http://localhost:5173';
+  });
+
+  // 清理環境變數
+  afterAll(() => {
+    delete process.env.CORS_ORIGIN;
+  });
+
   beforeEach(async () => {
     // Clear any cached modules to ensure clean test state
     jest.resetModules();
@@ -35,6 +45,9 @@ describe('Express App Initialization', () => {
 
   describe('Middleware Configuration', () => {
     beforeEach(async () => {
+      // 確保 CORS_ORIGIN 環境變數已設置
+      process.env.CORS_ORIGIN = 'http://localhost:3000,http://localhost:5173';
+
       const { app: testApp } = await import('../src/app.js');
       app = testApp;
     });
