@@ -168,6 +168,7 @@ jobs:
         run: |
           npx prisma generate
           npx prisma migrate deploy
+          npm run build
           npm start &
           sleep 5
         env:
