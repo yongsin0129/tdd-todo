@@ -1,9 +1,9 @@
-import { useEffect } from 'react';
-import { useTodoStore } from '@/store/todoStore';
-import type { Todo, CreateTodoInput, UpdateTodoInput } from '@/types/todo';
+import { useEffect } from "react";
+import { useTodoStore } from "@/store/todoStore";
+import type { Todo, CreateTodoInput, UpdateTodoInput } from "@/types/todo";
 
 // Use environment variable for API URL, fallback to '/api' for local development
-const API_BASE = import.meta.env.VITE_API_URL || '/api';
+const API_BASE = import.meta.env.VITE_API_URL || "/api";
 
 /**
  * useTodoActions Hook
@@ -34,7 +34,7 @@ export function useTodoActions() {
 
       setTodos(data.data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      setError(err instanceof Error ? err.message : "Unknown error");
     } finally {
       setLoading(false);
     }
@@ -43,8 +43,8 @@ export function useTodoActions() {
   // Create a new todo
   const createTodo = async (input: CreateTodoInput): Promise<Todo> => {
     const response = await fetch(`${API_BASE}/todos`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(input),
     });
 
@@ -58,13 +58,10 @@ export function useTodoActions() {
   };
 
   // Update an existing todo
-  const updateTodo = async (
-    id: string,
-    updates: UpdateTodoInput
-  ): Promise<Todo> => {
+  const updateTodo = async (id: string, updates: UpdateTodoInput): Promise<Todo> => {
     const response = await fetch(`${API_BASE}/todos/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(updates),
     });
 
@@ -80,7 +77,7 @@ export function useTodoActions() {
   // Delete a todo
   const deleteTodo = async (id: string): Promise<void> => {
     const response = await fetch(`${API_BASE}/todos/${id}`, {
-      method: 'DELETE',
+      method: "DELETE",
     });
 
     if (!response.ok) {
@@ -92,12 +89,10 @@ export function useTodoActions() {
   // Toggle todo completion status
   const toggleTodo = async (id: string): Promise<Todo> => {
     // Get current state from store
-    const currentTodo = useTodoStore
-      .getState()
-      .todos.find((t) => t.id === id);
+    const currentTodo = useTodoStore.getState().todos.find((t) => t.id === id);
 
     if (!currentTodo) {
-      throw new Error('Todo not found in store');
+      throw new Error("Todo not found in store");
     }
 
     // Toggle completion status

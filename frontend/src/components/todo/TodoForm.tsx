@@ -1,5 +1,5 @@
-import { useState, useEffect, useRef, forwardRef, type FormEvent } from 'react';
-import { useTodoActions } from '@hooks/useTodos';
+import { useState, useEffect, useRef, forwardRef, type FormEvent } from "react";
+import { useTodoActions } from "@hooks/useTodos";
 
 /**
  * TodoForm Component
@@ -18,8 +18,8 @@ import { useTodoActions } from '@hooks/useTodos';
  * @see .doc/Frontend-Team-Todolist.md Task 2.3, Task 2.6
  */
 export const TodoForm = forwardRef<HTMLInputElement>((_props, externalRef) => {
-  const [title, setTitle] = useState('');
-  const [error, setError] = useState('');
+  const [title, setTitle] = useState("");
+  const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const internalRef = useRef<HTMLInputElement>(null);
 
@@ -32,6 +32,7 @@ export const TodoForm = forwardRef<HTMLInputElement>((_props, externalRef) => {
   // Auto-focus input on mount
   useEffect(() => {
     inputRef.current?.focus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
@@ -39,13 +40,13 @@ export const TodoForm = forwardRef<HTMLInputElement>((_props, externalRef) => {
 
     // Validation: Empty title
     if (!title.trim()) {
-      setError('Title cannot be empty');
+      setError("Title cannot be empty");
       return;
     }
 
     // Validation: Title too long
     if (title.length > 255) {
-      setError('Title must be less than 255 characters');
+      setError("Title must be less than 255 characters");
       return;
     }
 
@@ -59,10 +60,10 @@ export const TodoForm = forwardRef<HTMLInputElement>((_props, externalRef) => {
       await fetchTodos();
 
       // Clear form
-      setTitle('');
-      setError('');
+      setTitle("");
+      setError("");
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create todo');
+      setError(err instanceof Error ? err.message : "Failed to create todo");
     } finally {
       setIsSubmitting(false);
     }
@@ -72,7 +73,7 @@ export const TodoForm = forwardRef<HTMLInputElement>((_props, externalRef) => {
     setTitle(value);
     // Clear error when user starts typing
     if (error) {
-      setError('');
+      setError("");
     }
   };
 
@@ -89,8 +90,8 @@ export const TodoForm = forwardRef<HTMLInputElement>((_props, externalRef) => {
           value={title}
           onChange={(e) => handleChange(e.target.value)}
           placeholder="What needs to be done?"
-          aria-invalid={error ? 'true' : 'false'}
-          aria-describedby={error ? 'todo-title-error' : undefined}
+          aria-invalid={error ? "true" : "false"}
+          aria-describedby={error ? "todo-title-error" : undefined}
           className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
           maxLength={255}
         />
@@ -108,10 +109,10 @@ export const TodoForm = forwardRef<HTMLInputElement>((_props, externalRef) => {
         aria-busy={isSubmitting}
         className="w-full px-3 sm:px-4 py-2.5 sm:py-3 text-sm sm:text-base bg-primary-600 text-white rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-all font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:scale-105 active:scale-95"
       >
-        {isSubmitting ? 'Adding...' : 'Add Todo'}
+        {isSubmitting ? "Adding..." : "Add Todo"}
       </button>
     </form>
   );
 });
 
-TodoForm.displayName = 'TodoForm';
+TodoForm.displayName = "TodoForm";

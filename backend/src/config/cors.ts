@@ -27,12 +27,12 @@ export const corsOptions: CorsOptions = {
     }
 
     // 以逗號分割並去除空白
-    const allowedOrigins = corsOrigin.split(',').map(url => url.trim());
-    console.log('CORS: 允許的來源列表:', allowedOrigins);
-    console.log('CORS: 當前請求來源:', origin);
+    const allowedOrigins = corsOrigin.split(',').map((url) => url.trim());
+    console.info('CORS: 允許的來源列表:', allowedOrigins);
+    console.info('CORS: 當前請求來源:', origin);
 
     // 檢查來源是否在允許列表中（支援萬用字元 * 匹配）
-    const isAllowed = allowedOrigins.some(pattern => {
+    const isAllowed = allowedOrigins.some((pattern) => {
       // 如果包含萬用字元，轉換為正則表達式
       if (pattern.includes('*')) {
         const regexPattern = pattern.replace(/\*/g, '.*').replace(/\./g, '\\.');
@@ -44,10 +44,10 @@ export const corsOptions: CorsOptions = {
     });
 
     if (isAllowed) {
-      console.log('CORS: 來源已允許，允許請求');
+      console.info('CORS: 來源已允許，允許請求');
       callback(null, true);
     } else {
-      console.log('CORS: 來源未在允許列表中，拒絕請求');
+      console.info('CORS: 來源未在允許列表中，拒絕請求');
       callback(new Error('CORS 不允許'));
     }
   },
@@ -65,16 +65,10 @@ export const corsOptions: CorsOptions = {
    * allowedHeaders: 允許的請求標頭
    * 包括 Content-Type、Authorization、X-Requested-With、Accept、Origin
    */
-  allowedHeaders: [
-    'Content-Type',
-    'Authorization',
-    'X-Requested-With',
-    'Accept',
-    'Origin'
-  ],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
   /**
    * optionsSuccessStatus: OPTIONS 請求的成功狀態碼
    * 設為 200 以避免某些舊瀏覽器對 204 的問題
    */
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
 };

@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback } from "react";
 
 export interface KeyboardShortcut {
   key: string;
@@ -14,10 +14,7 @@ export interface KeyboardShortcut {
  * @param shortcuts - Array of keyboard shortcuts to register
  * @param enabled - Whether the shortcuts are enabled (default: true)
  */
-export function useKeyboardShortcuts(
-  shortcuts: KeyboardShortcut[],
-  enabled = true
-) {
+export function useKeyboardShortcuts(shortcuts: KeyboardShortcut[], enabled = true) {
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
       if (!enabled) return;
@@ -25,9 +22,7 @@ export function useKeyboardShortcuts(
       // Don't trigger shortcuts when typing in input/textarea
       const target = event.target as HTMLElement;
       const isTyping =
-        target.tagName === 'INPUT' ||
-        target.tagName === 'TEXTAREA' ||
-        target.isContentEditable;
+        target.tagName === "INPUT" || target.tagName === "TEXTAREA" || target.isContentEditable;
 
       for (const shortcut of shortcuts) {
         const keyMatch = event.key.toLowerCase() === shortcut.key.toLowerCase();
@@ -62,10 +57,10 @@ export function useKeyboardShortcuts(
   useEffect(() => {
     if (!enabled) return;
 
-    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown);
     };
   }, [handleKeyDown, enabled]);
 }

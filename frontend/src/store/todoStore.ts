@@ -1,7 +1,7 @@
-import { create } from 'zustand';
-import { devtools } from 'zustand/middleware';
-import { immer } from 'zustand/middleware/immer';
-import type { Todo, TodoFilter, TodoStats } from '@/types/todo';
+import { create } from "zustand";
+import { devtools } from "zustand/middleware";
+import { immer } from "zustand/middleware/immer";
+import type { Todo, TodoFilter, TodoStats } from "@/types/todo";
 
 /**
  * TodoStore State Interface
@@ -45,82 +45,82 @@ interface TodoState {
 export const useTodoStore = create<TodoState>()(
   devtools(
     immer((set, get) => ({
-        // Initial state
-        todos: [],
-        filter: 'all',
-        loading: false,
-        error: null,
+      // Initial state
+      todos: [],
+      filter: "all",
+      loading: false,
+      error: null,
 
-        // Set entire todos array (used for API sync)
-        setTodos: (todos) => set({ todos }),
+      // Set entire todos array (used for API sync)
+      setTodos: (todos) => set({ todos }),
 
-        // Add a new todo
-        addTodo: (title, description) =>
-          set((state) => {
-            const now = new Date();
-            state.todos.unshift({
-              id: crypto.randomUUID(),
-              title: title.trim(),
-              description: description?.trim() || undefined,
-              isCompleted: false,
-              createdAt: now,
-              updatedAt: now,
-            });
-          }),
+      // Add a new todo
+      addTodo: (title, description) =>
+        set((state) => {
+          const now = new Date();
+          state.todos.unshift({
+            id: crypto.randomUUID(),
+            title: title.trim(),
+            description: description?.trim() || undefined,
+            isCompleted: false,
+            createdAt: now,
+            updatedAt: now,
+          });
+        }),
 
-        // Toggle todo completion status
-        toggleTodo: (id) =>
-          set((state) => {
-            const todo = state.todos.find((t) => t.id === id);
-            if (todo) {
-              todo.isCompleted = !todo.isCompleted;
-              todo.completedAt = todo.isCompleted ? new Date() : undefined;
-              todo.updatedAt = new Date();
-            }
-          }),
+      // Toggle todo completion status
+      toggleTodo: (id) =>
+        set((state) => {
+          const todo = state.todos.find((t) => t.id === id);
+          if (todo) {
+            todo.isCompleted = !todo.isCompleted;
+            todo.completedAt = todo.isCompleted ? new Date() : undefined;
+            todo.updatedAt = new Date();
+          }
+        }),
 
-        // Update todo fields
-        updateTodo: (id, updates) =>
-          set((state) => {
-            const todo = state.todos.find((t) => t.id === id);
-            if (todo) {
-              Object.assign(todo, updates, { updatedAt: new Date() });
-            }
-          }),
+      // Update todo fields
+      updateTodo: (id, updates) =>
+        set((state) => {
+          const todo = state.todos.find((t) => t.id === id);
+          if (todo) {
+            Object.assign(todo, updates, { updatedAt: new Date() });
+          }
+        }),
 
-        // Delete a todo
-        deleteTodo: (id) =>
-          set((state) => {
-            state.todos = state.todos.filter((t) => t.id !== id);
-          }),
+      // Delete a todo
+      deleteTodo: (id) =>
+        set((state) => {
+          state.todos = state.todos.filter((t) => t.id !== id);
+        }),
 
-        // Set current filter
-        setFilter: (filter) => set({ filter }),
+      // Set current filter
+      setFilter: (filter) => set({ filter }),
 
-        // Set loading state
-        setLoading: (loading) => set({ loading }),
+      // Set loading state
+      setLoading: (loading) => set({ loading }),
 
-        // Set error message
-        setError: (error) => set({ error }),
+      // Set error message
+      setError: (error) => set({ error }),
 
-        // Get filtered todos based on current filter
-        getFilteredTodos: () => {
-          const { todos, filter } = get();
-          if (filter === 'active') return todos.filter((t) => !t.isCompleted);
-          if (filter === 'completed') return todos.filter((t) => t.isCompleted);
-          return todos;
-        },
+      // Get filtered todos based on current filter
+      getFilteredTodos: () => {
+        const { todos, filter } = get();
+        if (filter === "active") return todos.filter((t) => !t.isCompleted);
+        if (filter === "completed") return todos.filter((t) => t.isCompleted);
+        return todos;
+      },
 
-        // Get todo statistics
-        getStats: () => {
-          const todos = get().todos;
-          return {
-            total: todos.length,
-            active: todos.filter((t) => !t.isCompleted).length,
-            completed: todos.filter((t) => t.isCompleted).length,
-          };
-        },
-      })),
-    { name: 'TodoStore' }
+      // Get todo statistics
+      getStats: () => {
+        const todos = get().todos;
+        return {
+          total: todos.length,
+          active: todos.filter((t) => !t.isCompleted).length,
+          completed: todos.filter((t) => t.isCompleted).length,
+        };
+      },
+    })),
+    { name: "TodoStore" }
   )
 );
