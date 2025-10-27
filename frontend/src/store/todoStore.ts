@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { immer } from "zustand/middleware/immer";
 import type { Todo, TodoFilter, TodoStats } from "@/types/todo";
+import { DEFAULT_PRIORITY } from "@/types/todo";
 
 /**
  * TodoStore State Interface
@@ -54,7 +55,7 @@ export const useTodoStore = create<TodoState>()(
       // Set entire todos array (used for API sync)
       setTodos: (todos) => set({ todos }),
 
-      // Add a new todo
+      // Add a new todo (CR-002: includes default priority)
       addTodo: (title, description) =>
         set((state) => {
           const now = new Date();
@@ -63,6 +64,7 @@ export const useTodoStore = create<TodoState>()(
             title: title.trim(),
             description: description?.trim() || undefined,
             isCompleted: false,
+            priority: DEFAULT_PRIORITY,
             createdAt: now,
             updatedAt: now,
           });

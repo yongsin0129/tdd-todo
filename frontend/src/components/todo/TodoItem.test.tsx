@@ -52,6 +52,7 @@ describe("TodoItem", () => {
     title: "Test Todo",
     description: "Test Description",
     isCompleted: false,
+    priority: "LOW" as const,
     createdAt: new Date("2025-10-17T10:00:00.000Z"),
     updatedAt: new Date("2025-10-17T10:00:00.000Z"),
   };
@@ -317,6 +318,57 @@ describe("TodoItem", () => {
       expect(deleteButton).toHaveClass("opacity-100");
       expect(deleteButton.className).toMatch(/sm:opacity-0/);
       expect(deleteButton.className).toMatch(/sm:group-hover:opacity-100/);
+    });
+  });
+
+  describe("Priority Badge Display (CR-002)", () => {
+    it("should display priority badge for todo with CRITICAL priority", () => {
+      const criticalTodo = { ...mockTodo, priority: "CRITICAL" as const };
+      render(<TodoItem todo={criticalTodo} />);
+
+      expect(screen.getByText("緊急")).toBeInTheDocument();
+    });
+
+    it("should display priority badge for todo with HIGH priority", () => {
+      const highTodo = { ...mockTodo, priority: "HIGH" as const };
+      render(<TodoItem todo={highTodo} />);
+
+      expect(screen.getByText("高")).toBeInTheDocument();
+    });
+
+    it("should display priority badge for todo with NORMAL priority", () => {
+      const normalTodo = { ...mockTodo, priority: "NORMAL" as const };
+      render(<TodoItem todo={normalTodo} />);
+
+      expect(screen.getByText("中")).toBeInTheDocument();
+    });
+
+    it("should display priority badge for todo with LOW priority", () => {
+      const lowTodo = { ...mockTodo, priority: "LOW" as const };
+      render(<TodoItem todo={lowTodo} />);
+
+      expect(screen.getByText("低")).toBeInTheDocument();
+    });
+
+    it("should apply correct color styling for CRITICAL priority badge", () => {
+      const criticalTodo = { ...mockTodo, priority: "CRITICAL" as const };
+      render(<TodoItem todo={criticalTodo} />);
+
+      const badge = screen.getByText("緊急");
+      // Should have red color scheme
+      expect(badge).toBeInTheDocument();
+      // Check for red color (DC2626)
+      expect(badge.closest("span")).toHaveStyle({ color: "#DC2626" });
+    });
+
+    it("should apply correct color styling for HIGH priority badge", () => {
+      const highTodo = { ...mockTodo, priority: "HIGH" as const };
+      render(<TodoItem todo={highTodo} />);
+
+      const badge = screen.getByText("高");
+      // Should have orange color scheme
+      expect(badge).toBeInTheDocument();
+      expect(badge.closest("span")).toHaveStyle({ color: "#EA580C" });
     });
   });
 });

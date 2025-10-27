@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { render, screen, within, waitFor } from "@testing-library/react";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { TodoList } from "./TodoList";
 import { useTodoStore } from "@store/todoStore";
@@ -74,6 +74,7 @@ describe("TodoList", () => {
             title: "Active Todo 1",
             description: null,
             isCompleted: false,
+            priority: "LOW" as const,
             createdAt: new Date("2025-10-17T10:00:00.000Z"),
             updatedAt: new Date("2025-10-17T10:00:00.000Z"),
           },
@@ -82,6 +83,7 @@ describe("TodoList", () => {
             title: "Active Todo 2",
             description: null,
             isCompleted: false,
+            priority: "NORMAL" as const,
             createdAt: new Date("2025-10-17T10:01:00.000Z"),
             updatedAt: new Date("2025-10-17T10:01:00.000Z"),
           },
@@ -90,6 +92,7 @@ describe("TodoList", () => {
             title: "Completed Todo 1",
             description: null,
             isCompleted: true,
+            priority: "HIGH" as const,
             createdAt: new Date("2025-10-17T10:02:00.000Z"),
             updatedAt: new Date("2025-10-17T10:03:00.000Z"),
             completedAt: new Date("2025-10-17T10:03:00.000Z"),
@@ -132,6 +135,7 @@ describe("TodoList", () => {
             title: "Active Todo",
             description: null,
             isCompleted: false,
+            priority: "LOW" as const,
             createdAt: new Date(),
             updatedAt: new Date(),
           },
@@ -140,6 +144,7 @@ describe("TodoList", () => {
             title: "Completed Todo",
             description: null,
             isCompleted: true,
+            priority: "NORMAL" as const,
             createdAt: new Date(),
             updatedAt: new Date(),
             completedAt: new Date(),
@@ -183,6 +188,7 @@ describe("TodoList", () => {
             title: "Active Todo",
             description: null,
             isCompleted: false,
+            priority: "LOW" as const,
             createdAt: new Date(),
             updatedAt: new Date(),
           },
@@ -205,6 +211,7 @@ describe("TodoList", () => {
             title: "Active 1",
             description: null,
             isCompleted: false,
+            priority: "LOW" as const,
             createdAt: new Date(),
             updatedAt: new Date(),
           },
@@ -213,6 +220,7 @@ describe("TodoList", () => {
             title: "Active 2",
             description: null,
             isCompleted: false,
+            priority: "NORMAL" as const,
             createdAt: new Date(),
             updatedAt: new Date(),
           },
@@ -221,6 +229,7 @@ describe("TodoList", () => {
             title: "Completed",
             description: null,
             isCompleted: true,
+            priority: "HIGH" as const,
             createdAt: new Date(),
             updatedAt: new Date(),
             completedAt: new Date(),
@@ -291,6 +300,7 @@ describe("TodoList", () => {
             title: "Test Todo",
             description: null,
             isCompleted: false,
+            priority: "LOW" as const,
             createdAt: new Date(),
             updatedAt: new Date(),
           },
@@ -304,7 +314,7 @@ describe("TodoList", () => {
     it("should render filter buttons", () => {
       render(<TodoList />);
 
-      expect(screen.getByRole("button", { name: /all/i })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /show all todos/i })).toBeInTheDocument();
       expect(screen.getByRole("button", { name: /active/i })).toBeInTheDocument();
       expect(screen.getByRole("button", { name: /completed/i })).toBeInTheDocument();
     });
@@ -385,6 +395,7 @@ describe("TodoList", () => {
             title: "Test",
             description: null,
             isCompleted: false,
+            priority: "LOW" as const,
             createdAt: new Date(),
             updatedAt: new Date(),
           },
@@ -415,6 +426,246 @@ describe("TodoList", () => {
 
       // Todo should appear
       expect(screen.queryByText(/no todos yet/i)).not.toBeInTheDocument();
+    });
+  });
+
+  describe("Priority Filter Functionality (CR-002)", () => {
+    beforeEach(() => {
+      useTodoStore.setState({
+        todos: [
+          {
+            id: "1",
+            title: "Critical Todo",
+            description: null,
+            isCompleted: false,
+            priority: "CRITICAL" as const,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+          {
+            id: "2",
+            title: "High Todo",
+            description: null,
+            isCompleted: false,
+            priority: "HIGH" as const,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+          {
+            id: "3",
+            title: "Normal Todo",
+            description: null,
+            isCompleted: false,
+            priority: "NORMAL" as const,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+          {
+            id: "4",
+            title: "Low Todo",
+            description: null,
+            isCompleted: false,
+            priority: "LOW" as const,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        ],
+        filter: "all",
+        loading: false,
+        error: null,
+      });
+    });
+
+    it("should render priority filter buttons", () => {
+      render(<TodoList />);
+
+      expect(screen.getByRole("button", { name: /all priorities/i })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /緊急/i })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /高/i })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /中/i })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /低/i })).toBeInTheDocument();
+    });
+
+    it("should show all todos when no priority filter is selected", () => {
+      render(<TodoList />);
+
+      expect(screen.getByText("Critical Todo")).toBeInTheDocument();
+      expect(screen.getByText("High Todo")).toBeInTheDocument();
+      expect(screen.getByText("Normal Todo")).toBeInTheDocument();
+      expect(screen.getByText("Low Todo")).toBeInTheDocument();
+    });
+
+    it("should filter todos by CRITICAL priority", async () => {
+      render(<TodoList />);
+
+      const criticalButton = screen.getByRole("button", { name: /緊急/i });
+      criticalButton.click();
+
+      await waitFor(() => {
+        expect(screen.getByText("Critical Todo")).toBeInTheDocument();
+        expect(screen.queryByText("High Todo")).not.toBeInTheDocument();
+        expect(screen.queryByText("Normal Todo")).not.toBeInTheDocument();
+        expect(screen.queryByText("Low Todo")).not.toBeInTheDocument();
+      });
+    });
+
+    it("should filter todos by HIGH priority", async () => {
+      render(<TodoList />);
+
+      const highButton = screen.getByRole("button", { name: /高/i });
+      highButton.click();
+
+      await waitFor(() => {
+        expect(screen.queryByText("Critical Todo")).not.toBeInTheDocument();
+        expect(screen.getByText("High Todo")).toBeInTheDocument();
+        expect(screen.queryByText("Normal Todo")).not.toBeInTheDocument();
+        expect(screen.queryByText("Low Todo")).not.toBeInTheDocument();
+      });
+    });
+
+    it("should filter todos by NORMAL priority", async () => {
+      render(<TodoList />);
+
+      const normalButton = screen.getByRole("button", { name: /中/i });
+      normalButton.click();
+
+      await waitFor(() => {
+        expect(screen.queryByText("Critical Todo")).not.toBeInTheDocument();
+        expect(screen.queryByText("High Todo")).not.toBeInTheDocument();
+        expect(screen.getByText("Normal Todo")).toBeInTheDocument();
+        expect(screen.queryByText("Low Todo")).not.toBeInTheDocument();
+      });
+    });
+
+    it("should filter todos by LOW priority", async () => {
+      render(<TodoList />);
+
+      const lowButton = screen.getByRole("button", { name: /低/i });
+      lowButton.click();
+
+      await waitFor(() => {
+        expect(screen.queryByText("Critical Todo")).not.toBeInTheDocument();
+        expect(screen.queryByText("High Todo")).not.toBeInTheDocument();
+        expect(screen.queryByText("Normal Todo")).not.toBeInTheDocument();
+        expect(screen.getByText("Low Todo")).toBeInTheDocument();
+      });
+    });
+
+    it("should clear priority filter when clicking 'All Priorities'", async () => {
+      render(<TodoList />);
+
+      // First filter by HIGH
+      const highButton = screen.getByRole("button", { name: /高/i });
+      highButton.click();
+
+      await waitFor(() => {
+        expect(screen.queryByText("Critical Todo")).not.toBeInTheDocument();
+        expect(screen.getByText("High Todo")).toBeInTheDocument();
+      });
+
+      // Click 'All Priorities' to clear filter
+      const allButton = screen.getByRole("button", { name: /all priorities/i });
+      allButton.click();
+
+      await waitFor(() => {
+        expect(screen.getByText("Critical Todo")).toBeInTheDocument();
+        expect(screen.getByText("High Todo")).toBeInTheDocument();
+        expect(screen.getByText("Normal Todo")).toBeInTheDocument();
+        expect(screen.getByText("Low Todo")).toBeInTheDocument();
+      });
+    });
+
+    it("should highlight selected priority filter button", async () => {
+      render(<TodoList />);
+
+      const criticalButton = screen.getByRole("button", { name: /緊急/i });
+
+      // Before clicking - should have unselected styling
+      expect(criticalButton).toHaveStyle({ backgroundColor: "#F9FAFB" });
+
+      criticalButton.click();
+
+      // After clicking - should have selected styling with CRITICAL color
+      await waitFor(() => {
+        expect(criticalButton).toHaveStyle({
+          backgroundColor: "#FEE2E2",
+          borderColor: "#DC2626",
+        });
+      });
+    });
+
+    it("should combine completion status and priority filters", async () => {
+      useTodoStore.setState({
+        todos: [
+          {
+            id: "1",
+            title: "Active Critical",
+            description: null,
+            isCompleted: false,
+            priority: "CRITICAL" as const,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+          {
+            id: "2",
+            title: "Completed Critical",
+            description: null,
+            isCompleted: true,
+            priority: "CRITICAL" as const,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            completedAt: new Date(),
+          },
+          {
+            id: "3",
+            title: "Active High",
+            description: null,
+            isCompleted: false,
+            priority: "HIGH" as const,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        ],
+        filter: "active",
+      });
+
+      render(<TodoList />);
+
+      // Filter by CRITICAL priority
+      const criticalButton = screen.getByRole("button", { name: /緊急/i });
+      criticalButton.click();
+
+      await waitFor(() => {
+        // Should show only active todos with CRITICAL priority
+        expect(screen.getByText("Active Critical")).toBeInTheDocument();
+        expect(screen.queryByText("Completed Critical")).not.toBeInTheDocument();
+        expect(screen.queryByText("Active High")).not.toBeInTheDocument();
+      });
+    });
+
+    it("should show empty state when no todos match priority filter", async () => {
+      useTodoStore.setState({
+        todos: [
+          {
+            id: "1",
+            title: "Low Todo",
+            description: null,
+            isCompleted: false,
+            priority: "LOW" as const,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+        ],
+      });
+
+      render(<TodoList />);
+
+      const criticalButton = screen.getByRole("button", { name: /緊急/i });
+      criticalButton.click();
+
+      await waitFor(() => {
+        expect(screen.getByText(/no todos yet/i)).toBeInTheDocument();
+      });
     });
   });
 });

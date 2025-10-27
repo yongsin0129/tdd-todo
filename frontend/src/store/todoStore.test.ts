@@ -74,6 +74,15 @@ describe("TodoStore", () => {
       expect(todos[0].createdAt.getTime()).toBeLessThanOrEqual(afterTime.getTime());
       expect(todos[0].updatedAt.getTime()).toBe(todos[0].createdAt.getTime());
     });
+
+    it("should set default priority to LOW (CR-002)", () => {
+      const { addTodo } = useTodoStore.getState();
+
+      addTodo("Test Todo");
+
+      const todos = useTodoStore.getState().todos;
+      expect(todos[0].priority).toBe("LOW");
+    });
   });
 
   describe("toggleTodo", () => {
@@ -179,6 +188,18 @@ describe("TodoStore", () => {
 
       const todo = useTodoStore.getState().todos[0];
       expect(todo.description).toBe("New Description");
+    });
+
+    it("should update todo priority (CR-002)", () => {
+      const { addTodo, updateTodo } = useTodoStore.getState();
+
+      addTodo("Test Todo");
+      const todoId = useTodoStore.getState().todos[0].id;
+
+      updateTodo(todoId, { priority: "CRITICAL" });
+
+      const todo = useTodoStore.getState().todos[0];
+      expect(todo.priority).toBe("CRITICAL");
     });
 
     it("should update updatedAt timestamp", () => {
@@ -387,6 +408,7 @@ describe("TodoStore", () => {
           title: "Todo 1",
           description: null,
           isCompleted: false,
+          priority: "LOW" as const,
           createdAt: new Date(),
           updatedAt: new Date(),
         },
@@ -395,6 +417,7 @@ describe("TodoStore", () => {
           title: "Todo 2",
           description: null,
           isCompleted: true,
+          priority: "HIGH" as const,
           createdAt: new Date(),
           updatedAt: new Date(),
           completedAt: new Date(),
@@ -405,6 +428,111 @@ describe("TodoStore", () => {
 
       const todos = useTodoStore.getState().todos;
       expect(todos).toEqual(mockTodos);
+    });
+  });
+
+  describe("Priority Feature (CR-002)", () => {
+    it("should create todos with default LOW priority", () => {
+      const { addTodo } = useTodoStore.getState();
+
+      addTodo("Todo 1");
+      addTodo("Todo 2");
+      addTodo("Todo 3");
+
+      const todos = useTodoStore.getState().todos;
+      expect(todos).toHaveLength(3);
+      expect(todos.every((t) => t.priority === "LOW")).toBe(true);
+    });
+
+    it("should allow updating todo priority via updateTodo", () => {
+      const { addTodo, updateTodo } = useTodoStore.getState();
+
+      addTodo("Test Todo");
+      const todoId = useTodoStore.getState().todos[0].id;
+
+      // Update from LOW to CRITICAL
+      updateTodo(todoId, { priority: "CRITICAL" });
+      expect(useTodoStore.getState().todos[0].priority).toBe("CRITICAL");
+
+      // Update from CRITICAL to HIGH
+      updateTodo(todoId, { priority: "HIGH" });
+      expect(useTodoStore.getState().todos[0].priority).toBe("HIGH");
+
+      // Update from HIGH to NORMAL
+      updateTodo(todoId, { priority: "NORMAL" });
+      expect(useTodoStore.getState().todos[0].priority).toBe("NORMAL");
+
+      // Update from NORMAL to LOW
+      updateTodo(todoId, { priority: "LOW" });
+      expect(useTodoStore.getState().todos[0].priority).toBe("LOW");
+    });
+
+    it("should preserve priority when updating other fields", () => {
+      const { addTodo, updateTodo } = useTodoStore.getState();
+
+      addTodo("Test Todo");
+      const todoId = useTodoStore.getState().todos[0].id;
+
+      // Change priority to CRITICAL
+      updateTodo(todoId, { priority: "CRITICAL" });
+
+      // Update title only
+      updateTodo(todoId, { title: "Updated Title" });
+
+      const todo = useTodoStore.getState().todos[0];
+      expect(todo.title).toBe("Updated Title");
+      expect(todo.priority).toBe("CRITICAL"); // Should still be CRITICAL
+    });
+
+    it("should handle todos from API with different priorities", () => {
+      const { setTodos } = useTodoStore.getState();
+
+      const mockTodos = [
+        {
+          id: "1",
+          title: "Critical Task",
+          description: null,
+          isCompleted: false,
+          priority: "CRITICAL" as const,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: "2",
+          title: "High Priority Task",
+          description: null,
+          isCompleted: false,
+          priority: "HIGH" as const,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: "3",
+          title: "Normal Task",
+          description: null,
+          isCompleted: false,
+          priority: "NORMAL" as const,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+        {
+          id: "4",
+          title: "Low Priority Task",
+          description: null,
+          isCompleted: false,
+          priority: "LOW" as const,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        },
+      ];
+
+      setTodos(mockTodos);
+
+      const todos = useTodoStore.getState().todos;
+      expect(todos[0].priority).toBe("CRITICAL");
+      expect(todos[1].priority).toBe("HIGH");
+      expect(todos[2].priority).toBe("NORMAL");
+      expect(todos[3].priority).toBe("LOW");
     });
   });
 });

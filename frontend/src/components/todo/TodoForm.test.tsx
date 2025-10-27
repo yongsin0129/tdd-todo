@@ -445,4 +445,138 @@ describe("TodoForm", () => {
       expect(error).toHaveClass("text-red-600");
     });
   });
+
+  describe("Priority Selector (CR-002)", () => {
+    it("should render priority selector with all four options", () => {
+      render(<TodoForm />);
+
+      // Check if all priority options are rendered
+      expect(screen.getByLabelText(/緊急/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/高/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/中/i)).toBeInTheDocument();
+      expect(screen.getByLabelText(/低/i)).toBeInTheDocument();
+    });
+
+    it("should have LOW priority selected by default", () => {
+      render(<TodoForm />);
+
+      const lowPriorityRadio = screen.getByLabelText(/低/i) as HTMLInputElement;
+      expect(lowPriorityRadio).toBeChecked();
+    });
+
+    it("should allow selecting different priority levels", () => {
+      render(<TodoForm />);
+
+      const highPriorityRadio = screen.getByLabelText(/高/i) as HTMLInputElement;
+      const lowPriorityRadio = screen.getByLabelText(/低/i) as HTMLInputElement;
+
+      // Initially LOW is selected
+      expect(lowPriorityRadio).toBeChecked();
+      expect(highPriorityRadio).not.toBeChecked();
+
+      // Select HIGH priority
+      fireEvent.click(highPriorityRadio);
+
+      expect(highPriorityRadio).toBeChecked();
+      expect(lowPriorityRadio).not.toBeChecked();
+    });
+
+    it("should submit todo with selected priority", async () => {
+      const newTodo = {
+        id: "1",
+        title: "High priority todo",
+        priority: "HIGH",
+        isCompleted: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      // Mock: createTodo + fetchTodos
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true, data: newTodo }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true, data: [newTodo] }),
+        });
+
+      render(<TodoForm />);
+
+      const input = screen.getByPlaceholderText(/what needs to be done/i);
+      const highPriorityRadio = screen.getByLabelText(/高/i);
+      const button = screen.getByRole("button", { name: /add todo/i });
+
+      // Select HIGH priority and submit
+      fireEvent.click(highPriorityRadio);
+      fireEvent.change(input, { target: { value: "High priority todo" } });
+      fireEvent.click(button);
+
+      await waitFor(() => {
+        const todos = useTodoStore.getState().todos;
+        expect(todos).toHaveLength(1);
+        expect(todos[0].priority).toBe("HIGH");
+      });
+    });
+
+    it("should reset priority to LOW after successful submission", async () => {
+      const newTodo = {
+        id: "1",
+        title: "Test todo",
+        priority: "CRITICAL",
+        isCompleted: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+
+      // Mock: createTodo + fetchTodos
+      mockFetch
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true, data: newTodo }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({ success: true, data: [newTodo] }),
+        });
+
+      render(<TodoForm />);
+
+      const input = screen.getByPlaceholderText(/what needs to be done/i);
+      const criticalPriorityRadio = screen.getByLabelText(/緊急/i) as HTMLInputElement;
+      const lowPriorityRadio = screen.getByLabelText(/低/i) as HTMLInputElement;
+      const button = screen.getByRole("button", { name: /add todo/i });
+
+      // Select CRITICAL priority
+      fireEvent.click(criticalPriorityRadio);
+      expect(criticalPriorityRadio).toBeChecked();
+
+      // Submit todo
+      fireEvent.change(input, { target: { value: "Test todo" } });
+      fireEvent.click(button);
+
+      // After submission, priority should reset to LOW
+      await waitFor(() => {
+        expect(lowPriorityRadio).toBeChecked();
+        expect(criticalPriorityRadio).not.toBeChecked();
+      });
+    });
+
+    it("should have accessible priority selector with proper ARIA attributes", () => {
+      render(<TodoForm />);
+
+      // Check if priority group has proper role and label
+      const priorityGroup = screen.getByRole("group", { name: /優先級/i });
+      expect(priorityGroup).toBeInTheDocument();
+
+      // Check if all radio buttons are properly labeled
+      const radios = screen.getAllByRole("radio");
+      expect(radios).toHaveLength(4);
+
+      radios.forEach((radio) => {
+        expect(radio).toHaveAttribute("name", "priority");
+      });
+    });
+  });
 });

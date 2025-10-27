@@ -4,6 +4,7 @@ import { useInitTodos } from "@hooks/useTodos";
 import { useKeyboardShortcuts } from "@hooks/useKeyboardShortcuts";
 import { TodoForm } from "./TodoForm";
 import { TodoItem } from "./TodoItem";
+import { PRIORITY_LEVELS, PRIORITY_CONFIG, type TodoPriority } from "@/types/todo";
 import type { TodoFilter } from "@/types/todo";
 
 // Lazy load ShortcutHelp modal - only loads when user opens it
@@ -18,12 +19,13 @@ const ShortcutHelp = lazy(() =>
  * - Displays TodoForm for adding new todos
  * - Shows filtered list of todos using TodoItem
  * - Provides filter buttons (All, Active, Completed)
+ * - Provides priority filter buttons (All, CRITICAL, HIGH, NORMAL, LOW) (CR-002)
  * - Displays statistics (total, active, completed counts)
  * - Handles empty states for different filters
  * - Shows loading and error states
  * - Integrates with API via useInitTodos hook (automatic data fetching on mount)
  *
- * @see .doc/Frontend-Team-Todolist.md Task 2.5, Task 2.6
+ * @see .doc/Frontend-Team-Todolist.md Task 2.5, Task 2.6, Task 6.1.4
  */
 export function TodoList() {
   // Initialize API integration (fetches todos on mount - ONLY called once here)
@@ -37,7 +39,15 @@ export function TodoList() {
   const getFilteredTodos = useTodoStore((state) => state.getFilteredTodos);
   const getStats = useTodoStore((state) => state.getStats);
 
-  const filteredTodos = getFilteredTodos();
+  // Priority filter state (CR-002)
+  const [priorityFilter, setPriorityFilter] = useState<TodoPriority | null>(null);
+
+  // Apply both completion status and priority filters
+  const filteredTodos = getFilteredTodos().filter((todo) => {
+    if (priorityFilter === null) return true;
+    return todo.priority === priorityFilter;
+  });
+
   const stats = getStats();
 
   // Keyboard shortcuts
@@ -156,6 +166,53 @@ export function TodoList() {
                   {label}
                 </button>
               ))}
+            </div>
+          </nav>
+        )}
+
+        {/* Priority Filter Buttons (CR-002) */}
+        {todos.length > 0 && (
+          <nav
+            aria-label="Priority filters"
+            className="bg-white shadow-md rounded-lg p-3 sm:p-4 mb-4 sm:mb-6 animate-fade-in"
+          >
+            <div className="flex flex-wrap gap-2 justify-center" role="group">
+              {/* All Priorities Button */}
+              <button
+                onClick={() => setPriorityFilter(null)}
+                aria-pressed={priorityFilter === null}
+                aria-label="All priorities"
+                className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-sm sm:text-base font-medium transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 hover:scale-105 border-2 ${
+                  priorityFilter === null
+                    ? "bg-gray-900 text-white border-gray-900"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200 border-gray-200"
+                }`}
+              >
+                全部優先級
+              </button>
+
+              {/* Priority Level Buttons */}
+              {PRIORITY_LEVELS.map((level) => {
+                const config = PRIORITY_CONFIG[level];
+                const isSelected = priorityFilter === level;
+
+                return (
+                  <button
+                    key={level}
+                    onClick={() => setPriorityFilter(level)}
+                    aria-pressed={isSelected}
+                    aria-label={config.label}
+                    className="px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-sm sm:text-base font-medium transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 hover:scale-105 border-2"
+                    style={{
+                      color: isSelected ? config.color : "#6B7280",
+                      backgroundColor: isSelected ? config.bgColor : "#F9FAFB",
+                      borderColor: isSelected ? config.color : "#E5E7EB",
+                    }}
+                  >
+                    {config.label}
+                  </button>
+                );
+              })}
             </div>
           </nav>
         )}

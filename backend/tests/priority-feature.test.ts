@@ -47,11 +47,7 @@ describe('Phase 6.1 - Todo Priority Feature (CR-002)', () => {
   });
 
   // Helper function to create a todo
-  const createTodo = async (data: {
-    title: string;
-    priority?: string;
-    isCompleted?: boolean;
-  }) => {
+  const createTodo = async (data: { title: string; priority?: string; isCompleted?: boolean }) => {
     const { isCompleted, ...createData } = data;
     const response = await request(app).post('/api/todos').send(createData);
 
@@ -224,12 +220,10 @@ describe('Phase 6.1 - Todo Priority Feature (CR-002)', () => {
     });
 
     test('2.6 - should return 400 for priority explicitly set to null', async () => {
-      const response = await request(app)
-        .post('/api/todos')
-        .send({
-          title: 'Task with null priority',
-          priority: null,
-        });
+      const response = await request(app).post('/api/todos').send({
+        title: 'Task with null priority',
+        priority: null,
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.error).toBeDefined();
@@ -267,12 +261,10 @@ describe('Phase 6.1 - Todo Priority Feature (CR-002)', () => {
     });
 
     test('2.10 - should return 400 for priority as number', async () => {
-      const response = await request(app)
-        .post('/api/todos')
-        .send({
-          title: 'Task with number priority',
-          priority: 1,
-        });
+      const response = await request(app).post('/api/todos').send({
+        title: 'Task with number priority',
+        priority: 1,
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.error).toBeDefined();
@@ -474,13 +466,11 @@ describe('Phase 6.1 - Todo Priority Feature (CR-002)', () => {
       });
       const todoId = createResponse.body.data.id;
 
-      const updateResponse = await request(app)
-        .put(`/api/todos/${todoId}`)
-        .send({
-          title: 'New title',
-          priority: 'CRITICAL',
-          isCompleted: true,
-        });
+      const updateResponse = await request(app).put(`/api/todos/${todoId}`).send({
+        title: 'New title',
+        priority: 'CRITICAL',
+        isCompleted: true,
+      });
 
       expect(updateResponse.status).toBe(200);
       expect(updateResponse.body.data.title).toBe('New title');
@@ -498,9 +488,7 @@ describe('Phase 6.1 - Todo Priority Feature (CR-002)', () => {
       const todoId = createResponse.body.data.id;
 
       // Mark as completed
-      await request(app)
-        .put(`/api/todos/${todoId}`)
-        .send({ isCompleted: true });
+      await request(app).put(`/api/todos/${todoId}`).send({ isCompleted: true });
 
       // Update priority
       const updateResponse = await request(app)
@@ -847,9 +835,7 @@ describe('Phase 6.1 - Todo Priority Feature (CR-002)', () => {
       await createTodo({ title: 'High Task', priority: 'HIGH' });
 
       // Update first todo to CRITICAL
-      await request(app)
-        .put(`/api/todos/${response1.body.data.id}`)
-        .send({ priority: 'CRITICAL' });
+      await request(app).put(`/api/todos/${response1.body.data.id}`).send({ priority: 'CRITICAL' });
 
       const response = await request(app).get('/api/todos');
 
@@ -917,12 +903,10 @@ describe('Phase 6.1 - Todo Priority Feature (CR-002)', () => {
     });
 
     test('6.4 - should return 400 for unicode characters in priority', async () => {
-      const response = await request(app)
-        .post('/api/todos')
-        .send({
-          title: 'Task',
-          priority: 'CRÍTICÅL',
-        });
+      const response = await request(app).post('/api/todos').send({
+        title: 'Task',
+        priority: 'CRÍTICÅL',
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.error).toBeDefined();
@@ -939,12 +923,10 @@ describe('Phase 6.1 - Todo Priority Feature (CR-002)', () => {
     });
 
     test('6.6 - should return 400 for priority as boolean', async () => {
-      const response = await request(app)
-        .post('/api/todos')
-        .send({
-          title: 'Task',
-          priority: true,
-        });
+      const response = await request(app).post('/api/todos').send({
+        title: 'Task',
+        priority: true,
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.error).toBeDefined();
@@ -989,12 +971,10 @@ describe('Phase 6.1 - Todo Priority Feature (CR-002)', () => {
     });
 
     test('6.10 - should prevent XSS attempts in priority', async () => {
-      const response = await request(app)
-        .post('/api/todos')
-        .send({
-          title: 'Task',
-          priority: "<script>alert('xss')</script>",
-        });
+      const response = await request(app).post('/api/todos').send({
+        title: 'Task',
+        priority: "<script>alert('xss')</script>",
+      });
 
       expect(response.status).toBe(400);
       expect(response.body.error).toBeDefined();
@@ -1015,9 +995,7 @@ describe('Phase 6.1 - Todo Priority Feature (CR-002)', () => {
     test('6.12 - should return 404 when updating priority on non-existent todo', async () => {
       const fakeId = '550e8400-e29b-41d4-a716-446655440000';
 
-      const response = await request(app)
-        .put(`/api/todos/${fakeId}`)
-        .send({ priority: 'HIGH' });
+      const response = await request(app).put(`/api/todos/${fakeId}`).send({ priority: 'HIGH' });
 
       expect(response.status).toBe(404);
       expect(response.body.error).toBeDefined();
