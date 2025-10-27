@@ -1,5 +1,11 @@
 import { useState, useEffect, useRef, forwardRef, type FormEvent } from "react";
 import { useTodoActions } from "@hooks/useTodos";
+import {
+  PRIORITY_LEVELS,
+  DEFAULT_PRIORITY,
+  PRIORITY_CONFIG,
+  type TodoPriority,
+} from "@/types/todo";
 
 /**
  * TodoForm Component
@@ -7,6 +13,7 @@ import { useTodoActions } from "@hooks/useTodos";
  * A form component for creating new todo items.
  * Features:
  * - Input validation (required, max length 255)
+ * - Priority selector (CR-002)
  * - Auto-focus on mount
  * - Trim whitespace
  * - Clear input after submission
@@ -15,10 +22,11 @@ import { useTodoActions } from "@hooks/useTodos";
  *
  * Note: Uses useTodoActions (no initial fetch) to avoid unnecessary API calls.
  *
- * @see .doc/Frontend-Team-Todolist.md Task 2.3, Task 2.6
+ * @see .doc/Frontend-Team-Todolist.md Task 2.3, Task 2.6, Task 6.1.2
  */
 export const TodoForm = forwardRef<HTMLInputElement>((_props, externalRef) => {
   const [title, setTitle] = useState("");
+  const [priority, setPriority] = useState<TodoPriority>(DEFAULT_PRIORITY);
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const internalRef = useRef<HTMLInputElement>(null);
@@ -53,14 +61,18 @@ export const TodoForm = forwardRef<HTMLInputElement>((_props, externalRef) => {
     setIsSubmitting(true);
 
     try {
-      // Create todo via API
-      await createTodo({ title: title.trim() });
+      // Create todo via API with priority
+      await createTodo({
+        title: title.trim(),
+        priority,
+      });
 
       // Refresh from server to update UI
       await fetchTodos();
 
-      // Clear form
+      // Clear form and reset priority
       setTitle("");
+      setPriority(DEFAULT_PRIORITY);
       setError("");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create todo");
@@ -96,6 +108,53 @@ export const TodoForm = forwardRef<HTMLInputElement>((_props, externalRef) => {
           maxLength={255}
         />
       </div>
+
+      {/* Priority Selector (CR-002) */}
+      <fieldset
+        role="group"
+        aria-label="優先級"
+        className="border border-gray-200 rounded-lg p-3 sm:p-4"
+      >
+        <legend className="text-xs sm:text-sm font-medium text-gray-700 px-2">優先級</legend>
+        <div className="flex flex-wrap gap-2 sm:gap-3 mt-2">
+          {PRIORITY_LEVELS.map((level) => {
+            const config = PRIORITY_CONFIG[level];
+            const isSelected = priority === level;
+
+            return (
+              <label
+                key={level}
+                className={`
+                  flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5
+                  rounded-lg cursor-pointer transition-all
+                  text-xs sm:text-sm font-medium
+                  border-2
+                  ${
+                    isSelected
+                      ? "border-current shadow-sm"
+                      : "border-gray-200 hover:border-gray-300"
+                  }
+                `}
+                style={{
+                  color: isSelected ? config.color : "#6B7280",
+                  backgroundColor: isSelected ? config.bgColor : "#F9FAFB",
+                }}
+              >
+                <input
+                  type="radio"
+                  name="priority"
+                  value={level}
+                  checked={isSelected}
+                  onChange={(e) => setPriority(e.target.value as TodoPriority)}
+                  className="sr-only"
+                  aria-label={config.label}
+                />
+                <span className="select-none">{config.label}</span>
+              </label>
+            );
+          })}
+        </div>
+      </fieldset>
 
       {error && (
         <p id="todo-title-error" className="text-xs sm:text-sm text-red-600" role="alert">

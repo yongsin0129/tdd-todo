@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, type KeyboardEvent } from "react";
 import { useTodoStore } from "@store/todoStore";
 import { useTodoActions } from "@hooks/useTodos";
+import { PRIORITY_CONFIG } from "@/types/todo";
 import type { Todo } from "@/types/todo";
 
 interface TodoItemProps {
@@ -147,6 +148,18 @@ export function TodoItem({ todo }: TodoItemProps) {
         aria-label={`Mark "${todo.title}" as ${todo.isCompleted ? "incomplete" : "complete"}`}
         className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0 rounded border-gray-300 text-primary-600 focus:ring-2 focus:ring-primary-500 cursor-pointer transition-transform hover:scale-110"
       />
+
+      {/* Priority Badge (CR-002) */}
+      <span
+        className="flex-shrink-0 px-2 py-0.5 text-xs font-medium rounded"
+        style={{
+          color: PRIORITY_CONFIG[todo.priority].color,
+          backgroundColor: PRIORITY_CONFIG[todo.priority].bgColor,
+        }}
+        aria-label={`Priority: ${PRIORITY_CONFIG[todo.priority].label}`}
+      >
+        {PRIORITY_CONFIG[todo.priority].label}
+      </span>
 
       {/* Title (View or Edit mode) */}
       <div className="flex-1 min-w-0">

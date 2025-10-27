@@ -290,4 +290,197 @@ test.describe("TodoList Application", () => {
     const deleteButton = page.getByRole("button", { name: /delete "Mobile test"/i });
     await expect(deleteButton).toBeVisible();
   });
+
+  /**
+   * E2E-11: Priority selection (CR-002)
+   */
+  test("should select priority when creating todo", async ({ page }) => {
+    // 1. Verify priority selector is visible
+    const priorityGroup = page.locator("fieldset").filter({ hasText: "優先級" });
+    await expect(priorityGroup).toBeVisible();
+
+    // 2. Verify all priority options are visible
+    await expect(page.getByLabel("緊急")).toBeVisible();
+    await expect(page.getByLabel("高")).toBeVisible();
+    await expect(page.getByLabel("中")).toBeVisible();
+    await expect(page.getByLabel("低")).toBeVisible();
+
+    // 3. Verify LOW is selected by default
+    const lowRadio = page.getByLabel("低");
+    await expect(lowRadio).toBeChecked();
+
+    // 4. Select HIGH priority by clicking the label text within the form
+    await priorityGroup.getByText("高").click();
+    const highRadio = page.getByLabel("高");
+    await expect(highRadio).toBeChecked();
+
+    // 5. Add todo with HIGH priority
+    await page.getByPlaceholder(/what needs to be done/i).fill("High priority task");
+    await page.getByRole("button", { name: /add todo/i }).click();
+
+    // 6. Verify todo appears with HIGH priority badge
+    await expect(page.getByText("High priority task")).toBeVisible();
+    // Check badge by finding it within the todo list (not the form or filters)
+    const todoList = page.getByRole("list");
+    await expect(todoList.getByText("高")).toBeVisible();
+  });
+
+  /**
+   * E2E-12: Priority badge display (CR-002)
+   */
+  test("should display priority badges for todos", async ({ page }) => {
+    const input = page.getByPlaceholder(/what needs to be done/i);
+    const addButton = page.getByRole("button", { name: /add todo/i });
+    const priorityGroup = page.locator("fieldset").filter({ hasText: "優先級" });
+
+    // Add todos with different priorities
+    const priorities = [
+      { label: "緊急", task: "Critical task" },
+      { label: "高", task: "High priority task" },
+      { label: "中", task: "Normal task" },
+      { label: "低", task: "Low priority task" },
+    ];
+
+    for (const priority of priorities) {
+      await priorityGroup.getByText(priority.label).click();
+      await input.fill(priority.task);
+      await addButton.click();
+      await expect(page.getByText(priority.task)).toBeVisible();
+    }
+
+    // Verify all priority badges are visible in todo list
+    const todoList = page.getByRole("list");
+    await expect(todoList.getByText("緊急")).toBeVisible();
+    await expect(todoList.getByText("高")).toBeVisible();
+    await expect(todoList.getByText("中")).toBeVisible();
+    await expect(todoList.getByText("低")).toBeVisible();
+  });
+
+  /**
+   * E2E-13: Priority filter functionality (CR-002)
+   */
+  test("should filter todos by priority", async ({ page }) => {
+    const input = page.getByPlaceholder(/what needs to be done/i);
+    const addButton = page.getByRole("button", { name: /add todo/i });
+    const priorityGroup = page.locator("fieldset").filter({ hasText: "優先級" });
+
+    // Add todos with different priorities by clicking label text
+    await priorityGroup.getByText("緊急").click();
+    await input.fill("Critical task");
+    await addButton.click();
+    await expect(page.getByText("Critical task")).toBeVisible();
+
+    await priorityGroup.getByText("高").click();
+    await input.fill("High priority task");
+    await addButton.click();
+    await expect(page.getByText("High priority task")).toBeVisible();
+
+    await priorityGroup.getByText("低").click();
+    await input.fill("Low priority task");
+    await addButton.click();
+    await expect(page.getByText("Low priority task")).toBeVisible();
+
+    // Wait for all todos to be visible
+    await expect(page.getByText("Critical task")).toBeVisible();
+    await expect(page.getByText("High priority task")).toBeVisible();
+    await expect(page.getByText("Low priority task")).toBeVisible();
+
+    // Test CRITICAL filter - find the button within the priority filter section
+    const priorityFilterSection = page.locator('nav[aria-label="Priority filters"]');
+    const criticalFilterButton = priorityFilterSection.getByRole("button", { name: "緊急" });
+    await criticalFilterButton.click();
+
+    await expect(page.getByText("Critical task")).toBeVisible();
+    await expect(page.getByText("High priority task")).not.toBeVisible();
+    await expect(page.getByText("Low priority task")).not.toBeVisible();
+
+    // Test HIGH filter
+    const highFilterButton = priorityFilterSection.getByRole("button", { name: "高" });
+    await highFilterButton.click();
+
+    await expect(page.getByText("Critical task")).not.toBeVisible();
+    await expect(page.getByText("High priority task")).toBeVisible();
+    await expect(page.getByText("Low priority task")).not.toBeVisible();
+
+    // Test "All Priorities" filter
+    const allPrioritiesButton = priorityFilterSection.getByRole("button", {
+      name: /all priorities/i,
+    });
+    await allPrioritiesButton.click();
+
+    await expect(page.getByText("Critical task")).toBeVisible();
+    await expect(page.getByText("High priority task")).toBeVisible();
+    await expect(page.getByText("Low priority task")).toBeVisible();
+  });
+
+  /**
+   * E2E-14: Combined filtering (completion + priority) (CR-002)
+   */
+  test("should combine completion status and priority filters", async ({ page }) => {
+    const input = page.getByPlaceholder(/what needs to be done/i);
+    const addButton = page.getByRole("button", { name: /add todo/i });
+    const priorityGroup = page.locator("fieldset").filter({ hasText: "優先級" });
+
+    // Add active HIGH priority task
+    await priorityGroup.getByText("高").click();
+    await input.fill("Active high priority");
+    await addButton.click();
+    await expect(page.getByText("Active high priority")).toBeVisible();
+
+    // Add completed HIGH priority task
+    await priorityGroup.getByText("高").click();
+    await input.fill("Completed high priority");
+    await addButton.click();
+    await expect(page.getByText("Completed high priority")).toBeVisible();
+
+    const completeCheckbox = page.getByRole("checkbox", {
+      name: /mark "Completed high priority" as complete/i,
+    });
+    await completeCheckbox.check();
+    await page.waitForResponse((response) => response.url().includes("/api/todos/"));
+
+    // Add active LOW priority task
+    await priorityGroup.getByText("低").click();
+    await input.fill("Active low priority");
+    await addButton.click();
+    await expect(page.getByText("Active low priority")).toBeVisible();
+
+    // Filter by Active
+    await page.getByRole("button", { name: /show active todos/i }).click();
+
+    // Filter by HIGH priority
+    const priorityFilterSection = page.locator('nav[aria-label="Priority filters"]');
+    const highFilterButton = priorityFilterSection.getByRole("button", { name: "高" });
+    await highFilterButton.click();
+
+    // Should show only active HIGH priority task
+    await expect(page.getByText("Active high priority")).toBeVisible();
+    await expect(page.getByText("Completed high priority")).not.toBeVisible();
+    await expect(page.getByText("Active low priority")).not.toBeVisible();
+  });
+
+  /**
+   * E2E-15: Priority reset after submission (CR-002)
+   */
+  test("should reset priority to LOW after adding todo", async ({ page }) => {
+    const input = page.getByPlaceholder(/what needs to be done/i);
+    const addButton = page.getByRole("button", { name: /add todo/i });
+    const priorityGroup = page.locator("fieldset").filter({ hasText: "優先級" });
+
+    // Select CRITICAL priority by clicking label text
+    await priorityGroup.getByText("緊急").click();
+    // Verify CRITICAL is checked within the form
+    const criticalRadio = priorityGroup.getByRole("radio", { name: "緊急" });
+    await expect(criticalRadio).toBeChecked();
+
+    // Add todo
+    await input.fill("Critical task");
+    await addButton.click();
+    await expect(page.getByText("Critical task")).toBeVisible();
+
+    // Verify priority resets to LOW within the form
+    const lowRadio = priorityGroup.getByRole("radio", { name: "低" });
+    await expect(lowRadio).toBeChecked();
+    await expect(criticalRadio).not.toBeChecked();
+  });
 });

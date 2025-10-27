@@ -1,4 +1,10 @@
 /**
+ * Priority levels for todos (CR-002)
+ * Four-level priority system to avoid priority inflation
+ */
+export type TodoPriority = "CRITICAL" | "HIGH" | "NORMAL" | "LOW";
+
+/**
  * Todo Entity Type Definition
  *
  * Matches the backend API response structure
@@ -16,6 +22,9 @@ export interface Todo {
 
   /** Completion status, defaults to false */
   isCompleted: boolean;
+
+  /** Priority level, defaults to LOW (CR-002) */
+  priority: TodoPriority;
 
   /** Creation timestamp in ISO 8601 format */
   createdAt: Date;
@@ -37,6 +46,9 @@ export interface CreateTodoInput {
 
   /** Detailed description, optional, max 1000 characters */
   description?: string;
+
+  /** Priority level, optional, defaults to LOW (CR-002) */
+  priority?: TodoPriority;
 }
 
 /**
@@ -54,6 +66,9 @@ export interface UpdateTodoInput {
 
   /** Updated completion status */
   isCompleted?: boolean;
+
+  /** Updated priority level (CR-002) */
+  priority?: TodoPriority;
 }
 
 /**
@@ -130,6 +145,9 @@ export interface TodoListQueryParams {
   /** Filter by completion status */
   isCompleted?: boolean;
 
+  /** Filter by priority level (CR-002) */
+  priority?: TodoPriority;
+
   /** Sort by field, default: 'createdAt' */
   sortBy?: "createdAt" | "updatedAt" | "title";
 
@@ -155,3 +173,48 @@ export interface TodoStats {
   /** Number of completed todos */
   completed: number;
 }
+
+/**
+ * Priority level constants (CR-002)
+ */
+export const PRIORITY_LEVELS: readonly TodoPriority[] = [
+  "CRITICAL",
+  "HIGH",
+  "NORMAL",
+  "LOW",
+] as const;
+
+/**
+ * Default priority level (CR-002)
+ * Set to LOW to avoid priority inflation
+ */
+export const DEFAULT_PRIORITY: TodoPriority = "LOW";
+
+/**
+ * Priority display configuration (CR-002)
+ */
+export const PRIORITY_CONFIG: Record<
+  TodoPriority,
+  { label: string; color: string; bgColor: string }
+> = {
+  CRITICAL: {
+    label: "緊急",
+    color: "#DC2626", // red-600
+    bgColor: "#FEE2E2", // red-100
+  },
+  HIGH: {
+    label: "高",
+    color: "#EA580C", // orange-600
+    bgColor: "#FFEDD5", // orange-100
+  },
+  NORMAL: {
+    label: "中",
+    color: "#CA8A04", // yellow-600
+    bgColor: "#FEF9C3", // yellow-100
+  },
+  LOW: {
+    label: "低",
+    color: "#6B7280", // gray-500
+    bgColor: "#F3F4F6", // gray-100
+  },
+};
