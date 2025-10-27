@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, type KeyboardEvent } from "react";
 import { useTodoStore } from "@store/todoStore";
 import { useTodoActions } from "@hooks/useTodos";
-import { PRIORITY_CONFIG } from "@/types/todo";
+import { PRIORITY_CONFIG, DEFAULT_PRIORITY } from "@/types/todo";
 import type { Todo } from "@/types/todo";
 
 interface TodoItemProps {
@@ -35,6 +35,14 @@ export function TodoItem({ todo }: TodoItemProps) {
 
   // Use action hook (no fetch on mount)
   const { updateTodo, deleteTodo, fetchTodos } = useTodoActions();
+
+  // Helper function to safely get priority config, fallback to DEFAULT_PRIORITY if undefined
+  const getPriorityConfig = () => {
+    const priority = todo.priority || DEFAULT_PRIORITY;
+    return PRIORITY_CONFIG[priority] || PRIORITY_CONFIG[DEFAULT_PRIORITY];
+  };
+
+  const priorityConfig = getPriorityConfig();
 
   // Auto-focus input when entering edit mode
   useEffect(() => {
@@ -153,12 +161,12 @@ export function TodoItem({ todo }: TodoItemProps) {
       <span
         className="flex-shrink-0 px-2 py-0.5 text-xs font-medium rounded"
         style={{
-          color: PRIORITY_CONFIG[todo.priority].color,
-          backgroundColor: PRIORITY_CONFIG[todo.priority].bgColor,
+          color: priorityConfig.color,
+          backgroundColor: priorityConfig.bgColor,
         }}
-        aria-label={`Priority: ${PRIORITY_CONFIG[todo.priority].label}`}
+        aria-label={`Priority: ${priorityConfig.label}`}
       >
-        {PRIORITY_CONFIG[todo.priority].label}
+        {priorityConfig.label}
       </span>
 
       {/* Title (View or Edit mode) */}
