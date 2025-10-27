@@ -54,7 +54,7 @@ describe('PUT /api/todos/:id - Update Todo Integration Tests', () => {
       const newTodo: CreateTodoDto = {
         title: 'Original title',
         description: 'Original description',
-        priority: 'low',
+        priority: 'LOW',
       };
 
       const createResponse = await request(app)
@@ -78,7 +78,7 @@ describe('PUT /api/todos/:id - Update Todo Integration Tests', () => {
       expect(response.status).toBe(200);
       expect(response.body.data.title).toBe('Only title updated');
       expect(response.body.data.description).toBe('Original description');
-      expect(response.body.data.priority).toBe('low');
+      expect(response.body.data.priority).toBe('LOW');
     });
 
     it('should update the title field successfully', async () => {
@@ -282,7 +282,7 @@ describe('PUT /api/todos/:id - Update Todo Integration Tests', () => {
       // Arrange
       const newTodo: CreateTodoDto = {
         title: 'Test todo',
-        priority: 'low',
+        priority: 'LOW',
       };
 
       const createResponse = await request(app)
@@ -294,7 +294,7 @@ describe('PUT /api/todos/:id - Update Todo Integration Tests', () => {
 
       // Act
       const updateData = {
-        priority: 'high',
+        priority: 'HIGH',
       };
 
       const response = await request(app)
@@ -304,7 +304,7 @@ describe('PUT /api/todos/:id - Update Todo Integration Tests', () => {
 
       // Assert
       expect(response.status).toBe(200);
-      expect(response.body.data.priority).toBe('high');
+      expect(response.body.data.priority).toBe('HIGH');
     });
 
     it('should update dueDate field successfully', async () => {
@@ -342,7 +342,7 @@ describe('PUT /api/todos/:id - Update Todo Integration Tests', () => {
       const newTodo: CreateTodoDto = {
         title: 'Original title',
         description: 'Original description',
-        priority: 'low',
+        priority: 'LOW',
       };
 
       const createResponse = await request(app)
@@ -356,7 +356,7 @@ describe('PUT /api/todos/:id - Update Todo Integration Tests', () => {
       const updateData = {
         title: 'Updated title',
         description: 'Updated description',
-        priority: 'high',
+        priority: 'HIGH',
         isCompleted: true,
       };
 
@@ -369,7 +369,7 @@ describe('PUT /api/todos/:id - Update Todo Integration Tests', () => {
       expect(response.status).toBe(200);
       expect(response.body.data.title).toBe('Updated title');
       expect(response.body.data.description).toBe('Updated description');
-      expect(response.body.data.priority).toBe('high');
+      expect(response.body.data.priority).toBe('HIGH');
       expect(response.body.data.isCompleted).toBe(true);
     });
 

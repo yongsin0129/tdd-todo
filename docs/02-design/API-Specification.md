@@ -6,9 +6,9 @@
 | 項目 | 內容 |
 |------|------|
 | 文件標題 | TodoList 應用程式 API 規格文件 (API Specification) |
-| 版本號 | 1.0.0 |
+| 版本號 | 1.1.0 |
 | 撰寫日期 | 2025-10-17 |
-| 最後更新 | 2025-10-17 |
+| 最後更新 | 2025-10-24 |
 | 撰寫人 | Backend Development Team |
 | 審核人 | Technical Lead |
 | 相關文件 | SDD.md, Database-Design.md, PRD.md |
@@ -17,6 +17,7 @@
 
 | 版本 | 日期 | 變更內容 | 變更人 |
 |------|------|---------|--------|
+| 1.1.0 | 2025-10-24 | 新增 priority 查詢參數、更新排序邏輯為三層排序、統一錯誤回應格式、新增優先級驗證規則 | Backend Team |
 | 1.0.0 | 2025-10-17 | 初始版本建立 | Backend Team |
 
 ---
@@ -270,7 +271,7 @@ Content-Type: application/json
 |------|------|------|------|------|
 | `title` | string | ✅ 是 | 待辦事項標題 | 1-255 字元，不可為空白 |
 | `description` | string | ❌ 否 | 詳細描述 | 最多 1000 字元 |
-| `priority` | string | ❌ 否 | 優先級 | 'low', 'medium', 'high' (未來功能) |
+| `priority` | string | ❌ 否 | 優先級 | 'CRITICAL', 'HIGH', 'NORMAL', 'LOW' (預設: 'LOW') |
 | `dueDate` | string | ❌ 否 | 截止日期 | ISO 8601 格式 (未來功能) |
 
 **請求範例**:
@@ -383,8 +384,14 @@ curl -X POST http://localhost:3000/api/todos \
 | `page` | integer | ❌ 否 | 1 | 頁碼 (從 1 開始) |
 | `limit` | integer | ❌ 否 | 20 | 每頁筆數 (1-100) |
 | `isCompleted` | boolean | ❌ 否 | - | 篩選完成狀態 (true/false) |
-| `sortBy` | string | ❌ 否 | createdAt | 排序欄位 (createdAt, updatedAt, title) |
+| `priority` | string | ❌ 否 | - | 篩選優先級 (CRITICAL/HIGH/NORMAL/LOW) |
+| `sortBy` | string | ❌ 否 | 三層排序 | 排序欄位 (createdAt, updatedAt, title) |
 | `order` | string | ❌ 否 | desc | 排序方向 (asc, desc) |
+
+**注意**: 預設使用三層排序邏輯:
+1. **完成狀態**: 未完成 > 已完成
+2. **優先級**: CRITICAL > HIGH > NORMAL > LOW
+3. **建立時間**: 新的 > 舊的 (DESC)
 
 **請求範例**:
 ```http
@@ -587,7 +594,7 @@ curl http://localhost:3000/api/todos/550e8400-e29b-41d4-a716-446655440000
 | `title` | string | ❌ 否 | 待辦事項標題 | 1-255 字元 |
 | `description` | string | ❌ 否 | 詳細描述 | 最多 1000 字元 |
 | `isCompleted` | boolean | ❌ 否 | 完成狀態 | true/false |
-| `priority` | string | ❌ 否 | 優先級 | 'low', 'medium', 'high' (未來) |
+| `priority` | string | ❌ 否 | 優先級 | 'CRITICAL', 'HIGH', 'NORMAL', 'LOW' |
 | `dueDate` | string | ❌ 否 | 截止日期 | ISO 8601 格式 (未來) |
 
 **注意**:
@@ -805,6 +812,7 @@ interface Todo {
   title: string;        // 1-255 字元，必填
   description?: string; // 最多 1000 字元，選填
   isCompleted: boolean; // 預設 false
+  priority: 'CRITICAL' | 'HIGH' | 'NORMAL' | 'LOW'; // 預設 'LOW'
   createdAt: Date;      // ISO 8601 格式
   updatedAt: Date;      // ISO 8601 格式
   completedAt?: Date;   // ISO 8601 格式，選填
@@ -819,6 +827,7 @@ interface Todo {
 | `title` | string | ✅ | - | 待辦事項標題 | 1-255 字元，不可為空白 |
 | `description` | string | ❌ | null | 詳細描述 | 最多 1000 字元 |
 | `isCompleted` | boolean | ✅ | false | 完成狀態 | true/false |
+| `priority` | string | ✅ | "LOW" | 優先級 | 'CRITICAL', 'HIGH', 'NORMAL', 'LOW' |
 | `createdAt` | Date | ✅ | 當前時間 | 建立時間 | ISO 8601 格式 |
 | `updatedAt` | Date | ✅ | 當前時間 | 最後更新時間 | ISO 8601 格式，自動更新 |
 | `completedAt` | Date | ❌ | null | 完成時間 | ISO 8601 格式，完成時自動設定 |
@@ -827,10 +836,10 @@ interface Todo {
 
 ```typescript
 interface TodoExtended extends Todo {
-  priority?: 'low' | 'medium' | 'high';  // 優先級
-  dueDate?: Date;                         // 截止日期
-  tags?: string[];                        // 標籤
-  userId?: string;                        // 所屬使用者 (需要認證)
+  priority: 'CRITICAL' | 'HIGH' | 'NORMAL' | 'LOW';  // 優先級 (已實作 - CR-002)
+  dueDate?: Date;                                     // 截止日期 (未來)
+  tags?: string[];                                     // 標籤 (未來)
+  userId?: string;                                     // 所屬使用者 (需要認證)
 }
 ```
 
@@ -1538,7 +1547,7 @@ await Promise.all(
 **更新頻率**: 每次 API 變更時更新
 **版本控制**: 使用 Git 追蹤變更
 
-**最後更新**: 2025-10-17
+**最後更新**: 2025-10-24
 **下一次審查**: 2025-11-01
 
 ---

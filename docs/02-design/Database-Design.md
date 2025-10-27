@@ -6,9 +6,9 @@
 | 項目 | 內容 |
 |------|------|
 | 文件標題 | TodoList 應用程式資料庫設計文件 (Database Design Document) |
-| 版本號 | 1.1.0 |
+| 版本號 | 1.2.0 |
 | 撰寫日期 | 2025-10-17 |
-| 最後更新 | 2025-10-18 |
+| 最後更新 | 2025-10-24 |
 | 撰寫人 | Backend Development Team |
 | 審核人 | Database Architect, DevOps Team |
 | 狀態 | 已核准 |
@@ -18,6 +18,7 @@
 
 | 版本 | 日期 | 變更內容 | 變更人 | 相關 CR |
 |------|------|---------|--------|---------|
+| 1.2.0 | 2025-10-24 | 新增 Todo 優先級功能：priority 欄位改為四級 (CRITICAL/HIGH/NORMAL/LOW)、預設值改為 LOW、新增索引、新增 Migration 記錄 | Backend Team | CR-002 |
 | 1.1.0 | 2025-10-18 | 新增 Zeabur 部署環境資訊：更新生產環境配置、新增 Zeabur 遷移步驟、新增環境變數說明 | DevOps Team | - |
 | 1.0.0 | 2025-10-17 | 初始版本建立，定義 Todo 資料表結構 | Backend Team | - |
 
@@ -183,10 +184,14 @@ model Todo {
   title       String
   description String?
   isCompleted Boolean   @default(false)
+  priority    String    @default("LOW")
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   completedAt DateTime?
+  dueDate     DateTime?
 
+  @@index([priority])
+  @@index([isCompleted, priority])
   @@map("todos")
 }
 ```
@@ -199,9 +204,11 @@ model Todo {
 | **title** | VARCHAR | 255 | ❌ | - | 待辦事項標題 |
 | **description** | TEXT | - | ✅ | NULL | 待辦事項詳細描述 |
 | **isCompleted** | BOOLEAN | - | ❌ | false | 完成狀態 |
+| **priority** | VARCHAR | 20 | ❌ | "LOW" | 優先級 (CRITICAL/HIGH/NORMAL/LOW) |
 | **createdAt** | DATETIME | - | ❌ | now() | 建立時間戳 |
 | **updatedAt** | DATETIME | - | ❌ | now() | 最後更新時間戳 |
 | **completedAt** | DATETIME | - | ✅ | NULL | 完成時間戳 |
+| **dueDate** | DATETIME | - | ✅ | NULL | 截止日期 (未來功能) |
 
 #### 3.1.4 SQL 創建語句 (SQLite)
 
@@ -413,31 +420,60 @@ SELECT COUNT(*) FROM todos WHERE isCompleted = 1;
 - 查詢時間: O(log n + k)
 - 空間成本: ~5% 資料表大小
 
-#### 4.1.4 複合索引 - isCompleted + createdAt
+#### 4.1.4 優先級索引 - priority (CR-002)
 
 ```prisma
 model Todo {
   // ... 其他欄位
 
-  @@index([isCompleted, createdAt(sort: Desc)])
+  @@index([priority])
 }
 ```
 
 對應 SQL:
 ```sql
-CREATE INDEX "idx_todos_isCompleted_createdAt"
-ON "todos"("isCompleted", "createdAt" DESC);
+CREATE INDEX "idx_todos_priority" ON "todos"("priority");
 ```
 
 **用途**:
-- 優化同時篩選和排序的查詢
+- 加速優先級篩選查詢 (`GET /api/todos?priority=CRITICAL`)
+- 支援優先級排序
+
+**查詢範例**:
+```sql
+SELECT * FROM todos WHERE priority = 'CRITICAL';
+SELECT * FROM todos ORDER BY priority;
+```
+
+**效能影響**:
+- 查詢時間: O(log n + k)
+- 空間成本: ~5% 資料表大小
+
+#### 4.1.5 複合索引 - isCompleted + priority (CR-002)
+
+```prisma
+model Todo {
+  // ... 其他欄位
+
+  @@index([isCompleted, priority])
+}
+```
+
+對應 SQL:
+```sql
+CREATE INDEX "idx_todos_isCompleted_priority"
+ON "todos"("isCompleted", "priority");
+```
+
+**用途**:
+- 優化「未完成 + 優先級」的組合查詢
+- 支援三層排序邏輯 (完成狀態 → 優先級 → 時間)
 
 **查詢範例**:
 ```sql
 SELECT * FROM todos
 WHERE isCompleted = 0
-ORDER BY createdAt DESC
-LIMIT 20;
+ORDER BY priority, createdAt DESC;
 ```
 
 **效能影響**:
@@ -669,6 +705,34 @@ CREATE TABLE "todos" (
     "updatedAt" DATETIME NOT NULL,
     "completedAt" DATETIME
 );
+```
+
+**Migration 2: 新增優先級功能 (20251024040037_update_priority_to_cr002)**
+
+```sql
+-- CR-002: 新增 Todo 優先級功能
+-- RedefineTables
+PRAGMA defer_foreign_keys=ON;
+PRAGMA foreign_keys=OFF;
+CREATE TABLE "new_todos" (
+    "id" TEXT NOT NULL PRIMARY KEY,
+    "title" TEXT NOT NULL,
+    "description" TEXT,
+    "isCompleted" BOOLEAN NOT NULL DEFAULT false,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" DATETIME NOT NULL,
+    "completedAt" DATETIME,
+    "priority" TEXT NOT NULL DEFAULT 'LOW',
+    "dueDate" DATETIME
+);
+INSERT INTO "new_todos" ("completedAt", "createdAt", "description", "dueDate", "id", "isCompleted", "priority", "title", "updatedAt")
+SELECT "completedAt", "createdAt", "description", "dueDate", "id", "isCompleted", "priority", "title", "updatedAt" FROM "todos";
+DROP TABLE "todos";
+ALTER TABLE "new_todos" RENAME TO "todos";
+CREATE INDEX "todos_priority_idx" ON "todos"("priority");
+CREATE INDEX "todos_isCompleted_priority_idx" ON "todos"("isCompleted", "priority");
+PRAGMA foreign_keys=ON;
+PRAGMA defer_foreign_keys=OFF;
 ```
 
 ### 6.2 遷移操作指令
@@ -1745,7 +1809,7 @@ Indexes:
 **更新頻率**: 每次資料庫 Schema 變更時更新
 **版本控制**: 使用 Git 追蹤變更
 
-**最後更新**: 2025-10-17
+**最後更新**: 2025-10-24
 **下一次審查**: 2025-11-01
 
 ---

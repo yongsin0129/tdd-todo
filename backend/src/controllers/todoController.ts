@@ -289,7 +289,7 @@ export const getTodoById = async (req: Request, res: Response): Promise<void> =>
  */
 export const getAllTodos = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { isCompleted, page, limit } = req.query;
+    const { isCompleted, priority, page, limit } = req.query;
 
     // Validate isCompleted parameter
     if (isCompleted !== undefined) {
@@ -297,7 +297,20 @@ export const getAllTodos = async (req: Request, res: Response): Promise<void> =>
       if (isCompletedLower !== 'true' && isCompletedLower !== 'false') {
         res.status(400).json({
           success: false,
-          error: 'isCompleted must be a boolean value (true or false)',
+          error: { message: 'isCompleted must be a boolean value (true or false)' },
+        });
+        return;
+      }
+    }
+
+    // Validate priority parameter (CR-002)
+    if (priority !== undefined) {
+      const priorityStr = String(priority);
+      const priorityValidation = validatePriority(priorityStr);
+      if (!priorityValidation.isValid) {
+        res.status(400).json({
+          success: false,
+          error: { message: priorityValidation.error },
         });
         return;
       }
@@ -310,7 +323,7 @@ export const getAllTodos = async (req: Request, res: Response): Promise<void> =>
       if (isNaN(pageNum) || pageNum < 1) {
         res.status(400).json({
           success: false,
-          error: 'Page must be a positive integer',
+          error: { message: 'Page must be a positive integer' },
         });
         return;
       }
@@ -323,46 +336,82 @@ export const getAllTodos = async (req: Request, res: Response): Promise<void> =>
       if (isNaN(limitNum) || limitNum < 1) {
         res.status(400).json({
           success: false,
-          error: 'Limit must be a positive integer',
+          error: { message: 'Limit must be a positive integer' },
         });
         return;
       }
       if (limitNum > 100) {
         res.status(400).json({
           success: false,
-          error: 'Limit cannot exceed maximum of 100',
+          error: { message: 'Limit cannot exceed maximum of 100' },
         });
         return;
       }
     }
 
     // Build where clause for filtering
-    const where: { isCompleted?: boolean } = {};
+    const where: { isCompleted?: boolean; priority?: string } = {};
     if (isCompleted !== undefined) {
       where.isCompleted = String(isCompleted).toLowerCase() === 'true';
     }
-
-    // Calculate pagination
-    const skip = (pageNum - 1) * limitNum;
+    if (priority !== undefined) {
+      where.priority = String(priority);
+    }
 
     // Get total count for pagination metadata
     const total = await prisma.todo.count({ where });
-    const totalPages = Math.ceil(total / limitNum);
 
-    // Fetch todos with filtering, sorting, and pagination
-    const todos = await prisma.todo.findMany({
+    // Fetch ALL todos with filtering (no pagination yet - we need to sort first)
+    const allTodos = await prisma.todo.findMany({
       where,
-      orderBy: {
-        createdAt: 'desc', // Newest first
-      },
-      skip,
-      take: limitNum,
     });
+
+    // Custom sorting logic (CR-002: Three-level sorting)
+    // 1. isCompleted (uncompleted first)
+    // 2. priority (CRITICAL > HIGH > NORMAL > LOW)
+    // 3. createdAt (newest first)
+    const priorityOrder: Record<string, number> = {
+      CRITICAL: 1,
+      HIGH: 2,
+      NORMAL: 3,
+      LOW: 4,
+    };
+
+    const sortedTodos = allTodos.sort((a, b) => {
+      // First level: isCompleted (uncompleted first)
+      if (a.isCompleted !== b.isCompleted) {
+        return a.isCompleted ? 1 : -1;
+      }
+
+      // Second level: priority (CRITICAL > HIGH > NORMAL > LOW)
+      const priorityA = priorityOrder[a.priority] || 999;
+      const priorityB = priorityOrder[b.priority] || 999;
+      if (priorityA !== priorityB) {
+        return priorityA - priorityB;
+      }
+
+      // Third level: createdAt (newest first)
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    });
+
+    // Apply pagination AFTER sorting (only if pagination params were provided)
+    let paginatedTodos;
+    let totalPages;
+
+    if (page !== undefined || limit !== undefined) {
+      const skip = (pageNum - 1) * limitNum;
+      paginatedTodos = sortedTodos.slice(skip, skip + limitNum);
+      totalPages = Math.ceil(total / limitNum);
+    } else {
+      // No pagination requested - return all sorted todos
+      paginatedTodos = sortedTodos;
+      totalPages = 1;
+    }
 
     // Build response
     const response: {
       success: boolean;
-      data: typeof todos;
+      data: typeof paginatedTodos;
       pagination?: {
         page: number;
         limit: number;
@@ -371,7 +420,7 @@ export const getAllTodos = async (req: Request, res: Response): Promise<void> =>
       };
     } = {
       success: true,
-      data: todos,
+      data: paginatedTodos,
     };
 
     // Include pagination metadata if pagination parameters were provided

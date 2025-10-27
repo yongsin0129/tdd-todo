@@ -47,7 +47,7 @@ describe('GET /api/todos/:id - Get Single Todo Integration Tests', () => {
       const newTodo: CreateTodoDto = {
         title: 'Complete todo item',
         description: 'Detailed description',
-        priority: 'high',
+        priority: 'HIGH',
       };
 
       const createResponse = await request(app)
@@ -65,7 +65,7 @@ describe('GET /api/todos/:id - Get Single Todo Integration Tests', () => {
       expect(response.body.data).toHaveProperty('id', todoId);
       expect(response.body.data).toHaveProperty('title', 'Complete todo item');
       expect(response.body.data).toHaveProperty('description', 'Detailed description');
-      expect(response.body.data).toHaveProperty('priority', 'high');
+      expect(response.body.data).toHaveProperty('priority', 'HIGH');
       expect(response.body.data).toHaveProperty('isCompleted', false);
       expect(response.body.data).toHaveProperty('createdAt');
       expect(response.body.data).toHaveProperty('updatedAt');
@@ -149,7 +149,7 @@ describe('GET /api/todos/:id - Get Single Todo Integration Tests', () => {
       const newTodo: CreateTodoDto = {
         title: 'Complete todo',
         description: 'Full description',
-        priority: 'high',
+        priority: 'HIGH',
         dueDate: new Date('2025-12-31T23:59:59.999Z'),
       };
 
@@ -167,7 +167,7 @@ describe('GET /api/todos/:id - Get Single Todo Integration Tests', () => {
       expect(response.status).toBe(200);
       expect(response.body.data.title).toBe('Complete todo');
       expect(response.body.data.description).toBe('Full description');
-      expect(response.body.data.priority).toBe('high');
+      expect(response.body.data.priority).toBe('HIGH');
       expect(response.body.data.dueDate).toBeDefined();
       expect(response.body.data.dueDate).not.toBeNull();
     });

@@ -13,7 +13,7 @@ export interface Todo {
 export interface CreateTodoDto {
   title: string;
   description?: string;
-  priority?: 'low' | 'medium' | 'high';
+  priority?: 'CRITICAL' | 'HIGH' | 'NORMAL' | 'LOW';
   dueDate?: Date;
 }
 
@@ -21,6 +21,6 @@ export interface UpdateTodoDto {
   title?: string;
   description?: string;
   isCompleted?: boolean;
-  priority?: 'low' | 'medium' | 'high';
+  priority?: 'CRITICAL' | 'HIGH' | 'NORMAL' | 'LOW';
   dueDate?: Date;
 }

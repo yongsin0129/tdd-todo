@@ -59,7 +59,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
         data: {
           title: 'First todo',
           isCompleted: false,
-          priority: 'medium',
+          priority: 'NORMAL',
         },
       });
 
@@ -77,9 +77,9 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
       // Arrange - Create multiple test todos
       await prisma.todo.createMany({
         data: [
-          { title: 'First todo', isCompleted: false, priority: 'high' },
-          { title: 'Second todo', isCompleted: true, priority: 'low' },
-          { title: 'Third todo', isCompleted: false, priority: 'medium' },
+          { title: 'First todo', isCompleted: false, priority: 'HIGH' },
+          { title: 'Second todo', isCompleted: true, priority: 'LOW' },
+          { title: 'Third todo', isCompleted: false, priority: 'NORMAL' },
         ],
       });
 
@@ -100,7 +100,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
           title: 'Complete todo',
           description: 'Test description',
           isCompleted: false,
-          priority: 'high',
+          priority: 'HIGH',
           dueDate: new Date('2025-12-31'),
         },
       });
@@ -126,7 +126,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
         data: {
           title: 'UUID test',
           isCompleted: false,
-          priority: 'medium',
+          priority: 'NORMAL',
         },
       });
       const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -147,7 +147,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
         data: {
           title: 'Timestamp test',
           isCompleted: false,
-          priority: 'medium',
+          priority: 'NORMAL',
         },
       });
 
@@ -171,7 +171,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
           title: 'Type test',
           description: 'Test description',
           isCompleted: true,
-          priority: 'high',
+          priority: 'HIGH',
           dueDate: new Date('2025-12-31'),
         },
       });
@@ -195,7 +195,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
         data: {
           title: 'Minimal todo',
           isCompleted: false,
-          priority: 'medium',
+          priority: 'NORMAL',
         },
       });
 
@@ -217,7 +217,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
           title: 'Complete todo',
           description: 'Full description',
           isCompleted: false,
-          priority: 'high',
+          priority: 'HIGH',
           dueDate: dueDate,
         },
       });
@@ -239,7 +239,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
         data: {
           title: 'First todo (oldest)',
           isCompleted: false,
-          priority: 'medium',
+          priority: 'NORMAL',
           createdAt: new Date('2025-01-01T10:00:00.000Z'),
         },
       });
@@ -248,7 +248,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
         data: {
           title: 'Second todo (middle)',
           isCompleted: false,
-          priority: 'medium',
+          priority: 'NORMAL',
           createdAt: new Date('2025-01-02T10:00:00.000Z'),
         },
       });
@@ -257,7 +257,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
         data: {
           title: 'Third todo (newest)',
           isCompleted: false,
-          priority: 'medium',
+          priority: 'NORMAL',
           createdAt: new Date('2025-01-03T10:00:00.000Z'),
         },
       });
@@ -279,7 +279,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
           data: {
             title: `Todo ${i}`,
             isCompleted: false,
-            priority: 'medium',
+            priority: 'NORMAL',
             createdAt: new Date(Date.now() + i * 1000),
           },
         });
@@ -304,11 +304,11 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
       // Create a mix of completed and incomplete todos
       await prisma.todo.createMany({
         data: [
-          { title: 'Completed todo 1', isCompleted: true, priority: 'high' },
-          { title: 'Incomplete todo 1', isCompleted: false, priority: 'medium' },
-          { title: 'Completed todo 2', isCompleted: true, priority: 'low' },
-          { title: 'Incomplete todo 2', isCompleted: false, priority: 'high' },
-          { title: 'Incomplete todo 3', isCompleted: false, priority: 'medium' },
+          { title: 'Completed todo 1', isCompleted: true, priority: 'HIGH' },
+          { title: 'Incomplete todo 1', isCompleted: false, priority: 'NORMAL' },
+          { title: 'Completed todo 2', isCompleted: true, priority: 'LOW' },
+          { title: 'Incomplete todo 2', isCompleted: false, priority: 'HIGH' },
+          { title: 'Incomplete todo 3', isCompleted: false, priority: 'NORMAL' },
         ],
       });
     });
@@ -387,7 +387,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
       const todos = Array.from({ length: 25 }, (_, i) => ({
         title: `Todo ${i + 1}`,
         isCompleted: i % 2 === 0,
-        priority: 'medium' as const,
+        priority: 'NORMAL' as const,
         createdAt: new Date(Date.now() + i * 1000),
       }));
       await prisma.todo.createMany({ data: todos });
@@ -519,7 +519,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('success', false);
       expect(response.body).toHaveProperty('error');
-      expect(response.body.error.toLowerCase()).toMatch(/iscompleted|boolean/);
+      expect(response.body.error.message.toLowerCase()).toMatch(/iscompleted|boolean/);
     });
 
     it('should return 400 for negative page number', async () => {
@@ -531,7 +531,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
       // Assert
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('success', false);
-      expect(response.body.error.toLowerCase()).toMatch(/page/);
+      expect(response.body.error.message.toLowerCase()).toMatch(/page/);
     });
 
     it('should return 400 for zero page number', async () => {
@@ -554,7 +554,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
       // Assert
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('success', false);
-      expect(response.body.error.toLowerCase()).toMatch(/limit/);
+      expect(response.body.error.message.toLowerCase()).toMatch(/limit/);
     });
 
     it('should return 400 for zero limit', async () => {
@@ -577,7 +577,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
       // Assert
       expect(response.status).toBe(400);
       expect(response.body).toHaveProperty('success', false);
-      expect(response.body.error.toLowerCase()).toMatch(/limit|maximum/);
+      expect(response.body.error.message.toLowerCase()).toMatch(/limit|maximum/);
     });
 
     it('should return 400 for non-numeric page value', async () => {
@@ -617,8 +617,8 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
       // Arrange
       await prisma.todo.createMany({
         data: [
-          { title: 'Todo 1', isCompleted: true, priority: 'high' },
-          { title: 'Todo 2', isCompleted: true, priority: 'medium' },
+          { title: 'Todo 1', isCompleted: true, priority: 'HIGH' },
+          { title: 'Todo 2', isCompleted: true, priority: 'NORMAL' },
         ],
       });
 
@@ -684,7 +684,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
       const todos = Array.from({ length: 100 }, (_, i) => ({
         title: `Todo ${i + 1}`,
         isCompleted: i % 2 === 0,
-        priority: 'medium' as const,
+        priority: 'NORMAL' as const,
       }));
       await prisma.todo.createMany({ data: todos });
       const startTime = Date.now();
@@ -710,7 +710,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
           title: 'Todo with special chars: @#$%^&*()_+-=[]{}|;:\'",.<>?/~`',
           description: 'Description with unicode: 你好世界 🌍 café',
           isCompleted: false,
-          priority: 'high',
+          priority: 'HIGH',
         },
       });
 
@@ -731,7 +731,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
           title: 'Long description todo',
           description: longDescription,
           isCompleted: false,
-          priority: 'medium',
+          priority: 'NORMAL',
         },
       });
 
@@ -748,9 +748,9 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
       const sameTimestamp = new Date('2025-01-01T12:00:00.000Z');
       await prisma.todo.createMany({
         data: [
-          { title: 'Todo 1', isCompleted: false, priority: 'high', createdAt: sameTimestamp },
-          { title: 'Todo 2', isCompleted: false, priority: 'medium', createdAt: sameTimestamp },
-          { title: 'Todo 3', isCompleted: false, priority: 'low', createdAt: sameTimestamp },
+          { title: 'Todo 1', isCompleted: false, priority: 'HIGH', createdAt: sameTimestamp },
+          { title: 'Todo 2', isCompleted: false, priority: 'NORMAL', createdAt: sameTimestamp },
+          { title: 'Todo 3', isCompleted: false, priority: 'LOW', createdAt: sameTimestamp },
         ],
       });
 
@@ -766,8 +766,8 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
       // Arrange
       await prisma.todo.createMany({
         data: [
-          { title: 'Todo 1', isCompleted: false, priority: 'high' },
-          { title: 'Todo 2', isCompleted: true, priority: 'medium' },
+          { title: 'Todo 1', isCompleted: false, priority: 'HIGH' },
+          { title: 'Todo 2', isCompleted: true, priority: 'NORMAL' },
         ],
       });
 
@@ -790,7 +790,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
         data: {
           title: 'Test todo',
           isCompleted: false,
-          priority: 'medium',
+          priority: 'NORMAL',
         },
       });
 
@@ -811,7 +811,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
           title: 'Database consistency test',
           description: 'Test description',
           isCompleted: false,
-          priority: 'high',
+          priority: 'HIGH',
         },
       });
 
@@ -832,7 +832,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
         data: {
           title: 'Original title',
           isCompleted: false,
-          priority: 'medium',
+          priority: 'NORMAL',
         },
       });
 
@@ -856,7 +856,7 @@ describe('GET /api/todos - List All Todos Integration Tests', () => {
         data: {
           title: 'To be deleted',
           isCompleted: false,
-          priority: 'medium',
+          priority: 'NORMAL',
         },
       });
 

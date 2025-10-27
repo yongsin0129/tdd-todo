@@ -526,8 +526,8 @@ describe('POST /api/todos - Create Todo Integration Tests', () => {
     it('should create todo with low priority when specified', async () => {
       // Arrange
       const newTodo: CreateTodoDto = {
-        title: 'Low priority task',
-        priority: 'low',
+        title: 'LOW priority task',
+        priority: 'LOW',
       };
 
       // Act
@@ -538,14 +538,14 @@ describe('POST /api/todos - Create Todo Integration Tests', () => {
 
       // Assert
       expect(response.status).toBe(201);
-      expect(response.body.data.priority).toBe('low');
+      expect(response.body.data.priority).toBe('LOW');
     });
 
     it('should create todo with medium priority when specified', async () => {
       // Arrange
       const newTodo: CreateTodoDto = {
-        title: 'Medium priority task',
-        priority: 'medium',
+        title: 'NORMAL priority task',
+        priority: 'NORMAL',
       };
 
       // Act
@@ -556,14 +556,14 @@ describe('POST /api/todos - Create Todo Integration Tests', () => {
 
       // Assert
       expect(response.status).toBe(201);
-      expect(response.body.data.priority).toBe('medium');
+      expect(response.body.data.priority).toBe('NORMAL');
     });
 
     it('should create todo with high priority when specified', async () => {
       // Arrange
       const newTodo: CreateTodoDto = {
-        title: 'High priority task',
-        priority: 'high',
+        title: 'HIGH priority task',
+        priority: 'HIGH',
       };
 
       // Act
@@ -574,10 +574,10 @@ describe('POST /api/todos - Create Todo Integration Tests', () => {
 
       // Assert
       expect(response.status).toBe(201);
-      expect(response.body.data.priority).toBe('high');
+      expect(response.body.data.priority).toBe('HIGH');
     });
 
-    it('should set priority to medium by default when not specified', async () => {
+    it('should set priority to LOW by default when not specified', async () => {
       // Arrange
       const newTodo: CreateTodoDto = {
         title: 'Default priority test',
@@ -591,7 +591,7 @@ describe('POST /api/todos - Create Todo Integration Tests', () => {
 
       // Assert
       expect(response.status).toBe(201);
-      expect(response.body.data.priority).toBe('medium');
+      expect(response.body.data.priority).toBe('LOW');
     });
 
     it('should return 400 for invalid priority value', async () => {
@@ -617,7 +617,7 @@ describe('POST /api/todos - Create Todo Integration Tests', () => {
       // Arrange
       const invalidTodo = {
         title: 'Case-sensitive priority test',
-        priority: 'HIGH',
+        priority: 'high', // lowercase should be rejected
       };
 
       // Act
@@ -915,7 +915,7 @@ describe('POST /api/todos - Create Todo Integration Tests', () => {
       const completeTodo: CreateTodoDto = {
         title: 'Complete todo item',
         description: 'This todo has all fields',
-        priority: 'high',
+        priority: 'HIGH',
         dueDate: new Date('2025-12-31T23:59:59.999Z'),
       };
 
@@ -929,7 +929,7 @@ describe('POST /api/todos - Create Todo Integration Tests', () => {
       expect(response.status).toBe(201);
       expect(response.body.data.title).toBe('Complete todo item');
       expect(response.body.data.description).toBe('This todo has all fields');
-      expect(response.body.data.priority).toBe('high');
+      expect(response.body.data.priority).toBe('HIGH');
       expect(response.body.data.dueDate).toBeDefined();
       expect(response.body.data.isCompleted).toBe(false);
     });
@@ -1103,9 +1103,9 @@ describe('POST /api/todos - Create Todo Integration Tests', () => {
     it('should create multiple todos independently', async () => {
       // Arrange
       const todos: CreateTodoDto[] = [
-        { title: 'First todo', priority: 'high' },
-        { title: 'Second todo', priority: 'low' },
-        { title: 'Third todo', priority: 'medium' },
+        { title: 'First todo', priority: 'HIGH' },
+        { title: 'Second todo', priority: 'LOW' },
+        { title: 'Third todo', priority: 'NORMAL' },
       ];
 
       // Act
@@ -1156,7 +1156,7 @@ describe('POST /api/todos - Create Todo Integration Tests', () => {
       // Arrange
       const invalidTodo = {
         description: 'Description without title',
-        priority: 'high',
+        priority: 'HIGH',
       };
       const countBefore = await prisma.todo.count();
 
@@ -1176,7 +1176,7 @@ describe('POST /api/todos - Create Todo Integration Tests', () => {
       const newTodo: CreateTodoDto = {
         title: 'Database consistency test',
         description: 'Test description',
-        priority: 'high',
+        priority: 'HIGH',
       };
 
       // Act

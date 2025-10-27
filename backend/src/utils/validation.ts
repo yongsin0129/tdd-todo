@@ -29,15 +29,26 @@ export const validateTitle = (
   };
 };
 
-// Priority validation
+// Priority validation (CR-002: Four-level priority system)
 export const validatePriority = (priority: unknown): { isValid: boolean; error?: string } => {
-  const validPriorities = ['low', 'medium', 'high'];
-  if (priority === null || priority === '' || !validPriorities.includes(priority as string)) {
+  const validPriorities = ['CRITICAL', 'HIGH', 'NORMAL', 'LOW'];
+
+  // Reject non-string types
+  if (typeof priority !== 'string') {
     return {
       isValid: false,
-      error: 'Priority must be one of: low, medium, high',
+      error: 'Priority must be one of: CRITICAL, HIGH, NORMAL, LOW',
     };
   }
+
+  // Reject empty string, null, or invalid values
+  if (priority === '' || !validPriorities.includes(priority)) {
+    return {
+      isValid: false,
+      error: 'Priority must be one of: CRITICAL, HIGH, NORMAL, LOW',
+    };
+  }
+
   return { isValid: true };
 };
 

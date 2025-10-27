@@ -167,7 +167,7 @@ describe('DELETE /api/todos/:id - Delete Todo Integration Tests', () => {
       const newTodo: CreateTodoDto = {
         title: 'Complete todo to delete',
         description: 'Full description',
-        priority: 'high',
+        priority: 'HIGH',
         dueDate: new Date('2025-12-31T23:59:59.999Z'),
       };
 
@@ -546,7 +546,7 @@ describe('DELETE /api/todos/:id - Delete Todo Integration Tests', () => {
           .send({
             title: `Todo ${i}`,
             description: `Description ${i}`,
-            priority: i % 2 === 0 ? 'high' : 'low',
+            priority: i % 2 === 0 ? 'HIGH' : 'LOW',
           })
           .set('Content-Type', 'application/json');
         todos.push(response.body.data);
@@ -579,7 +579,7 @@ describe('DELETE /api/todos/:id - Delete Todo Integration Tests', () => {
       const newTodo: CreateTodoDto = {
         title: 'Complete todo',
         description: 'Full description',
-        priority: 'high',
+        priority: 'HIGH',
         dueDate: new Date('2025-12-31T23:59:59.999Z'),
       };
 

@@ -237,20 +237,26 @@ describe('Validation Utilities - Unit Tests', () => {
 
   describe('validatePriority', () => {
     describe('Valid Priorities', () => {
-      it('should return valid for "low" priority', () => {
-        const result = validatePriority('low');
+      it('should return valid for "CRITICAL" priority', () => {
+        const result = validatePriority('CRITICAL');
         expect(result.isValid).toBe(true);
         expect(result.error).toBeUndefined();
       });
 
-      it('should return valid for "medium" priority', () => {
-        const result = validatePriority('medium');
+      it('should return valid for "HIGH" priority', () => {
+        const result = validatePriority('HIGH');
         expect(result.isValid).toBe(true);
         expect(result.error).toBeUndefined();
       });
 
-      it('should return valid for "high" priority', () => {
-        const result = validatePriority('high');
+      it('should return valid for "NORMAL" priority', () => {
+        const result = validatePriority('NORMAL');
+        expect(result.isValid).toBe(true);
+        expect(result.error).toBeUndefined();
+      });
+
+      it('should return valid for "LOW" priority', () => {
+        const result = validatePriority('LOW');
         expect(result.isValid).toBe(true);
         expect(result.error).toBeUndefined();
       });
@@ -260,73 +266,73 @@ describe('Validation Utilities - Unit Tests', () => {
       it('should return invalid for null', () => {
         const result = validatePriority(null);
         expect(result.isValid).toBe(false);
-        expect(result.error).toBe('Priority must be one of: low, medium, high');
+        expect(result.error).toBe('Priority must be one of: CRITICAL, HIGH, NORMAL, LOW');
       });
 
       it('should return invalid for empty string', () => {
         const result = validatePriority('');
         expect(result.isValid).toBe(false);
-        expect(result.error).toBe('Priority must be one of: low, medium, high');
+        expect(result.error).toBe('Priority must be one of: CRITICAL, HIGH, NORMAL, LOW');
       });
 
       it('should return invalid for "urgent"', () => {
         const result = validatePriority('urgent');
         expect(result.isValid).toBe(false);
-        expect(result.error).toBe('Priority must be one of: low, medium, high');
+        expect(result.error).toBe('Priority must be one of: CRITICAL, HIGH, NORMAL, LOW');
       });
 
-      it('should return invalid for "critical"', () => {
+      it('should return invalid for "critical" (lowercase)', () => {
         const result = validatePriority('critical');
         expect(result.isValid).toBe(false);
-        expect(result.error).toBe('Priority must be one of: low, medium, high');
+        expect(result.error).toBe('Priority must be one of: CRITICAL, HIGH, NORMAL, LOW');
       });
 
-      it('should return invalid for "LOW" (wrong case)', () => {
-        const result = validatePriority('LOW');
+      it('should return invalid for "low" (lowercase)', () => {
+        const result = validatePriority('low');
         expect(result.isValid).toBe(false);
-        expect(result.error).toBe('Priority must be one of: low, medium, high');
+        expect(result.error).toBe('Priority must be one of: CRITICAL, HIGH, NORMAL, LOW');
       });
 
-      it('should return invalid for "Medium" (wrong case)', () => {
-        const result = validatePriority('Medium');
+      it('should return invalid for "Normal" (wrong case)', () => {
+        const result = validatePriority('Normal');
         expect(result.isValid).toBe(false);
-        expect(result.error).toBe('Priority must be one of: low, medium, high');
+        expect(result.error).toBe('Priority must be one of: CRITICAL, HIGH, NORMAL, LOW');
       });
 
-      it('should return invalid for "HIGH" (wrong case)', () => {
-        const result = validatePriority('HIGH');
+      it('should return invalid for "high" (lowercase)', () => {
+        const result = validatePriority('high');
         expect(result.isValid).toBe(false);
-        expect(result.error).toBe('Priority must be one of: low, medium, high');
+        expect(result.error).toBe('Priority must be one of: CRITICAL, HIGH, NORMAL, LOW');
       });
 
       it('should return invalid for number', () => {
         const result = validatePriority(1 as any);
         expect(result.isValid).toBe(false);
-        expect(result.error).toBe('Priority must be one of: low, medium, high');
+        expect(result.error).toBe('Priority must be one of: CRITICAL, HIGH, NORMAL, LOW');
       });
 
       it('should return invalid for boolean', () => {
         const result = validatePriority(true as any);
         expect(result.isValid).toBe(false);
-        expect(result.error).toBe('Priority must be one of: low, medium, high');
+        expect(result.error).toBe('Priority must be one of: CRITICAL, HIGH, NORMAL, LOW');
       });
 
       it('should return invalid for undefined', () => {
         const result = validatePriority(undefined);
         expect(result.isValid).toBe(false);
-        expect(result.error).toBe('Priority must be one of: low, medium, high');
+        expect(result.error).toBe('Priority must be one of: CRITICAL, HIGH, NORMAL, LOW');
       });
 
       it('should return invalid for object', () => {
         const result = validatePriority({} as any);
         expect(result.isValid).toBe(false);
-        expect(result.error).toBe('Priority must be one of: low, medium, high');
+        expect(result.error).toBe('Priority must be one of: CRITICAL, HIGH, NORMAL, LOW');
       });
 
       it('should return invalid for whitespace string', () => {
         const result = validatePriority('   ');
         expect(result.isValid).toBe(false);
-        expect(result.error).toBe('Priority must be one of: low, medium, high');
+        expect(result.error).toBe('Priority must be one of: CRITICAL, HIGH, NORMAL, LOW');
       });
     });
   });

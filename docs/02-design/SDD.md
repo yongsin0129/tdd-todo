@@ -6,9 +6,9 @@
 | 項目 | 內容 |
 |------|------|
 | 文件標題 | TodoList 應用程式系統設計文件 (SDD) |
-| 版本號 | 1.4.0 |
+| 版本號 | 1.5.0 |
 | 撰寫日期 | 2025-10-14 |
-| 最後更新 | 2025-10-19 |
+| 最後更新 | 2025-10-24 |
 | 撰寫人 | Technical Team |
 | 審核人 | DevOps Team |
 | 狀態 | 已核准 |
@@ -17,6 +17,7 @@
 
 | 版本 | 日期 | 變更內容 | 變更人 | 相關 CR |
 |------|------|---------|--------|---------|
+| 1.5.0 | 2025-10-24 | 新增 Todo 優先級功能：更新資料模型、新增 ADR-009、新增優先級排序流程圖 | Technical Team | CR-002 |
 | 1.4.0 | 2025-10-19 | 更新部署架構為 Vercel (前端) + Zeabur (後端/資料庫) 混合架構，更新 ADR-008、部署架構圖 | DevOps Team | - |
 | 1.3.0 | 2025-10-18 | 新增 Zeabur 部署平台相關內容：更新部署架構圖、新增 ADR-008、更新第三方整合清單、新增部署文檔連結 | DevOps Team | - |
 | 1.2.0 | 2025-01-17 | 前端架構重構：移除 localStorage、Hook 分層設計、E2E 測試優化 | Technical Team | - |
@@ -469,6 +470,152 @@ function OldComponent() {
 
 ---
 
+#### ADR-009: Todo 優先級系統設計
+
+**日期**: 2025-10-24
+
+**狀態**: 已採用
+
+**背景**:
+根據 PRD.md Section 7.2 規劃，優先級設定功能是 Phase 2 的核心功能之一。
+用戶需要能夠：
+- 快速識別重要任務
+- 根據優先級合理安排工作順序
+- 視覺化任務的輕重緩急
+
+競品分析顯示，主流待辦事項應用（Todoist, Microsoft To Do）都提供優先級功能，
+這是待辦事項應用的標準配備。
+
+**決策**:
+採用**四級優先級系統** (CRITICAL/HIGH/NORMAL/LOW)
+
+**理由**:
+
+1. **四級分類的選擇**:
+   - ✅ **CRITICAL** (緊急): 處理緊急且重要的事項
+   - ✅ **HIGH** (高): 重要但非緊急的任務
+   - ✅ **NORMAL** (中): 日常任務的預設優先級
+   - ✅ **LOW** (低): 可延後處理的次要任務
+   - **對比方案**:
+     - 三級 (高/中/低): 分類不夠細緻，無法區分"緊急"與"重要"
+     - 五級或更多: 分類過細，用戶難以選擇，增加認知負擔
+   - **參考標準**: 艾森豪威爾矩陣（重要性 × 緊急性）
+
+2. **英文命名的選擇**:
+   - ✅ 使用**大寫英文** (CRITICAL/HIGH/NORMAL/LOW) 作為資料庫存儲值
+   - **理由**:
+     - 國際化支援: 易於多語言擴展
+     - 程式碼可讀性: 明確的枚舉值
+     - 資料庫一致性: 避免編碼問題
+     - 前端靈活性: 可根據語言顯示對應中文
+   - **對比方案**:
+     - 數字 (1/2/3/4): 缺乏語義，可讀性差
+     - 中文: 國際化困難，資料庫編碼問題
+
+3. **預設值選擇 LOW**:
+   - ✅ 預設為 **LOW** (最低優先級)
+   - **理由**:
+     - 保守策略: 避免所有任務都標記為高優先級
+     - 用戶主動性: 需要主動提升重要任務的優先級
+     - 避免優先級膨脹: 防止所有任務都變成"緊急"
+   - **對比方案**:
+     - NORMAL: 可能導致用戶懶得調整，失去分類意義
+
+4. **排序規則設計**:
+   - ✅ **三層排序**:
+     1. 完成狀態 (未完成 > 已完成)
+     2. 優先級 (CRITICAL > HIGH > NORMAL > LOW)
+     3. 建立時間 (新 > 舊)
+   - **理由**:
+     - 未完成任務優先: 用戶關注未完成的工作
+     - 優先級次之: 在未完成中按重要性排序
+     - 時間最後: 同優先級按時間排序
+   - **對比方案**:
+     - 僅按優先級: 已完成任務會混在清單中
+     - 僅按時間: 無法突出重要任務
+
+5. **資料庫設計**:
+   - ✅ 使用 **String** 型別儲存優先級
+   - ✅ 新增 **CHECK 約束** 限制只允許四種值
+   - ✅ 新增 **索引** 優化查詢效能
+   - **理由**:
+     - String vs Enum: PostgreSQL Enum 不易修改，String 更靈活
+     - CHECK 約束: 確保資料完整性
+     - 索引策略: 優化篩選和排序效能
+
+6. **向下相容性**:
+   - ✅ **priority 欄位為選填** (有預設值)
+   - ✅ **舊資料自動設為 LOW**
+   - **理由**:
+     - API 向下相容: 不強制客戶端提供 priority
+     - 平滑遷移: 舊資料不會出錯
+     - 漸進式採用: 用戶可逐步調整優先級
+
+**後果**:
+
+**正面影響**:
+- ✅ 任務管理效率提升: 用戶快速識別重要任務
+- ✅ 工作優先順序清晰: 合理安排工作順序
+- ✅ 產品競爭力提升: 補足與競品功能差距
+- ✅ 資料模型完整: 為未來功能 (截止日期、分類) 打基礎
+- ✅ 效能優化: 索引設計提升查詢速度
+
+**潛在挑戰**:
+- ⚠️ UI 空間限制: 需要設計緊湊的優先級顯示方式
+- ⚠️ 用戶學習成本: 需要引導用戶理解四級分類
+- ⚠️ 優先級膨脹風險: 需監控用戶是否過度使用高優先級
+
+**技術實作**:
+
+**Prisma Schema**:
+```prisma
+model Todo {
+  id          String    @id @default(uuid())
+  title       String
+  description String?
+  isCompleted Boolean   @default(false)
+  priority    String    @default("LOW")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  completedAt DateTime?
+
+  @@index([priority])
+  @@index([isCompleted, priority])
+  @@map("todos")
+}
+```
+
+**TypeScript 型別定義**:
+```typescript
+export type Priority = 'CRITICAL' | 'HIGH' | 'NORMAL' | 'LOW';
+
+export const VALID_PRIORITIES: Priority[] = ['CRITICAL', 'HIGH', 'NORMAL', 'LOW'];
+
+export const PRIORITY_LABELS = {
+  CRITICAL: '緊急',
+  HIGH: '高',
+  NORMAL: '中',
+  LOW: '低',
+} as const;
+```
+
+**API 驗證**:
+```typescript
+export function validatePriority(priority: unknown): boolean {
+  if (!priority) return true; // 選填
+  return typeof priority === 'string' &&
+         VALID_PRIORITIES.includes(priority as Priority);
+}
+```
+
+**相關文件**:
+- **CR-002**: `docs/05-change-management/CR-002-新增Todo優先級功能-20251024.md`
+- **Backend Todolist**: `docs/04-execution/backend/Backend-Team-Todolist.md` (Phase 6.1)
+- **Database Design**: `docs/02-design/Database-Design.md` (待更新 v1.2.0)
+- **API Specification**: `docs/02-design/API-Specification.md` (待更新)
+
+---
+
 ## 3. 系統流程圖
 
 ### 3.1 新增待辦事項流程
@@ -575,6 +722,46 @@ User                Frontend           API Server        Database
   │<──────────────────│                     │                │
   │                   │                     │                │
 ```
+
+### 3.4 優先級篩選與排序流程
+
+```
+User                Frontend           API Server        Database
+  │                   │                     │                │
+  │  選擇優先級篩選    │                     │                │
+  │  (例如: 緊急)     │                     │                │
+  │──────────────────>│                     │                │
+  │                   │                     │                │
+  │                   │ 1. GET /api/todos?priority=CRITICAL │
+  │                   │────────────────────>│                │
+  │                   │                     │                │
+  │                   │                     │ 2. Prisma Query │
+  │                   │                     │    WHERE priority = 'CRITICAL'
+  │                   │                     │    ORDER BY isCompleted, priority, createdAt
+  │                   │                     │───────────────>│
+  │                   │                     │                │
+  │                   │                     │ 3. 返回篩選結果 │
+  │                   │                     │<───────────────│
+  │                   │                     │                │
+  │                   │ 4. 200 OK           │                │
+  │                   │    { data: [...] }  │                │
+  │                   │<────────────────────│                │
+  │                   │                     │                │
+  │                   │ 5. 應用前端排序      │                │
+  │                   │    (三層排序邏輯)    │                │
+  │                   │                     │                │
+  │  顯示排序後的清單  │                     │                │
+  │<──────────────────│                     │                │
+  │                   │                     │                │
+```
+
+**排序流程說明**:
+1. 用戶選擇優先級篩選條件 (CRITICAL/HIGH/NORMAL/LOW/全部)
+2. 前端發送 GET 請求至 API，附帶 query 參數 `priority`
+3. 後端執行資料庫查詢，使用索引優化查詢效能
+4. 資料庫返回篩選結果
+5. 前端應用三層排序邏輯 (完成狀態 → 優先級 → 建立時間)
+6. 渲染排序後的 Todo 清單
 
 ---
 
@@ -774,6 +961,7 @@ interface Todo {
   title: string;        // 待辦事項標題, 必填, 1-255 字元
   description?: string; // 詳細描述, 選用
   isCompleted: boolean; // 完成狀態, 預設 false
+  priority: 'CRITICAL' | 'HIGH' | 'NORMAL' | 'LOW';  // 優先級, 預設 'LOW'
   createdAt: Date;      // 建立時間, 自動生成
   updatedAt: Date;      // 更新時間, 自動更新
   completedAt?: Date;   // 完成時間, 完成時設定
@@ -788,10 +976,15 @@ model Todo {
   title       String
   description String?
   isCompleted Boolean   @default(false)
+  priority    String    @default("LOW")  // 新增: 優先級欄位
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   completedAt DateTime?
 
+  // 索引優化
+  @@index([priority])                     // 優先級查詢索引
+  @@index([isCompleted, priority])        // 組合篩選索引
+  @@index([createdAt(sort: Desc)])        // 時間排序索引
   @@map("todos")
 }
 ```
@@ -813,6 +1006,69 @@ Backend Controller
      ↓ Prisma Client
 Database (SQLite/PostgreSQL)
 ```
+
+### 6.4 優先級系統設計
+
+#### 6.4.1 優先級分類
+
+| 層級 | 英文值 | 中文顯示 | 排序權重 | 使用場景 |
+|:----:|:------:|:--------:|:--------:|---------|
+| 1 | `CRITICAL` | 緊急 | 1 | 必須立即處理的緊急事項 |
+| 2 | `HIGH` | 高 | 2 | 重要且需優先處理的任務 |
+| 3 | `NORMAL` | 中 | 3 | 普通重要度的常規任務 |
+| 4 | `LOW` | 低 | 4 | 可延後處理的次要任務 |
+
+#### 6.4.2 欄位特性
+
+- **型別**: String (資料庫), Union Type (TypeScript)
+- **預設值**: "LOW"
+- **允許值**: "CRITICAL" | "HIGH" | "NORMAL" | "LOW" (僅四種)
+- **必填性**: 選填 (有預設值)
+- **驗證**: 後端 API 強制驗證，只允許四種合法值
+- **向下相容**: 舊資料自動設為 "LOW"
+
+#### 6.4.3 排序邏輯
+
+**三層排序規則** (優先級由高到低):
+1. **完成狀態**: 未完成 > 已完成
+2. **優先級**: CRITICAL(1) > HIGH(2) > NORMAL(3) > LOW(4)
+3. **建立時間**: 新的 > 舊的 (DESC)
+
+**TypeScript 實作範例**:
+```typescript
+const sortTodos = (todos: Todo[]) => {
+  return todos.sort((a, b) => {
+    // 第一層：未完成優先
+    if (a.isCompleted !== b.isCompleted) {
+      return a.isCompleted ? 1 : -1;
+    }
+
+    // 第二層：優先級排序
+    const priorityOrder = { CRITICAL: 1, HIGH: 2, NORMAL: 3, LOW: 4 };
+    if (a.priority !== b.priority) {
+      return priorityOrder[a.priority] - priorityOrder[b.priority];
+    }
+
+    // 第三層：建立時間（新的在前��
+    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+  });
+};
+```
+
+#### 6.4.4 索引設計
+
+為優化查詢效能，新增以下索引：
+
+```prisma
+@@index([priority])                    // 單一優先級查詢
+@@index([isCompleted, priority])       // 組合篩選 (未完成 + 緊急)
+@@index([createdAt(sort: Desc)])       // 時間排序
+```
+
+**查詢效能影響**:
+- 優先級篩選查詢: O(log n) → O(1) (使用索引)
+- 組合篩選: 顯著提升效能
+- 排序操作: 資料庫層級優化
 
 ---
 
@@ -1274,7 +1530,7 @@ npm run dev
 **更新頻率**: 每個重大技術決策變更時更新
 **版本控制**: 使用 Git 追蹤變更
 
-**最後更新**: 2025-10-18
+**最後更新**: 2025-10-24
 **下一次審查**: 2025-11-01
 
 ---
